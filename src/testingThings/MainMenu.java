@@ -2,10 +2,13 @@ package testingThings;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class MainMenu extends JFrame{
@@ -19,11 +22,12 @@ public class MainMenu extends JFrame{
 	
 	JLabel l1 = new JLabel("SHOOTING GAME");
 	
-	JButton b1 = new JButton("Single Player");
-	JButton b2 = new JButton("Multiplayer");
-	JButton b3 = new JButton("Player Stats");
+	JButton sp = new JButton("Single Player");
+	JButton mp = new JButton("Multiplayer");
+	JButton stat = new JButton("Player Stats");
+	JButton opt = new JButton("Options");
 	
-	Font f1 = new Font("Arial", Font.BOLD, 20);
+	Font f1 = new Font("Arial", Font.BOLD, 30);
 	Font f2 = new Font("Arial", Font.BOLD, 14);
 	
 	Color bl = Color.BLACK;
@@ -47,11 +51,69 @@ public class MainMenu extends JFrame{
 		l1.setForeground(bl);
 		p.add(l1);
 		
-		b1.setBounds(10, 200, 280, 40);
-		b1.setFont(f2);
-		b1.setForeground(bl);
-		b1.setBackground(wh);
-		p.add(b1);
+		sp.setBounds(10, 200, 275, 40);
+		sp.setFont(f2);
+		sp.setForeground(bl);
+		p.add(sp);
+		
+		mp.setBounds(10, 250, 275, 40);
+		mp.setFont(f2);
+		mp.setForeground(bl);
+		p.add(mp);
+		
+		stat.setBounds(10, 300, 275, 40);
+		stat.setFont(f2);
+		stat.setForeground(bl);
+		p.add(stat);
+		
+		opt.setBounds(10, 350, 275, 40);
+		opt.setFont(f2);
+		opt.setForeground(bl);
+		p.add(opt);
+		
+		sp.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				String playerName = JOptionPane.showInputDialog("Username pls");
+				
+				Player p1 = new Player(playerName, 100, 0);
+				
+				@SuppressWarnings("unused")
+				MapMain m = new MapMain();
+			} 
+			
+		});
+
+		mp.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			} 
+			
+		});
+		
+		stat.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			} 
+			
+		});
+		
+		opt.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				OptionsMain m = new OptionsMain();
+			} 
+			
+		});
+		
+		
 	}
 	
 	public static void main(String[] args) {

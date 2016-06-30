@@ -13,8 +13,8 @@ public class MapMain extends JFrame{
 	public MapMain() {
 		setVisible(true);
 		setSize(1920, 1080);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		add(pr);
 	}
 
