@@ -76,9 +76,11 @@ public class MainMenu extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				String playerName = JOptionPane.showInputDialog("Username pls");
+				String player1Name = JOptionPane.showInputDialog("Username pls");
 				
-				Player p1 = new Player(playerName, 100, 0);
+				Player p1 = new Player(player1Name, 1000, Weapon.weapons[0]);
+				
+				Weapon.createWeapons();
 				
 				@SuppressWarnings("unused")
 				MapMain m = new MapMain();
@@ -91,6 +93,18 @@ public class MainMenu extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
+				Weapon.createWeapons();
+				
+				String player1Name = JOptionPane.showInputDialog("Username pls");
+				
+				Player p1 = new Player(player1Name, 1000, Weapon.weapons[0]);
+				
+				String player2Name = JOptionPane.showInputDialog("Player 2 pls");
+				
+				Player p2 = new Player(player2Name, 1000, Weapon.weapons[0]);				
+				
+				@SuppressWarnings("unused")
+				MapMain m = new MapMain();
 			} 
 			
 		});

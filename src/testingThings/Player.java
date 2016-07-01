@@ -4,9 +4,9 @@ public class Player {
 	
 	String username;
 	int health;
-	int weapon;
+	static Weapon weapon;
 	
-	public Player(String u, int h, int w) {
+	public Player(String u, int h, Weapon w) {
 		username = u;
 		health = h;
 		weapon = w;
