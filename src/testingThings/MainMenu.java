@@ -2,6 +2,9 @@ package testingThings;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -95,7 +98,7 @@ public class MainMenu extends JFrame{
 				
 				Weapon.createWeapons();
 				
-				String player1Name = JOptionPane.showInputDialog("Username pls");
+				String player1Name = JOptionPane.showInputDialog("Player 1 pls");
 				
 				Player p1 = new Player(player1Name, 1000, Weapon.weapons[0]);
 				
