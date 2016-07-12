@@ -2,9 +2,6 @@ package testingThings;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -35,6 +32,13 @@ public class MainMenu extends JFrame{
 	
 	Color bl = Color.BLACK;
 	Color wh = Color.WHITE;
+	
+	static Player p1;
+
+	static Player p2;
+	
+	
+	static boolean multiP;
 	
 	public MainMenu() {
 		setVisible(true);
@@ -81,9 +85,11 @@ public class MainMenu extends JFrame{
 				
 				String player1Name = JOptionPane.showInputDialog("Username pls");
 				
-				Player p1 = new Player(player1Name, 1000, Weapon.weapons[0]);
+				p1 = new Player(player1Name, 1000, Weapon.weapons[0]);
 				
 				Weapon.createWeapons();
+				
+				multiP = false;
 				
 				@SuppressWarnings("unused")
 				MapMain m = new MapMain();
@@ -100,11 +106,13 @@ public class MainMenu extends JFrame{
 				
 				String player1Name = JOptionPane.showInputDialog("Player 1 pls");
 				
-				Player p1 = new Player(player1Name, 1000, Weapon.weapons[0]);
+				p1 = new Player(player1Name, 1000, Weapon.weapons[0]);
 				
 				String player2Name = JOptionPane.showInputDialog("Player 2 pls");
 				
-				Player p2 = new Player(player2Name, 1000, Weapon.weapons[0]);				
+				p2 = new Player(player2Name, 1000, Weapon.weapons[0]);
+				
+				multiP = true;
 				
 				@SuppressWarnings("unused")
 				MapMain m = new MapMain();
