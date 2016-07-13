@@ -33,10 +33,8 @@ public class MainMenu extends JFrame{
 	Color bl = Color.BLACK;
 	Color wh = Color.WHITE;
 	
-	static Player p1;
-
-	static Player p2;
-	
+	public static Player p1, p2;
+	static String player1Name;
 	
 	static boolean multiP;
 	
@@ -83,10 +81,10 @@ public class MainMenu extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				String player1Name = JOptionPane.showInputDialog("Username pls");
+				player1Name = JOptionPane.showInputDialog("Username pls");
 				
 				p1 = new Player(player1Name, 1000, Weapon.weapons[0]);
-				
+								
 				Weapon.createWeapons();
 				
 				multiP = false;
