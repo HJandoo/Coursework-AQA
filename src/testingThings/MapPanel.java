@@ -27,12 +27,16 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	Rectangle[] rects = new Rectangle[250];
 	Rectangle[] playerRect = new Rectangle[2];
+	Rectangle[] weaponRect = new Rectangle[2];
 
 	Player[] players = new Player[2];
 
 	Color blue = new Color(0, 129, 222);
+	Color grey = new Color(61, 61, 61);
 
 	int[] vel = new int[4];
+
+	int[] orientation = { 0, 0 };
 
 	JLabel[] usernames = new JLabel[2];
 
@@ -41,11 +45,16 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		setLayout(null);
 
 		players[0] = MainMenu.p1;
+		playerRect[0] = new Rectangle(20, 20, 25, 25);
+		weaponRect[0] = new Rectangle(playerRect[0].x + 20,
+				playerRect[0].y - 10, 5, 10);
 
 		if (MainMenu.multiP) {
 			players[1] = MainMenu.p2;
 
 			playerRect[1] = new Rectangle(1870, 970, 25, 25);
+			weaponRect[1] = new Rectangle(playerRect[1].x + 20,
+					playerRect[1].y - 10, 5, 10);
 
 			String u2 = players[1].username;
 
@@ -64,8 +73,6 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		addKeyListener(this);
 		setFocusTraversalKeysEnabled(false);
 		t.start();
-
-		playerRect[0] = new Rectangle(20, 20, 25, 25);
 
 		for (int i = 0; i < 80; i += 4) {
 
@@ -120,7 +127,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		usernames[0] = new JLabel(u1);
 		usernames[0].setForeground(Color.RED);
 		usernames[0].setHorizontalAlignment(JLabel.CENTER);
-		usernames[0].setBounds(playerRect[0].x - 25, playerRect[0].y + 17, 75, 40);
+		usernames[0].setBounds(playerRect[0].x - 25, playerRect[0].y + 17, 75,
+				40);
 
 		add(usernames[0]);
 
@@ -139,7 +147,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		g2d.setRenderingHints(rh);
 		g2d.setRenderingHints(rh2);
 
-		g.setColor(new Color(255, 255, 255));
+		g.setColor(new Color(225, 225, 225));
 		g.fillRect(0, 0, 1920, 1080);
 
 		for (int i = 0; i < 20; i++) {
@@ -163,8 +171,18 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 					playerRect[1].height);
 		}
 
+		// TODO Gun drawing and positioning
+		g.setColor(grey);
+		g.fillRect(weaponRect[0].x, weaponRect[0].y, weaponRect[0].width,
+				weaponRect[0].height);
+
+		if (MainMenu.multiP) {
+			g.fillRect(weaponRect[1].x, weaponRect[1].y, weaponRect[1].width,
+					weaponRect[1].height);
+		}
+
 		for (int i = 0; i < 250; i++) {
-			
+
 			if (MainMenu.multiP) {
 				if (playerRect[1].intersects(rects[i]) && vel[2] != 0) {
 					vel[2] = 0;
@@ -173,7 +191,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 					vel[3] = 0;
 				}
 			}
-			
+
 			if (playerRect[0].intersects(rects[i]) && vel[0] != 0) {
 				vel[0] = 0;
 			}
@@ -191,15 +209,15 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 		playerRect[0].x += vel[0];
 		playerRect[0].y += vel[1];
-		usernames[0].setBounds(playerRect[0].x - 25, playerRect[0].y + 17, 75, 40);
-		
+		usernames[0].setBounds(playerRect[0].x - 25, playerRect[0].y + 17, 75,
+				40);
+
 		if (MainMenu.multiP) {
-			playerRect[1].x += vel[2];		
+			playerRect[1].x += vel[2];
 			playerRect[1].y += vel[3];
-			usernames[1].setBounds(playerRect[1].x - 25, playerRect[1].y + 17, 75, 40);
+			usernames[1].setBounds(playerRect[1].x - 25, playerRect[1].y + 17,
+					75, 40);
 		}
-		
-		
 
 		if (playerRect[0].x < 0) {
 			playerRect[0].x = 0;
@@ -220,7 +238,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			playerRect[0].y = 995;
 			vel[1] = 0;
 		}
-		
+
 		if (MainMenu.multiP) {
 			if (playerRect[1].x < 0) {
 				playerRect[1].x = 0;
@@ -243,7 +261,64 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 		}
 
-		
+		if (MainMenu.multiP) {
+
+			for (int i = 0; i < 2; i++) {
+				switch (orientation[i]) {
+				case 0:
+					weaponRect[i].x = playerRect[i].x + 20;
+					weaponRect[i].y = playerRect[i].y - 10;
+					weaponRect[i].width = 5;
+					weaponRect[i].height = 10;
+					break;
+				case 1:
+					weaponRect[i].x = playerRect[i].x + 25;
+					weaponRect[i].y = playerRect[i].y + 20;
+					weaponRect[i].width = 10;
+					weaponRect[i].height = 5;
+					break;
+				case 2:
+					weaponRect[i].x = playerRect[i].x;
+					weaponRect[i].y = playerRect[i].y + 25;
+					weaponRect[i].width = 5;
+					weaponRect[i].height = 10;
+					break;
+				case 3:
+					weaponRect[i].x = playerRect[i].x - 10;
+					weaponRect[i].y = playerRect[i].y;
+					weaponRect[i].width = 10;
+					weaponRect[i].height = 5;
+					break;
+				}
+			}
+		}
+
+		switch (orientation[0]) {
+		case 0:
+			weaponRect[0].x = playerRect[0].x + 20;
+			weaponRect[0].y = playerRect[0].y - 10;
+			weaponRect[0].width = 5;
+			weaponRect[0].height = 10;
+			break;
+		case 1:
+			weaponRect[0].x = playerRect[0].x + 25;
+			weaponRect[0].y = playerRect[0].y + 20;
+			weaponRect[0].width = 10;
+			weaponRect[0].height = 5;
+			break;
+		case 2:
+			weaponRect[0].x = playerRect[0].x;
+			weaponRect[0].y = playerRect[0].y + 25;
+			weaponRect[0].width = 5;
+			weaponRect[0].height = 10;
+			break;
+		case 3:
+			weaponRect[0].x = playerRect[0].x - 10;
+			weaponRect[0].y = playerRect[0].y;
+			weaponRect[0].width = 10;
+			weaponRect[0].height = 5;
+			break;
+		}
 
 		repaint();
 	}
@@ -254,34 +329,42 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_UP:
 			vel[1] = -2;
+			orientation[0] = 0;
 			break;
 		case KeyEvent.VK_DOWN:
 			vel[1] = 2;
+			orientation[0] = 2;
 			break;
 		case KeyEvent.VK_LEFT:
 			vel[0] = -2;
+			orientation[0] = 3;
 			break;
 		case KeyEvent.VK_RIGHT:
 			vel[0] = 2;
+			orientation[0] = 1;
 			break;
 
 		}
-		
+
 		if (MainMenu.multiP) {
 			switch (e.getKeyCode()) {
 			case KeyEvent.VK_W:
 				vel[3] = -2;
+				orientation[1] = 0;
 				break;
 			case KeyEvent.VK_S:
 				vel[3] = 2;
+				orientation[1] = 2;
 				break;
 			case KeyEvent.VK_A:
 				vel[2] = -2;
+				orientation[1] = 3;
 				break;
 			case KeyEvent.VK_D:
 				vel[2] = 2;
+				orientation[1] = 1;
 			}
-			
+
 		}
 
 	}
@@ -297,13 +380,13 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				|| e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			vel[0] = 0;
 		}
-		
+
 		if (MainMenu.multiP) {
 			if (e.getKeyCode() == KeyEvent.VK_S
 					|| e.getKeyCode() == KeyEvent.VK_W) {
 				vel[3] = 0;
 			}
-			
+
 			if (e.getKeyCode() == KeyEvent.VK_A
 					|| e.getKeyCode() == KeyEvent.VK_D) {
 				vel[2] = 0;
