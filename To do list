@@ -1,0 +1,8 @@
+TO DO LIST
+
+ - Strobe effect on gunfire + specific bullets for weapons e.g. rockets for rocket launcher
+ - Lower health when players are hit by bullets + respawn timers when killed
+ - Draw health bars under each player
+ - Draw score board at the top of the screen + score limit to get to
+ - Create, save and load player profiles + password protection
+ - UI for player stats feat. kills, deaths, K/D, (Weapon of Mass Destruction)
