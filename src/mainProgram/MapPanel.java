@@ -1,4 +1,4 @@
-package testingThings;
+package mainProgram;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -28,6 +28,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	Rectangle[] rects = new Rectangle[250];
 	Rectangle[] playerRect = new Rectangle[2];
 	Rectangle[] weaponRect = new Rectangle[2];
+	Rectangle[] gunfire = new Rectangle[2];
 
 	Player[] players = new Player[2];
 
@@ -40,11 +41,20 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	JLabel[] usernames = new JLabel[2];
 
+	boolean[] isFiring = { false, false };
+
+	int count = 8;
+
 	public MapPanel() {
 
 		setLayout(null);
 
+		for (int i = 0; i < 2; i++) {
+			gunfire[i] = new Rectangle(2000, 2000, 50, 50);
+		}
+
 		players[0] = MainMenu.p1;
+
 		playerRect[0] = new Rectangle(20, 20, 25, 25);
 		weaponRect[0] = new Rectangle(playerRect[0].x + 20,
 				playerRect[0].y - 10, 5, 10);
@@ -164,6 +174,18 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		g.fillRect(playerRect[0].x, playerRect[0].y, playerRect[0].width,
 				playerRect[0].height);
 
+		g.setColor(Color.YELLOW);
+		g.fillRect(gunfire[0].x, gunfire[0].y, gunfire[0].width,
+				gunfire[0].height);
+		g.fillRect(gunfire[1].x, gunfire[1].y, gunfire[1].width,
+				gunfire[1].height);
+
+		// TODO gunfire
+
+		if (isFiring[0]) {
+			count++;
+		}
+
 		if (MainMenu.multiP) {
 
 			g.setColor(blue);
@@ -201,6 +223,53 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 
 		}
+
+	}
+
+	// TODO
+	public void fireP1() {
+		
+			switch (orientation[0]) {
+			case 0:
+				gunfire[0].width = 1;
+				gunfire[0].height = 2000;
+				gunfire[0].x = weaponRect[0].x + (int) 2.5;
+				gunfire[0].y = weaponRect[0].y - 2000;
+
+				
+				break;
+			case 1:
+				gunfire[0].width = 2000;
+				gunfire[0].height = 1;
+				break;
+			case 2:
+				gunfire[0].width = 1;
+				gunfire[0].height = 2000;
+				break;
+			case 3:
+				gunfire[0].width = 2000;
+				gunfire[0].height = 1;
+				break;
+
+			}
+			
+			switch (players[0].weapon.code) {
+				case 0:
+					if (count % 9 != 0) {
+						gunfire[0].x = 2000;
+						gunfire[0].y = 2000;
+					} else {
+						gunfire[0].x = weaponRect[0].x + (int) 2.5;
+						gunfire[0].y = weaponRect[0].y - 2000;
+					}
+					break;
+			}
+			
+			
+
+	}
+
+	public void fireP2() {
 
 	}
 
@@ -295,24 +364,28 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 		switch (orientation[0]) {
 		case 0:
+			// up
 			weaponRect[0].x = playerRect[0].x + 20;
 			weaponRect[0].y = playerRect[0].y - 10;
 			weaponRect[0].width = 5;
 			weaponRect[0].height = 10;
 			break;
 		case 1:
+			// right
 			weaponRect[0].x = playerRect[0].x + 25;
 			weaponRect[0].y = playerRect[0].y + 20;
 			weaponRect[0].width = 10;
 			weaponRect[0].height = 5;
 			break;
 		case 2:
+			// down
 			weaponRect[0].x = playerRect[0].x;
 			weaponRect[0].y = playerRect[0].y + 25;
 			weaponRect[0].width = 5;
 			weaponRect[0].height = 10;
 			break;
 		case 3:
+			// left
 			weaponRect[0].x = playerRect[0].x - 10;
 			weaponRect[0].y = playerRect[0].y;
 			weaponRect[0].width = 10;
@@ -343,6 +416,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			vel[0] = 2;
 			orientation[0] = 1;
 			break;
+		case KeyEvent.VK_SPACE:
+
+			fireP1();
+			break;
 
 		}
 
@@ -363,6 +440,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			case KeyEvent.VK_D:
 				vel[2] = 2;
 				orientation[1] = 1;
+				break;
+			case KeyEvent.VK_Q:
+				fireP2();
+				break;
 			}
 
 		}
@@ -391,6 +472,12 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 					|| e.getKeyCode() == KeyEvent.VK_D) {
 				vel[2] = 0;
 			}
+		}
+
+		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+			gunfire[0].x = 2000;
+			gunfire[0].y = 2000;
+			count = 8;
 		}
 
 	}

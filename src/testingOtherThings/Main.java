@@ -18,7 +18,7 @@ public class Main extends JPanel implements ActionListener {
 
 	Timer t = new Timer(5, this);
 
-	int vx = 0, vy = 1;
+	int vx = 0, vy = 1, count = 0;
 
 	Rectangle aiRect = new Rectangle(50, 100, 30, 30);
 
@@ -61,9 +61,20 @@ public class Main extends JPanel implements ActionListener {
 
 		if (lineHor.intersects(hitRect[0]) || lineVer.intersects(hitRect[0])) {
 			
+			count++;
+			
 			bullet[0].x = aiRect.x + 30;
 			bullet[0].y = aiRect.y + 30;
 			bullet[0].width = hitRect[0].x - bullet[0].x;
+			
+			if (count % 4 == 0) {				
+				bullet[0].x = aiRect.x + 30;
+				bullet[0].y = aiRect.y + 30;
+			} else {
+				bullet[0].x = 2000;
+				bullet[0].y = 2000;
+			}
+			
 
 		} else{
 			bullet[0].x = 2000;

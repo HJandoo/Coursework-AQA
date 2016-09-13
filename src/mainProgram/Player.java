@@ -1,10 +1,10 @@
-package testingThings;
+package mainProgram;
 
 public class Player {
 	
 	String username;
 	int health;
-	static Weapon weapon;
+	Weapon weapon;
 	
 	public Player(String u, int h, Weapon w) {
 		username = u;

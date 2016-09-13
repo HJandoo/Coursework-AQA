@@ -1,4 +1,4 @@
-package testingThings;
+package mainProgram;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -80,12 +80,13 @@ public class MainMenu extends JFrame{
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				Weapon.createWeapons();
 				
 				player1Name = JOptionPane.showInputDialog("Username pls");
 				
 				p1 = new Player(player1Name, 1000, Weapon.weapons[0]);
 								
-				Weapon.createWeapons();
+				
 				
 				multiP = false;
 				
