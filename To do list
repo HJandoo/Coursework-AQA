@@ -1,6 +1,7 @@
 TO DO LIST
 
  - Strobe effect on gunfire + specific bullets for weapons e.g. rockets for rocket launcher
+ - Stop gunfire going through walls
  - Lower health when players are hit by bullets + respawn timers when killed
  - Draw health bars under each player
  - Draw score board at the top of the screen + score limit to get to

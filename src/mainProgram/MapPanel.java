@@ -177,21 +177,6 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				gunfire[0].height);
 		g.fillRect(gunfire[1].x, gunfire[1].y, gunfire[1].width,
 				gunfire[1].height);
-		
-		for (int i = 0; i < 2; i++) {
-			for (int j = 0; j < 250; j++) {
-				if (gunfire[i].intersects(rects[j]) && orientation[0] == 0) {
-					gunfire[i].y = rects[j].y + rects[j].height;
-					gunfire[i].height = gunfire[i].y - weaponRect[i].y;
-
-					
-				}
-			}
-			
-			
-		}
-
-		// TODO gunfire
 
 		if (MainMenu.multiP) {
 
@@ -320,12 +305,13 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				}
 			}
 		} else {
+			
 			switch (orientation[0]) {
 			case 0:
 				weaponRect[0].x = playerRect[0].x + 20;
 				weaponRect[0].y = playerRect[0].y - 10;
 				weaponRect[0].width = 5;
-				weaponRect[0].height = 10;
+				weaponRect[0].height = 10;	
 				break;
 			case 1:
 				weaponRect[0].x = playerRect[0].x + 25;
@@ -348,7 +334,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 		}
 
-		// TODO SORT THIS OUT NOW!
+		// TODO Stop gunfire from going through the walls
 
 		if (isFiring[0]) {
 			
@@ -359,10 +345,27 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				
 				switch (orientation[0]) {
 				case 0:
+					
+					//Not yet working
+					
 					gunfire[0].x = weaponRect[0].x + 2;
 					gunfire[0].y = weaponRect[0].y - 2000;
 					gunfire[0].width = 2;
 					gunfire[0].height = 2000;
+					
+					for (int i = 0; i < 2; i++) {
+						for (int j = 0; j < 250; j++) {
+							if (gunfire[i].intersects(rects[j])) {
+								System.out.println("working");
+								gunfire[i].y = rects[j].y + rects[j].height - 1;
+								gunfire[i].height = gunfire[i].y - rects[j].y;					
+							} else {
+								gunfire[i].height = 2000;
+							}
+						}
+					}
+					
+					
 					break;
 				case 1:
 					gunfire[0].x = weaponRect[0].x;
