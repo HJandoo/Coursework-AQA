@@ -36,7 +36,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	Color grey = new Color(61, 61, 61);
 
 	int[] vel = new int[4];
-
+	int[] count = { 0, 0 };
 	int[] orientation = { 0, 0 };
 
 	JLabel[] usernames = new JLabel[2];
@@ -177,6 +177,19 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				gunfire[0].height);
 		g.fillRect(gunfire[1].x, gunfire[1].y, gunfire[1].width,
 				gunfire[1].height);
+		
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < 250; j++) {
+				if (gunfire[i].intersects(rects[j]) && orientation[0] == 0) {
+					gunfire[i].y = rects[j].y + rects[j].height;
+					gunfire[i].height = gunfire[i].y - weaponRect[i].y;
+
+					
+				}
+			}
+			
+			
+		}
 
 		// TODO gunfire
 
@@ -216,45 +229,6 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 
 		}
-
-	}
-
-	// TODO
-	public void fireP1() {
-
-		if (isFiring[0]) {
-			
-			switch (orientation[0]) {
-			case 0:
-				gunfire[0].x = weaponRect[0].x + 2;
-				gunfire[0].y = weaponRect[0].y + 2000;
-				gunfire[0].width = 2;
-				gunfire[0].height = 2000;
-				break;
-			}
-
-			switch (players[0].weapon.code) {
-			case 0:
-
-				// TODO Auto-generated method stub
-				gunfire[0].x = weaponRect[0].x + 2;
-				gunfire[0].y = weaponRect[0].y + 2000;
-
-				try {
-					Thread.sleep(100);
-					
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-				gunfire[0].x = 2000;
-				gunfire[0].y = 2000;
-
-				break;
-			}
-		}
-	}
-
-	public void fireP2() {
 
 	}
 
@@ -345,42 +319,80 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 					break;
 				}
 			}
+		} else {
+			switch (orientation[0]) {
+			case 0:
+				weaponRect[0].x = playerRect[0].x + 20;
+				weaponRect[0].y = playerRect[0].y - 10;
+				weaponRect[0].width = 5;
+				weaponRect[0].height = 10;
+				break;
+			case 1:
+				weaponRect[0].x = playerRect[0].x + 25;
+				weaponRect[0].y = playerRect[0].y + 20;
+				weaponRect[0].width = 10;
+				weaponRect[0].height = 5;
+				break;
+			case 2:
+				weaponRect[0].x = playerRect[0].x;
+				weaponRect[0].y = playerRect[0].y + 25;
+				weaponRect[0].width = 5;
+				weaponRect[0].height = 10;
+				break;
+			case 3:
+				weaponRect[0].x = playerRect[0].x - 10;
+				weaponRect[0].y = playerRect[0].y;
+				weaponRect[0].width = 10;
+				weaponRect[0].height = 5;
+				break;
+			}
 		}
 
-		switch (orientation[0]) {
-		case 0:
-			// up
-			weaponRect[0].x = playerRect[0].x + 20;
-			weaponRect[0].y = playerRect[0].y - 10;
-			weaponRect[0].width = 5;
-			weaponRect[0].height = 10;
-			break;
-		case 1:
-			// right
-			weaponRect[0].x = playerRect[0].x + 25;
-			weaponRect[0].y = playerRect[0].y + 20;
-			weaponRect[0].width = 10;
-			weaponRect[0].height = 5;
-			break;
-		case 2:
-			// down
-			weaponRect[0].x = playerRect[0].x;
-			weaponRect[0].y = playerRect[0].y + 25;
-			weaponRect[0].width = 5;
-			weaponRect[0].height = 10;
-			break;
-		case 3:
-			// left
-			weaponRect[0].x = playerRect[0].x - 10;
-			weaponRect[0].y = playerRect[0].y;
-			weaponRect[0].width = 10;
-			weaponRect[0].height = 5;
-			break;
-		}
+		// TODO SORT THIS OUT NOW!
 
-	
+		if (isFiring[0]) {
+			
+			count[0]++;
+			System.out.println(count[0]);
+			
+			if (count[0] < 3) {
+				
+				switch (orientation[0]) {
+				case 0:
+					gunfire[0].x = weaponRect[0].x + 2;
+					gunfire[0].y = weaponRect[0].y - 2000;
+					gunfire[0].width = 2;
+					gunfire[0].height = 2000;
+					break;
+				case 1:
+					gunfire[0].x = weaponRect[0].x;
+					gunfire[0].y = weaponRect[0].y + 2;
+					gunfire[0].width = 2000;
+					gunfire[0].height = 2;
+					break;
+				case 2:
+					gunfire[0].x = weaponRect[0].x + 2;
+					gunfire[0].y = weaponRect[0].y;
+					gunfire[0].width = 2;
+					gunfire[0].height = 2000;
+					break;
+				case 3:
+					gunfire[0].x = weaponRect[0].x - 2000;
+					gunfire[0].y = weaponRect[0].y + 2;
+					gunfire[0].width = 2000;
+					gunfire[0].height = 2;
+					break;				
+				}
+
+			} else {
+				gunfire[0].x = 2000;
+				gunfire[0].y = 2000;
+			}
+			
+		}
 
 		repaint();
+		
 	}
 
 	@Override
@@ -405,7 +417,6 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			break;
 		case KeyEvent.VK_SPACE:
 			isFiring[0] = true;
-			fireP1();
 			break;
 
 		}
@@ -429,7 +440,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				orientation[1] = 1;
 				break;
 			case KeyEvent.VK_Q:
-				fireP2();
+				isFiring[1] = true;
 				break;
 			}
 
@@ -465,6 +476,14 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			gunfire[0].x = 2000;
 			gunfire[0].y = 2000;
 			isFiring[0] = false;
+			count[0] = 0;
+		}
+		
+		if (e.getKeyCode() == KeyEvent.VK_Q) {
+			gunfire[1].x = 2000;
+			gunfire[1].y = 2000;
+			isFiring[1] = false;
+			count[1] = 0;
 		}
 
 	}
