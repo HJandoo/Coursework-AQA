@@ -2,9 +2,15 @@ package mainProgram;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -18,14 +24,16 @@ public class MainMenu extends JFrame{
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	ImageIcon img = new ImageIcon("Gun Mania Logo_RESIZED.png");
+
 	JPanel p = new JPanel();
 	
-	JLabel l1 = new JLabel("SHOOTING GAME");
+	JLabel l1 = new JLabel("GUN MANIA");
+	JLabel l2 = new JLabel(img);
 	
-	JButton sp = new JButton("Single Player");
-	JButton mp = new JButton("Multiplayer");
-	JButton stat = new JButton("Player Stats");
-	JButton opt = new JButton("Options");
+	JButton playGame = new JButton("Play Game");
+	JButton stats = new JButton("Stats");
+	JButton options = new JButton("Options");
 	
 	Font f1 = new Font("Arial", Font.BOLD, 30);
 	Font f2 = new Font("Arial", Font.BOLD, 14);
@@ -41,14 +49,15 @@ public class MainMenu extends JFrame{
 	public MainMenu() {
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(300, 500);
+		setSize(300, 400);
 		setResizable(false);
 		setLocationRelativeTo(null);
-		setTitle("Birds-eye-view-shooting-game");
+		setTitle("Gun Mania");
+		setIconImage(img.getImage());
 		
 		p.setLayout(null);
-		
 		add(p);
+		p.setBackground(wh);
 		
 		l1.setBounds(10, 10, 280, 40);
 		l1.setHorizontalAlignment(JLabel.CENTER);
@@ -56,59 +65,35 @@ public class MainMenu extends JFrame{
 		l1.setForeground(bl);
 		p.add(l1);
 		
-		sp.setBounds(10, 200, 275, 40);
-		sp.setFont(f2);
-		sp.setForeground(bl);
-		p.add(sp);
+		l2.setBounds(10, 60, 100, 100);
+		p.add(l2);
 		
-		mp.setBounds(10, 250, 275, 40);
-		mp.setFont(f2);
-		mp.setForeground(bl);
-		p.add(mp);
+
+		playGame.setBounds(10, 200, 275, 40);
+		playGame.setFont(f2);
+		playGame.setForeground(bl);
+		p.add(playGame);
 		
-		stat.setBounds(10, 300, 275, 40);
-		stat.setFont(f2);
-		stat.setForeground(bl);
-		p.add(stat);
+		stats.setBounds(10, 250, 275, 40);
+		stats.setFont(f2);
+		stats.setForeground(bl);
+		p.add(stats);
 		
-		opt.setBounds(10, 350, 275, 40);
-		opt.setFont(f2);
-		opt.setForeground(bl);
-		p.add(opt);
+		options.setBounds(10, 300, 275, 40);
+		options.setFont(f2);
+		options.setForeground(bl);
+		p.add(options);
 		
-		sp.addActionListener(new ActionListener() {
+		playGame.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Weapon.createWeapons();
 				
-				player1Name = JOptionPane.showInputDialog("Username pls");
-				
-				p1 = new Player(player1Name, 1000, Weapon.weapons[0]);
-								
-				
-				
-				multiP = false;
-				
-				@SuppressWarnings("unused")
-				MapMain m = new MapMain();
-			} 
-			
-		});
-
-		mp.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				Weapon.createWeapons();
-				
-				String player1Name = JOptionPane.showInputDialog("Player 1 pls");
-				
+				String player1Name = JOptionPane.showInputDialog("Player 1 pls");				
 				p1 = new Player(player1Name, 1000, Weapon.weapons[0]);
 				
-				String player2Name = JOptionPane.showInputDialog("Player 2 pls");
-				
+				String player2Name = JOptionPane.showInputDialog("Player 2 pls");				
 				p2 = new Player(player2Name, 1000, Weapon.weapons[0]);
 				
 				multiP = true;
@@ -118,30 +103,30 @@ public class MainMenu extends JFrame{
 			} 
 			
 		});
-		
-		stat.addActionListener(new ActionListener() {
+
+		stats.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+
 			} 
 			
 		});
 		
-		opt.addActionListener(new ActionListener() {
-
+		options.addActionListener(new ActionListener() {
+			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				OptionsMain m = new OptionsMain();
 			} 
 			
-		});
-		
+		});		
 		
 	}
 	
 	public static void main(String[] args) {
 		@SuppressWarnings("unused")
+		
 		MainMenu m = new MainMenu();
 	}
 	

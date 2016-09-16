@@ -36,8 +36,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	Color grey = new Color(61, 61, 61);
 
 	int[] vel = new int[4];
-	int[] count = { 0, 0 };
+	int[] count = { 0, 0, 0 };
 	int[] orientation = { 0, 0 };
+	int[] widths = new int[250];
+	int temp = 0;
 
 	JLabel[] usernames = new JLabel[2];
 
@@ -178,12 +180,9 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		g.fillRect(gunfire[1].x, gunfire[1].y, gunfire[1].width,
 				gunfire[1].height);
 
-		if (MainMenu.multiP) {
-
-			g.setColor(blue);
-			g.fillRect(playerRect[1].x, playerRect[1].y, playerRect[1].width,
-					playerRect[1].height);
-		}
+		g.setColor(blue);
+		g.fillRect(playerRect[1].x, playerRect[1].y, playerRect[1].width,
+				playerRect[1].height);
 
 		g.setColor(grey);
 		g.fillRect(weaponRect[0].x, weaponRect[0].y, weaponRect[0].width,
@@ -195,22 +194,25 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		}
 
 		for (int i = 0; i < 250; i++) {
-
-			if (MainMenu.multiP) {
-				if (playerRect[1].intersects(rects[i]) && vel[2] != 0) {
-					vel[2] = 0;
-				}
-				if (playerRect[1].intersects(rects[i]) && vel[3] != 0) {
-					vel[3] = 0;
-				}
-			}
-
 			if (playerRect[0].intersects(rects[i]) && vel[0] != 0) {
 				vel[0] = 0;
+				
+				if (orientation[0] == 1) {
+					playerRect[0].x = rects[i].x - playerRect[i].width;
+				} else if (orientation[0] == 3) {
+					playerRect[0].x = rects[i].x + rects[i].width;
+				}
 			}
 
 			if (playerRect[0].intersects(rects[i]) && vel[1] != 0) {
 				vel[1] = 0;
+			}
+
+			if (playerRect[1].intersects(rects[i]) && vel[2] != 0) {
+				vel[2] = 0;
+			}
+			if (playerRect[1].intersects(rects[i]) && vel[3] != 0) {
+				vel[3] = 0;
 			}
 
 		}
@@ -304,98 +306,91 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 					break;
 				}
 			}
-		} else {
-			
-			switch (orientation[0]) {
-			case 0:
-				weaponRect[0].x = playerRect[0].x + 20;
-				weaponRect[0].y = playerRect[0].y - 10;
-				weaponRect[0].width = 5;
-				weaponRect[0].height = 10;	
-				break;
-			case 1:
-				weaponRect[0].x = playerRect[0].x + 25;
-				weaponRect[0].y = playerRect[0].y + 20;
-				weaponRect[0].width = 10;
-				weaponRect[0].height = 5;
-				break;
-			case 2:
-				weaponRect[0].x = playerRect[0].x;
-				weaponRect[0].y = playerRect[0].y + 25;
-				weaponRect[0].width = 5;
-				weaponRect[0].height = 10;
-				break;
-			case 3:
-				weaponRect[0].x = playerRect[0].x - 10;
-				weaponRect[0].y = playerRect[0].y;
-				weaponRect[0].width = 10;
-				weaponRect[0].height = 5;
-				break;
-			}
 		}
 
 		// TODO Stop gunfire from going through the walls
 
-		if (isFiring[0]) {
-			
-			count[0]++;
-			System.out.println(count[0]);
-			
-			if (count[0] < 3) {
-				
-				switch (orientation[0]) {
-				case 0:
-					
-					//Not yet working
-					
-					gunfire[0].x = weaponRect[0].x + 2;
-					gunfire[0].y = weaponRect[0].y - 2000;
-					gunfire[0].width = 2;
-					gunfire[0].height = 2000;
-					
-					for (int i = 0; i < 2; i++) {
-						for (int j = 0; j < 250; j++) {
-							if (gunfire[i].intersects(rects[j])) {
-								System.out.println("working");
-								gunfire[i].y = rects[j].y + rects[j].height - 1;
-								gunfire[i].height = gunfire[i].y - rects[j].y;					
-							} else {
-								gunfire[i].height = 2000;
+		for (int i = 0; i < 2; i++) {
+
+			if (isFiring[i]) {
+
+				count[i]++;
+
+				if (MainMenu.multiP) {
+
+					if (count[i] < 3) {
+
+						switch (orientation[i]) {
+						case 0:
+							gunfire[i].x = weaponRect[i].x + 2;
+							gunfire[i].y = weaponRect[i].y - 2000;
+							gunfire[i].width = 2;
+							gunfire[i].height = 2000;
+
+							for (int j = 0; j < 250; j++) {
+								if (gunfire[i].intersects(rects[j])) {
+									gunfire[i].y = rects[j].y + rects[j].height;
+									gunfire[i].height = weaponRect[i].y
+											- gunfire[i].y;
+								}
 							}
+
+							break;
+						case 1:
+							gunfire[i].x = weaponRect[i].x;
+							gunfire[i].y = weaponRect[i].y + 2;
+							gunfire[i].width = 2000;
+							gunfire[i].height = 2;
+
+							for (int j = 0; j < 250; j++) {
+								if (gunfire[i].intersects(rects[j])) {
+									gunfire[i].width = rects[j].x
+											- weaponRect[i].x;
+								}
+							}
+							break;
+						case 2:
+							gunfire[i].x = weaponRect[i].x + 2;
+							gunfire[i].y = weaponRect[i].y;
+							gunfire[i].width = 2;
+							gunfire[i].height = 2000;
+
+							for (int j = 0; j < 250; j++) {
+								if (gunfire[i].intersects(rects[j])) {
+									gunfire[i].y = weaponRect[i].y;
+									gunfire[i].height = rects[j].y
+											- weaponRect[i].y;
+
+								}
+							}
+							break;
+						case 3:
+							gunfire[i].x = weaponRect[i].x - 2000;
+							gunfire[i].y = weaponRect[i].y + 2;
+							gunfire[i].width = 2000;
+							gunfire[i].height = 2;
+
+							for (int j = 0; j < 250; j++) {
+								if (gunfire[i].intersects(rects[j])) {
+									gunfire[i].x = rects[j].x + rects[j].width;
+									gunfire[i].width = weaponRect[0].x
+											- gunfire[i].x;
+								}
+							}
+
+							break;
 						}
+					} else {
+						gunfire[0].x = 2000;
+						gunfire[0].y = 2000;
 					}
-					
-					
-					break;
-				case 1:
-					gunfire[0].x = weaponRect[0].x;
-					gunfire[0].y = weaponRect[0].y + 2;
-					gunfire[0].width = 2000;
-					gunfire[0].height = 2;
-					break;
-				case 2:
-					gunfire[0].x = weaponRect[0].x + 2;
-					gunfire[0].y = weaponRect[0].y;
-					gunfire[0].width = 2;
-					gunfire[0].height = 2000;
-					break;
-				case 3:
-					gunfire[0].x = weaponRect[0].x - 2000;
-					gunfire[0].y = weaponRect[0].y + 2;
-					gunfire[0].width = 2000;
-					gunfire[0].height = 2;
-					break;				
+
 				}
 
-			} else {
-				gunfire[0].x = 2000;
-				gunfire[0].y = 2000;
 			}
-			
 		}
-
 		repaint();
-		
+
 	}
 
 	@Override
@@ -481,7 +476,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			isFiring[0] = false;
 			count[0] = 0;
 		}
-		
+
 		if (e.getKeyCode() == KeyEvent.VK_Q) {
 			gunfire[1].x = 2000;
 			gunfire[1].y = 2000;
