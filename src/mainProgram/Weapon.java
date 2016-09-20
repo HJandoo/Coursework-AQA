@@ -18,7 +18,7 @@ public class Weapon {
 	
 	static Weapon[] weapons = new Weapon[5];
 	static String[] names = new String[] {"Pistol", "SMG", "Machine Gun", "Sniper Rifle", "Bazooka"};
-	static int damages[] = new int[] {10, 6, 38, 90, 200};
+	static int damages[] = new int[] {80, 40, 90, 200, 500};
 	static int rates[] = new int[] {300, 80, 400, 1500, 3000};
 	static int ammos[] = new int[] {70, 150, 240, 16, 4};
 	

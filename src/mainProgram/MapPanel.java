@@ -1,6 +1,7 @@
 package mainProgram;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -23,12 +24,13 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	private static final long serialVersionUID = 1L;
 
 	Random random = new Random();
-	Timer t = new Timer(5, this);
+	Timer t = new Timer(3, this);
 
 	Rectangle[] rects = new Rectangle[250];
 	Rectangle[] playerRect = new Rectangle[2];
 	Rectangle[] weaponRect = new Rectangle[2];
 	Rectangle[] gunfire = new Rectangle[2];
+	Rectangle[] hp = new Rectangle[2];
 
 	Player[] players = new Player[2];
 
@@ -42,47 +44,72 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	int temp = 0;
 
 	JLabel[] usernames = new JLabel[2];
+	JLabel[] lWeapon = new JLabel[2];
 
 	boolean[] isFiring = { false, false };
 
 	public MapPanel() {
+		
+		
 
 		setLayout(null);
 		setFocusable(true);
 		addKeyListener(this);
 		setFocusTraversalKeysEnabled(false);
 		t.start();
-		
+
 		setupPlayers();
 		setupBlocks();
+		
+		lWeapon[0] = new JLabel(players[0].weapon.name);
+		lWeapon[0].setForeground(Color.RED);
+		lWeapon[0].setFont(new Font("Arial", Font.PLAIN, 20));
+		lWeapon[0].setBounds(10, 10, 200, 20);
+		add(lWeapon[0]);
+		
+		lWeapon[1] = new JLabel(players[1].weapon.name);
+		lWeapon[1].setForeground(blue);
+		lWeapon[1].setHorizontalAlignment(JLabel.RIGHT);
+		lWeapon[1].setFont(new Font("Arial", Font.PLAIN, 20));
+		lWeapon[1].setBounds(1720, 10, 190, 20);
+		add(lWeapon[1]);
 	}
 
 	public void setupPlayers() {
-		
+
 		players[0] = MainMenu.p1;
-		playerRect[0] = new Rectangle(20, 20, 25, 25);
-		weaponRect[0] = new Rectangle(playerRect[0].x + 20, playerRect[0].y - 10, 5, 10);
+		playerRect[0] = new Rectangle(20, 60, 25, 25);
+		weaponRect[0] = new Rectangle(playerRect[0].x + 20,
+				playerRect[0].y - 10, 5, 10);
 
 		players[1] = MainMenu.p2;
 		playerRect[1] = new Rectangle(1870, 970, 25, 25);
-		weaponRect[1] = new Rectangle(playerRect[1].x + 20, playerRect[1].y - 10, 5, 10);
+		weaponRect[1] = new Rectangle(playerRect[1].x + 20,
+				playerRect[1].y - 10, 5, 10);
 
 		usernames[0] = new JLabel(players[0].username);
 		usernames[0].setForeground(Color.RED);
 		usernames[0].setHorizontalAlignment(JLabel.CENTER);
-		usernames[0].setBounds(playerRect[0].x - 25, playerRect[0].y + 17, 75, 40);
+		usernames[0].setBounds(playerRect[0].x - 25, playerRect[0].y + 20, 75,
+				40);
 
 		usernames[1] = new JLabel(players[1].username);
 		usernames[1].setForeground(blue);
 		usernames[1].setHorizontalAlignment(JLabel.CENTER);
-		usernames[1].setBounds(playerRect[1].x - 25, playerRect[1].y + 17, 75, 40);
+		usernames[1].setBounds(playerRect[1].x - 25, playerRect[1].y + 20, 75,
+				40);
 
 		add(usernames[0]);
 		add(usernames[1]);
-		
+
+		hp[0] = new Rectangle(playerRect[0].x - 5, playerRect[0].y - 20, 35, 5);
+		hp[1] = new Rectangle(playerRect[1].x - 5, playerRect[1].y - 20, 35, 5);
+
 		for (int i = 0; i < 4; i++) {
 			vel[i] = 0;
 		}
+		
+		
 	}
 
 	public void setupBlocks() {
@@ -98,7 +125,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			rects[i + 2] = new Rectangle(x3, y3, 30, 30);
 			rects[i + 3] = new Rectangle(x4, y4, 30, 30);
 
-			while (rects[i].x < 40 || rects[i].x > 1800 || rects[i].y < 60 || rects[i].y > 990) {
+			while (rects[i].x < 40 || rects[i].x > 1800 || rects[i].y < 60	|| rects[i].y > 990) {
 				x1 = 30 * random.nextInt(64);
 				y1 = 30 * random.nextInt(36);
 				x2 = x1;
@@ -121,25 +148,31 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			int width = 30 * random.nextInt(2) + 30;
 			int height = 30 * random.nextInt(2) + 30;
 
-			rects[i] = new Rectangle(30 * random.nextInt(192), 30 * random.nextInt(108), width, height);
+			rects[i] = new Rectangle(30 * random.nextInt(192),
+					30 * random.nextInt(108), width, height);
 
-			while (rects[i].x < 40 || rects[i].x > 1860 || rects[i].y < 60 || rects[i].y > 1020) {
-				rects[i] = new Rectangle(30 * random.nextInt(192), 30 * random.nextInt(108), width, height);
+			while (rects[i].x < 60 || rects[i].x > 1770 || rects[i].y < 30
+					|| rects[i].y > 930) {
+				rects[i] = new Rectangle(30 * random.nextInt(192),
+						30 * random.nextInt(108), width, height);
 			}
 		}
-		
+
 		for (int i = 0; i < 2; i++) {
 			gunfire[i] = new Rectangle(2000, 2000, 50, 50);
 		}
-		
+
 	}
 
 	public void paintComponent(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
 
-		RenderingHints rh = new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING,
+		RenderingHints rh = new RenderingHints(
+				RenderingHints.KEY_TEXT_ANTIALIASING,
 				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		RenderingHints rh2 = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		RenderingHints rh2 = new RenderingHints(
+				RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
 
 		g2d.setRenderingHints(rh);
 		g2d.setRenderingHints(rh2);
@@ -148,7 +181,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		g.fillRect(0, 0, 1920, 1080);
 
 		for (int i = 0; i < 20; i++) {
-			rects[i] = new Rectangle(rects[i].x, rects[i].y, rects[i].width, rects[i].height);
+			rects[i] = new Rectangle(rects[i].x, rects[i].y, rects[i].width,
+					rects[i].height);
 		}
 
 		for (Rectangle r : rects) {
@@ -157,19 +191,29 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		}
 
 		g.setColor(Color.RED);
-		g.fillRect(playerRect[0].x, playerRect[0].y, playerRect[0].width, playerRect[0].height);
-		
+		g.fillRect(playerRect[0].x, playerRect[0].y, playerRect[0].width,
+				playerRect[0].height);
+
 		g.setColor(blue);
-		g.fillRect(playerRect[1].x, playerRect[1].y, playerRect[1].width, playerRect[1].height);
+		g.fillRect(playerRect[1].x, playerRect[1].y, playerRect[1].width,
+				playerRect[1].height);
 
 		g.setColor(Color.YELLOW);
-		g.fillRect(gunfire[0].x, gunfire[0].y, gunfire[0].width, gunfire[0].height);
-		g.fillRect(gunfire[1].x, gunfire[1].y, gunfire[1].width, gunfire[1].height);	
+		g.fillRect(gunfire[0].x, gunfire[0].y, gunfire[0].width,
+				gunfire[0].height);
+		g.fillRect(gunfire[1].x, gunfire[1].y, gunfire[1].width,
+				gunfire[1].height);
 
 		g.setColor(grey);
-		g.fillRect(weaponRect[0].x, weaponRect[0].y, weaponRect[0].width, weaponRect[0].height);
-		g.fillRect(weaponRect[1].x, weaponRect[1].y, weaponRect[1].width, weaponRect[1].height);
-		
+		g.fillRect(weaponRect[0].x, weaponRect[0].y, weaponRect[0].width,
+				weaponRect[0].height);
+		g.fillRect(weaponRect[1].x, weaponRect[1].y, weaponRect[1].width,
+				weaponRect[1].height);
+
+		g.setColor(Color.GREEN);
+		g.fillRect(hp[0].x, hp[0].y, hp[0].width, hp[0].height);
+		g.fillRect(hp[1].x, hp[1].y, hp[1].width, hp[1].height);
+
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 4; j += 2) {
 				for (int k = 0; k < 250; k++) {
@@ -177,6 +221,25 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				}
 			}
 		}
+		
+		hit();
+	}
+
+	public void hit() {
+		
+		
+
+		if (gunfire[0].intersects(playerRect[1])) {
+
+			players[1].health -= Weapon.weapons[0].damagePerShot;
+			hp[1].width = (int) (0.035 * players[1].health);
+			System.out.println(players[1].health);
+			if (players[1].health < 0 && hp[1].width <= 0) {
+				//Player 2 killed
+			}
+
+		}
+
 	}
 
 	public void intersections(int i, int j, int k) {
@@ -298,39 +361,61 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	public void actionPerformed(ActionEvent e) {
 
 		playerRect[0].x += vel[0];
-		playerRect[0].y += vel[0 + 1];
+		playerRect[0].y += vel[1];
+		hp[0].x = playerRect[0].x - 5;
+		hp[0].y = playerRect[0].y - 20;
 		usernames[0].setBounds(playerRect[0].x - 25, playerRect[0].y + 17, 75, 40);
+		
 
 		playerRect[1].x += vel[2];
-		playerRect[1].y += vel[2 + 1];
+		playerRect[1].y += vel[3];
+		hp[1].x = playerRect[1].x - 5;
+		hp[1].y = playerRect[1].y - 20;
 		usernames[1].setBounds(playerRect[1].x - 25, playerRect[1].y + 17, 75, 40);
 
-		for (int i = 0; i < 2; i++) {
 
-			for (int j = 0; j < 4; j += 2) {
-
-				if (playerRect[i].x < 0) {
-					playerRect[i].x = 0;
-					vel[j] = 0;
+				if (playerRect[0].x < 0) {
+					playerRect[0].x = 0;
+					vel[0] = 0;
 				}
 
-				if (playerRect[i].x > 1895) {
-					playerRect[i].x = 1895;
-					vel[j] = 0;
+				if (playerRect[0].x > 1895) {
+					playerRect[0].x = 1895;
+					vel[0] = 0;
 				}
 
-				if (playerRect[i].y < 0) {
-					playerRect[i].y = 0;
-					vel[j + 1] = 0;
+				if (playerRect[0].y < 0) {
+					playerRect[0].y = 0;
+					vel[1] = 0;
 				}
 
-				if (playerRect[i].y > 995) {
-					playerRect[i].y = 995;
-					vel[j + 1] = 0;
+				if (playerRect[0].y > 995) {
+					playerRect[0].y = 995;
+					vel[1] = 0;
 				}
-			}
+				
+				
+				if (playerRect[1].x < 0) {
+					playerRect[1].x = 0;
+					vel[2] = 0;
+				}
 
-		}
+				if (playerRect[1].x > 1895) {
+					playerRect[1].x = 1895;
+					vel[2] = 0;
+				}
+
+				if (playerRect[1].y < 0) {
+					playerRect[1].y = 0;
+					vel[3] = 0;
+				}
+
+				if (playerRect[1].y > 995) {
+					playerRect[1].y = 995;
+					vel[3] = 0;
+				}
+
+		
 
 		for (int i = 0; i < 2; i++) {
 			sortOrientation(i);
@@ -340,6 +425,9 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 			}
 		}
+		
+		
+		
 		repaint();
 
 	}
@@ -395,20 +483,24 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_UP) {
+		if (e.getKeyCode() == KeyEvent.VK_DOWN
+				|| e.getKeyCode() == KeyEvent.VK_UP) {
 			vel[1] = 0;
 		}
 
-		if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_RIGHT) {
+		if (e.getKeyCode() == KeyEvent.VK_LEFT
+				|| e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			vel[0] = 0;
 		}
 
 		if (MainMenu.multiP) {
-			if (e.getKeyCode() == KeyEvent.VK_S || e.getKeyCode() == KeyEvent.VK_W) {
+			if (e.getKeyCode() == KeyEvent.VK_S
+					|| e.getKeyCode() == KeyEvent.VK_W) {
 				vel[3] = 0;
 			}
 
-			if (e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_D) {
+			if (e.getKeyCode() == KeyEvent.VK_A
+					|| e.getKeyCode() == KeyEvent.VK_D) {
 				vel[2] = 0;
 			}
 		}
