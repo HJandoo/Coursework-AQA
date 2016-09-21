@@ -25,6 +25,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	Random random = new Random();
 	Timer t = new Timer(3, this);
+	Timer[] resp = new Timer[2];
 
 	Rectangle[] rects = new Rectangle[250];
 	Rectangle[] playerRect = new Rectangle[2];
@@ -41,17 +42,15 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	int[] count = { 0, 0, 0 };
 	int[] orientation = { 0, 0 };
 	int[] widths = new int[250];
-	int temp = 0;
 
 	JLabel[] usernames = new JLabel[2];
-	JLabel[] lWeapon = new JLabel[2];
+	JLabel[] weaponLabel = new JLabel[2];
 
 	boolean[] isFiring = { false, false };
+	
+	
 
 	public MapPanel() {
-		
-		
-
 		setLayout(null);
 		setFocusable(true);
 		addKeyListener(this);
@@ -61,19 +60,22 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		setupPlayers();
 		setupBlocks();
 		
-		lWeapon[0] = new JLabel(players[0].weapon.name);
-		lWeapon[0].setForeground(Color.RED);
-		lWeapon[0].setFont(new Font("Arial", Font.PLAIN, 20));
-		lWeapon[0].setBounds(10, 10, 200, 20);
-		add(lWeapon[0]);
+		weaponLabel[0] = new JLabel(players[0].weapon.name);
+		weaponLabel[0].setForeground(Color.RED);
+		weaponLabel[0].setFont(new Font("Arial", Font.PLAIN, 20));
+		weaponLabel[0].setBounds(10, 10, 200, 20);
+		add(weaponLabel[0]);
 		
-		lWeapon[1] = new JLabel(players[1].weapon.name);
-		lWeapon[1].setForeground(blue);
-		lWeapon[1].setHorizontalAlignment(JLabel.RIGHT);
-		lWeapon[1].setFont(new Font("Arial", Font.PLAIN, 20));
-		lWeapon[1].setBounds(1720, 10, 190, 20);
-		add(lWeapon[1]);
+		weaponLabel[1] = new JLabel(players[1].weapon.name);
+		weaponLabel[1].setForeground(blue);
+		weaponLabel[1].setHorizontalAlignment(JLabel.RIGHT);
+		weaponLabel[1].setFont(new Font("Arial", Font.PLAIN, 20));
+		weaponLabel[1].setBounds(1720, 10, 190, 20);
+		add(weaponLabel[1]);
+		
+		
 	}
+
 
 	public void setupPlayers() {
 
@@ -107,12 +109,12 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 		for (int i = 0; i < 4; i++) {
 			vel[i] = 0;
-		}
-		
+		}	
 		
 	}
 
 	public void setupBlocks() {
+		//Draws up the map by randomly placing blocks across the screen		
 		for (int i = 0; i < 80; i += 4) {
 
 			int x1 = 30 * random.nextInt(64), y1 = 30 * random.nextInt(36);
@@ -227,13 +229,21 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	public void hit() {
 		
-		
+		if (gunfire[1].intersects(playerRect[0])) {
+			//Player 1 takes damage
+			players[0].health -= players[1].weapon.damagePerShot;
+			hp[0].width = (int) (0.035 * players[0].health);
+			
+			if (players[0].health < 0 && hp[0].width <= 0) {
+				//Player 1 killed
+			}
+
+		}
 
 		if (gunfire[0].intersects(playerRect[1])) {
-
-			players[1].health -= Weapon.weapons[0].damagePerShot;
+			//Player 2 takes damage
+			players[1].health -= players[0].weapon.damagePerShot;
 			hp[1].width = (int) (0.035 * players[1].health);
-			System.out.println(players[1].health);
 			if (players[1].health < 0 && hp[1].width <= 0) {
 				//Player 2 killed
 			}
@@ -267,7 +277,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 		count[i]++;
 
-		if (count[i] < 3) {
+		if (count[i] < 2) {
 
 			switch (orientation[i]) {
 			case 0:
@@ -426,7 +436,11 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 		}
 		
-		
+		if (players[0].health < 1000) {
+			players[0].health += 5;
+			hp[0].width = (int) (0.035 * players[0].health);
+			
+		}
 		
 		repaint();
 

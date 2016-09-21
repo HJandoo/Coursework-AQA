@@ -1,10 +1,9 @@
 TO DO LIST
 
- - Strobe effect on gunfire + specific bullets for weapons e.g. rockets for rocket launcher
- - Stop gunfire going through walls (Player 1 done, P2 still to do)
- - Lower health when players are hit by bullets + respawn timers when killed
- - Draw health bars under each player
+ - Place weapons randomly over map
+ - Specific bullets for weapons e.g. rockets for rocket launcher
+ - Lower health when players are hit by bullets (P2 Done) + respawn timers when killed
  - Draw score board at the top of the screen + score limit to get to
  - Create, save and load player profiles + password protection
  - Files for profiles to be put on Google Drive?
- - UI for player stats feat. kills, deaths, K/D, (Weapon of Mass Destruction?)
+ - Window for player stats feat. kills, deaths, K/D, (Weapon of Mass Destruction?) + player comparison?

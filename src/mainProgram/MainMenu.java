@@ -12,91 +12,111 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-public class MainMenu extends JFrame{
+public class MainMenu extends JFrame {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	ImageIcon img = new ImageIcon("Gun Mania Logo_RESIZED.png");
 
-
 	JPanel p = new JPanel();
-	
+
 	JLabel l1 = new JLabel("GUN MANIA");
 	JLabel l2 = new JLabel(img);
-	
+
 	JButton playGame = new JButton("Play Game");
 	JButton stats = new JButton("Stats");
 	JButton options = new JButton("Options");
-	
+	JButton quit = new JButton("Quit");
+
 	Font f1 = new Font("Arial", Font.BOLD, 30);
 	Font f2 = new Font("Arial", Font.BOLD, 14);
-	
+
 	Color bl = Color.BLACK;
 	Color wh = Color.WHITE;
-	
+
 	public static Player p1, p2;
 	static String player1Name;
 	static boolean multiP;
-	
+
 	public MainMenu() {
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(300, 455);
+		setSize(300, 505);
 		setResizable(false);
 		setLocationRelativeTo(null);
 		setTitle("Gun Mania");
 		setIconImage(img.getImage());
-		
+
 		p.setLayout(null);
 		add(p);
 		p.setBackground(wh);
-		
+
 		l1.setBounds(10, 10, 280, 40);
 		l1.setHorizontalAlignment(JLabel.CENTER);
 		l1.setFont(f1);
 		l1.setForeground(bl);
 		p.add(l1);
-		
+
 		l2.setBounds(10, 60, 280, 201);
 		p.add(l2);
-		
 
 		playGame.setBounds(10, 275, 275, 40);
 		playGame.setFont(f2);
 		playGame.setForeground(bl);
 		p.add(playGame);
-		
+
 		stats.setBounds(10, 325, 275, 40);
 		stats.setFont(f2);
 		stats.setForeground(bl);
 		p.add(stats);
-		
+
 		options.setBounds(10, 375, 275, 40);
 		options.setFont(f2);
 		options.setForeground(bl);
 		p.add(options);
 		
+		quit.setBounds(10, 425, 275, 40);
+		quit.setFont(f2);
+		quit.setForeground(bl);
+		p.add(quit);
+
 		playGame.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Weapon.createWeapons();
+
+				String player1Name = JOptionPane
+						.showInputDialog("Player 1 enter name");
+
+				if (player1Name == null || (player1Name != null && "".equals(player1Name))) {
+					
+				} else {
+					p1 = new Player(player1Name, 1000, Weapon.weapons[0]);
+
+					
+				String player2Name = JOptionPane
+						.showInputDialog("Player 2 enter name");
+
+				if (player2Name == null || (player2Name != null && "".equals(player2Name))) {
+
+				} else {
+					p2 = new Player(player2Name, 1000, Weapon.weapons[0]);
+					multiP = true;
+					
+					@SuppressWarnings("unused")
+					MapMain m = new MapMain();
+				}
 				
-				String player1Name = JOptionPane.showInputDialog("Player 1 enter name");				
-				p1 = new Player(player1Name, 1000, Weapon.weapons[0]);
-				
-				String player2Name = JOptionPane.showInputDialog("Player 2 enter name");				
-				p2 = new Player(player2Name, 1000, Weapon.weapons[0]);
-				
-				multiP = true;
-				
-				@SuppressWarnings("unused")
-				MapMain m = new MapMain();
-			} 
+				}
 			
+
+				
+			}
+
 		});
 
 		stats.addActionListener(new ActionListener() {
@@ -104,26 +124,37 @@ public class MainMenu extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-			} 
-			
+			}
+
 		});
-		
+
 		options.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				@SuppressWarnings("unused")
 				OptionsMain m = new OptionsMain();
-			} 
-			
-		});		
+			}
+
+		});
 		
+		quit.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				System.exit(0);
+			}
+		
+			
+			
+		});
+
 	}
-	
+
 	public static void main(String[] args) {
 		@SuppressWarnings("unused")
-		
 		MainMenu m = new MainMenu();
 	}
-	
+
 }
