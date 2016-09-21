@@ -1,5 +1,10 @@
 package mainProgram;
 
+/** Computer Science AQA Coursework 2016/17
+ * Made by Harnaam Jandoo
+ * 
+ */
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
