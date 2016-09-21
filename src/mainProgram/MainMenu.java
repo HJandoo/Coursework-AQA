@@ -19,9 +19,6 @@ import javax.swing.JPanel;
 
 public class MainMenu extends JFrame {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	ImageIcon img = new ImageIcon("Gun Mania Logo_RESIZED.png");
