@@ -25,6 +25,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	Random random = new Random();
 	Timer t = new Timer(1, this);
+	Timer[] reg = new Timer[2];
 	Timer[] resp = new Timer[2];
 
 	Font font = new Font("Arial", Font.PLAIN, 20);
@@ -39,7 +40,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	Player[] players = new Player[2];
 
 	Color blue = new Color(0, 129, 222);
-	Color grey = new Color(61, 61, 61);
+	static Color grey = new Color(61, 61, 61);
 
 	int[] vel = new int[4];
 	int[] count = { 0, 0, 0 };
@@ -53,8 +54,11 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	JLabel[] scorel = new JLabel[2];
 
 	boolean[] isFiring = { false, false };
+	boolean[] takingDamage = { false, false };
 	boolean[] playerKilled = { false, false };
-
+	boolean[] respawning = { false, false };
+	boolean[] oob = { false, false };
+	
 	public MapPanel() {
 		setLayout(null);
 		setFocusable(true);
@@ -250,49 +254,74 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	}
 
-	// TODO Need to fix the scores when opponent is killed. Maybe add score in
-	// separate method?
-
 	public void hitDetection() {
 
 		if (gunfire[1].intersects(playerRect[0])) {
-			count2[0] = 0;
 
 			// Player 1 takes damage
+			takingDamage[0] = true;
 			players[0].health -= players[1].weapon.damagePerShot;
 			hp[0].width = (int) (0.035 * players[0].health);
-			
-			if (players[0].health <= 0) {
-				int count = 0;
-				
-				count++;
-			}
 
+
+		} else {
+			takingDamage[0] = false;
 		}
 
 		if (gunfire[0].intersects(playerRect[1])) {
-			count2[1] = 0;
 
 			// Player 2 takes damage
+			takingDamage[1] = true;
 			players[1].health -= players[0].weapon.damagePerShot;
 			hp[1].width = (int) (0.035 * players[1].health);
 
+		} else {
+			takingDamage[1] = false;
 		}
 
 	}
-	
+
+	public void regen(final int i) {
+		
+			players[i].health += 2;
+			hp[i].width = (int) (0.035 * players[i].health);
+		
+	}
+
+	public void respawn(final int i) {
+		resp[i] = new Timer(5000, new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				playerRect[i].x = 20;
+				playerRect[i].y = 60;
+				players[i].health = 1000;
+				players[i].weapon = Weapon.weapons[0];
+				hp[i].width = (int) (0.035 * players[i].health);
+
+				playerKilled[i] = false;
+				respawning[i] = false;
+				
+			}
+
+		});
+		resp[i].setRepeats(false);
+		resp[i].start();
+		oob[i] = false;
+	}
+
 	public void increment(int i, int j, boolean[] playerKilled, int[] scores, JLabel[] scorel) {
 		if (playerKilled[i]) {
-			scores[j]++;		
+			scores[j]++;
 			scorel[j].setText(Integer.toString(scores[j]));
-			
+
 			playerKilled[i] = false;
-			
+			respawning[i] = false;
 		}
-				
+
 	}
 
-	
 	public void intersections(int i, int j, int k) {
 		if (playerRect[i].intersects(rects[k]) && vel[j] != 0) {
 			vel[j] = 0;
@@ -313,7 +342,6 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 		}
 	}
-	
 
 	public void fire(int i) {
 
@@ -379,7 +407,6 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			gunfire[i].y = 2000;
 		}
 	}
-	
 
 	public void sortOrientation(int i) {
 		switch (orientation[i]) {
@@ -426,8 +453,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		hp[1].y = playerRect[1].y - 20;
 		usernames[1].setBounds(playerRect[1].x - 25, playerRect[1].y + 17, 75,
 				40);
-		
-		if (!playerKilled[0]) {
+
+		if (!oob[0]) {
 			if (playerRect[0].x < 0) {
 				playerRect[0].x = 0;
 				vel[0] = 0;
@@ -449,7 +476,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 		}
 
-		if (!playerKilled[1]) {
+		if (!oob[1]) {
 			if (playerRect[1].x < 0) {
 				playerRect[1].x = 0;
 				vel[2] = 0;
@@ -479,48 +506,87 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 			}
 		}
+		
+		if (players[0].health < 1000) {
+			
+			 reg[0] = new Timer (5000, new ActionListener() {
 
-		for (int i = 0; i < 2; i++) {
-			if (players[i].health < 1000) {
-
-				count2[i]++;
-
-				if (count2[i] >= 800) {
-					players[i].health += 2;
-					hp[i].width = (int) (0.035 * players[i].health);
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					regen(0);
+					
 				}
-
+			
+			});
+			reg[0].setRepeats(false);
+			
+			if (takingDamage[0]) {
+				reg[0].stop();
+			} else {
+				reg[0].start();
 			}
+			
+			
+		
+					
+		} else {
+			players[0].health = 1000;
 		}
 		
-		if (players[0].health <= 0) {
-			playerKilled[0]  = true;
-			scores[1]++;
+		if (players[1].health < 1000) {
 			
+			reg[1] = new Timer (5000, new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					regen(1);				
+				}
+			
+			});
+			reg[1].setRepeats(false);
+			
+			if (takingDamage[1]) {
+				reg[1].stop();
+			} else {
+				reg[1].start();
+			}
+	
+		} else {
+			players[1].health = 1000;
+		}
+
+		if (players[0].health <= 0) {
+			playerKilled[0] = true;
+			respawning[0] = true;
+			oob[0] = true;
+			players[0].health = 1000;
+
 			playerRect[0].x = 2000;
 			playerRect[0].y = 2000;
-			
-			players[0].health = 1000;
-			
-			scorel[1].setText(Integer.toString(scores[1]));
-	
+
+			increment(0, 1, playerKilled, scores, scorel);
+			respawn(0);
+
 		}
-		
+
 		if (players[1].health <= 0) {
 			playerKilled[1] = true;
-			scores[0]++;
-			
+			respawning[1] = true;
+			oob[1] = true;
 			players[1].health = 1000;
-			
-			scorel[0].setText(Integer.toString(scores[0]));
-	
+
+			playerRect[1].x = 2000;
+			playerRect[1].y = 2000;
+
+			increment(1, 0, playerKilled, scores, scorel);
+			respawn(1);
+
 		}
 
 		repaint();
 
 	}
 
-	
 	@Override
 	public void keyPressed(KeyEvent e) {
 
@@ -570,7 +636,6 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	}
 
-	
 	@Override
 	public void keyReleased(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_DOWN
@@ -611,7 +676,6 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	}
 
-	
 	@Override
 	public void keyTyped(KeyEvent e) {
 

@@ -68,21 +68,25 @@ public class MainMenu extends JFrame {
 		playGame.setBounds(10, 275, 275, 40);
 		playGame.setFont(f2);
 		playGame.setForeground(bl);
+		playGame.setBackground(new Color(225, 225, 225));
 		p.add(playGame);
 
 		stats.setBounds(10, 325, 275, 40);
 		stats.setFont(f2);
 		stats.setForeground(bl);
+		stats.setBackground(new Color(225, 225, 225));
 		p.add(stats);
 
 		options.setBounds(10, 375, 275, 40);
 		options.setFont(f2);
 		options.setForeground(bl);
+		options.setBackground(new Color(225, 225, 225));
 		p.add(options);
-		
+
 		quit.setBounds(10, 425, 275, 40);
 		quit.setFont(f2);
 		quit.setForeground(bl);
+		quit.setBackground(new Color(225, 225, 225));
 		p.add(quit);
 
 		playGame.addActionListener(new ActionListener() {
@@ -94,29 +98,17 @@ public class MainMenu extends JFrame {
 				String player1Name = JOptionPane
 						.showInputDialog("Player 1 enter name");
 
-				if (player1Name == null || (player1Name != null && "".equals(player1Name))) {
-					
-				} else {
-					p1 = new Player(player1Name, 1000, Weapon.weapons[0]);
+				p1 = new Player(player1Name, 1000, Weapon.weapons[0]);
 
-					
 				String player2Name = JOptionPane
 						.showInputDialog("Player 2 enter name");
 
-				if (player2Name == null || (player2Name != null && "".equals(player2Name))) {
+				p2 = new Player(player2Name, 1000, Weapon.weapons[0]);
+				multiP = true;
 
-				} else {
-					p2 = new Player(player2Name, 1000, Weapon.weapons[0]);
-					multiP = true;
-					
-					@SuppressWarnings("unused")
-					MapMain m = new MapMain();
-				}
-				
-				}
-			
+				@SuppressWarnings("unused")
+				MapMain m = new MapMain();
 
-				
 			}
 
 		});
@@ -139,7 +131,7 @@ public class MainMenu extends JFrame {
 			}
 
 		});
-		
+
 		quit.addActionListener(new ActionListener() {
 
 			@Override
@@ -147,9 +139,7 @@ public class MainMenu extends JFrame {
 				// TODO Auto-generated method stub
 				System.exit(0);
 			}
-		
-			
-			
+
 		});
 
 	}

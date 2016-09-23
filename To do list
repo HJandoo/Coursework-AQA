@@ -1,10 +1,13 @@
 TO DO LIST
 
- - Respawn timers when killed + increment score when player is killed
- - Place weapons randomly over map
+ - Respawn timers when killed - All done apart from positioning off the screen
+ - Regenerating health fixes - if player gets hit while regenerating, regeneration needs to stop and wait another
+   5 seconds before they start regenerating again
+ - Place weapons randomly over map? - Spawn at different times?
  - Specific bullets for weapons e.g. rockets for rocket launcher
- - Draw score board at the top of the screen + score limit to get to
- - Create, save and load player profiles + password protection
- - Files for profiles to be put on Google Drive?
- - Window for player stats feat. kills, deaths, K/D, WMD? + player comparison?
- - Options for options menu: No. of kills to win, 
+ - Score limit to get to
+ - Create, save and load player profiles + password protection - store in SQL database
+ - Download and install SQL Server Management Studio software
+ - Window for player stats feat. kills, deaths, K/D, WMD? (+ player comparison?) - link to SQL database
+ - Options for options menu: No. of kills to win, player colour?
+ - Play game across LAN network? (client-server relationship/model?)
