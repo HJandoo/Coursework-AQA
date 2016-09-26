@@ -36,6 +36,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	Rectangle[] weaponRect = new Rectangle[2];
 	Rectangle[] gunfire = new Rectangle[2];
 	Rectangle[] hp = new Rectangle[2];
+	Rectangle hidePlayer = new Rectangle(2000, 2000, 40, 50);
 
 	Player[] players = new Player[2];
 
@@ -58,7 +59,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	boolean[] playerKilled = { false, false };
 	boolean[] respawning = { false, false };
 	boolean[] oob = { false, false };
-	
+
 	public MapPanel() {
 		setLayout(null);
 		setFocusable(true);
@@ -250,6 +251,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 		}
 
+		g.setColor(grey);
+		g.fillRect(hidePlayer.x, hidePlayer.y, hidePlayer.width,
+				hidePlayer.height);
+
 		hitDetection();
 
 	}
@@ -263,9 +268,6 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			players[0].health -= players[1].weapon.damagePerShot;
 			hp[0].width = (int) (0.035 * players[0].health);
 
-
-		} else {
-			takingDamage[0] = false;
 		}
 
 		if (gunfire[0].intersects(playerRect[1])) {
@@ -275,43 +277,46 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			players[1].health -= players[0].weapon.damagePerShot;
 			hp[1].width = (int) (0.035 * players[1].health);
 
-		} else {
-			takingDamage[1] = false;
 		}
-
 	}
 
 	public void regen(final int i) {
-		
-			players[i].health += 2;
-			hp[i].width = (int) (0.035 * players[i].health);
-		
+
+		players[i].health += 2;
+		hp[i].width = (int) (0.035 * players[i].health);
+
 	}
 
 	public void respawn(final int i) {
+		oob[i] = true;
+
 		resp[i] = new Timer(5000, new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+
 				playerRect[i].x = 20;
 				playerRect[i].y = 60;
 				players[i].health = 1000;
 				players[i].weapon = Weapon.weapons[0];
 				hp[i].width = (int) (0.035 * players[i].health);
+				hidePlayer.x = 2000;
+				hidePlayer.y = 2000;
 
 				playerKilled[i] = false;
 				respawning[i] = false;
-				
+
 			}
 
 		});
 		resp[i].setRepeats(false);
 		resp[i].start();
 		oob[i] = false;
+
 	}
 
-	public void increment(int i, int j, boolean[] playerKilled, int[] scores, JLabel[] scorel) {
+	public void increment(int i, int j, boolean[] playerKilled, int[] scores,
+			JLabel[] scorel) {
 		if (playerKilled[i]) {
 			scores[j]++;
 			scorel[j].setText(Integer.toString(scores[j]));
@@ -408,6 +413,48 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		}
 	}
 
+	public void time() {
+		reg[0] = new Timer(5000, new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (players[0].health < 1000) {
+					takingDamage[0] = false;
+					regen(0);
+				}
+			}
+
+		});
+		reg[0].setRepeats(false);
+		reg[0].start();
+
+		if (players[0].health >= 1000) {
+			players[0].health = 1000;
+			reg[0].stop();
+		}
+
+		reg[1] = new Timer(5000, new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (players[1].health < 1000) {
+					takingDamage[1] = false;
+					regen(1);
+				}
+			}
+
+		});
+		reg[1].setRepeats(false);
+		reg[1].start();
+
+		if (players[1].health >= 1000) {
+			
+			players[1].health = 1000;			
+			reg[1].stop();
+		}
+		
+	}
+	
 	public void sortOrientation(int i) {
 		switch (orientation[i]) {
 		case 0:
@@ -453,6 +500,40 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		hp[1].y = playerRect[1].y - 20;
 		usernames[1].setBounds(playerRect[1].x - 25, playerRect[1].y + 17, 75,
 				40);
+
+		if (players[0].health <= 0) {
+			playerKilled[0] = true;
+			respawning[0] = true;
+			oob[0] = true;
+			players[0].health = 1000;
+
+			playerRect[0].x = 2000;
+			playerRect[0].y = 2000;
+
+			hidePlayer.x = 1880;
+			hidePlayer.y = 970;
+
+			increment(0, 1, playerKilled, scores, scorel);
+			respawn(0);
+
+		}
+
+		if (players[1].health <= 0) {
+			playerKilled[1] = true;
+			respawning[1] = true;
+			oob[1] = true;
+			players[1].health = 1000;
+
+			playerRect[1].x = 2000;
+			playerRect[1].y = 2000;
+
+			hidePlayer.x = 1880;
+			hidePlayer.y = 970;
+
+			increment(1, 0, playerKilled, scores, scorel);
+			respawn(1);
+
+		}
 
 		if (!oob[0]) {
 			if (playerRect[0].x < 0) {
@@ -506,85 +587,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 			}
 		}
+
 		
-		if (players[0].health < 1000) {
-			
-			 reg[0] = new Timer (5000, new ActionListener() {
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					regen(0);
-					
-				}
-			
-			});
-			reg[0].setRepeats(false);
-			
-			if (takingDamage[0]) {
-				reg[0].stop();
-			} else {
-				reg[0].start();
-			}
-			
-			
-		
-					
-		} else {
-			players[0].health = 1000;
-		}
-		
-		if (players[1].health < 1000) {
-			
-			reg[1] = new Timer (5000, new ActionListener() {
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					regen(1);				
-				}
-			
-			});
-			reg[1].setRepeats(false);
-			
-			if (takingDamage[1]) {
-				reg[1].stop();
-			} else {
-				reg[1].start();
-			}
-	
-		} else {
-			players[1].health = 1000;
-		}
-
-		if (players[0].health <= 0) {
-			playerKilled[0] = true;
-			respawning[0] = true;
-			oob[0] = true;
-			players[0].health = 1000;
-
-			playerRect[0].x = 2000;
-			playerRect[0].y = 2000;
-
-			increment(0, 1, playerKilled, scores, scorel);
-			respawn(0);
-
-		}
-
-		if (players[1].health <= 0) {
-			playerKilled[1] = true;
-			respawning[1] = true;
-			oob[1] = true;
-			players[1].health = 1000;
-
-			playerRect[1].x = 2000;
-			playerRect[1].y = 2000;
-
-			increment(1, 0, playerKilled, scores, scorel);
-			respawn(1);
-
-		}
 
 		repaint();
-
 	}
 
 	@Override
