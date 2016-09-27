@@ -20,7 +20,7 @@ public class Main extends JPanel implements ActionListener {
 
 	int vx = 0, vy = 1, count = 0;
 
-	Rectangle aiRect = new Rectangle(50, 100, 30, 30);
+	Rectangle aiRect = new Rectangle(50, 400, 30, 30);
 
 	Rectangle lineHor = new Rectangle(aiRect.x + 15 - 2000, aiRect.y + 15, 4000, 1);
 	Rectangle lineVer = new Rectangle(aiRect.x + 15, aiRect.y + 15 - 1000, 1, 2000);
@@ -92,6 +92,14 @@ public class Main extends JPanel implements ActionListener {
 		lineHor.y += vy;
 		lineVer.x += vx;
 		lineVer.y += vy;
+		
+		if (aiRect.y >= 600) {
+			vy = -1;
+		}
+		
+		if (aiRect.y <= 470) {
+			vy = 1;
+		}
 
 		repaint();
 

@@ -57,6 +57,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	boolean[] isFiring = { false, false };
 	boolean[] takingDamage = { false, false };
 	boolean[] playerKilled = { false, false };
+	boolean[] regenning = { false, false };
 	boolean[] respawning = { false, false };
 	boolean[] oob = { false, false };
 
@@ -251,7 +252,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 		}
 
-		g.setColor(grey);
+		g.setColor(new Color(225, 225, 225));
 		g.fillRect(hidePlayer.x, hidePlayer.y, hidePlayer.width,
 				hidePlayer.height);
 
@@ -267,6 +268,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			takingDamage[0] = true;
 			players[0].health -= players[1].weapon.damagePerShot;
 			hp[0].width = (int) (0.035 * players[0].health);
+			regenning[0] = false;
+			reg[0].restart();
 
 		}
 
@@ -276,12 +279,15 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			takingDamage[1] = true;
 			players[1].health -= players[0].weapon.damagePerShot;
 			hp[1].width = (int) (0.035 * players[1].health);
+			regenning[1] = false;
+			reg[1].restart();
 
 		}
 	}
 
 	public void regen(final int i) {
 
+		regenning[i] = true;
 		players[i].health += 2;
 		hp[i].width = (int) (0.035 * players[i].health);
 
@@ -418,10 +424,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (players[0].health < 1000) {
-					takingDamage[0] = false;
-					regen(0);
-				}
+
+				takingDamage[0] = false;
+				regen(0);
+
 			}
 
 		});
@@ -437,10 +443,9 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (players[1].health < 1000) {
-					takingDamage[1] = false;
-					regen(1);
-				}
+				takingDamage[1] = false;
+				regen(1);
+
 			}
 
 		});
@@ -448,13 +453,13 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		reg[1].start();
 
 		if (players[1].health >= 1000) {
-			
-			players[1].health = 1000;			
+
+			players[1].health = 1000;
 			reg[1].stop();
 		}
-		
+
 	}
-	
+
 	public void sortOrientation(int i) {
 		switch (orientation[i]) {
 		case 0:
@@ -588,7 +593,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 		}
 
-		
+		time();
 
 		repaint();
 	}
