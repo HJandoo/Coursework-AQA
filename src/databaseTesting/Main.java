@@ -17,20 +17,19 @@ public class Main {
 		}catch (ClassNotFoundException e) {
 			e.printStackTrace();	
 		}
-					
 		try {
 
 			Connection c = DriverManager.getConnection(
-					"jdbc:mysql://localhost:3306/sql8137762", "sql8137762",
-					"7kENtw5WXj");
+					"jdbc:mysql://127.0.0.1:3306/coursework", "HJandooDB",
+					"kierath123");
 
 			Statement s = c.createStatement();
 
-			ResultSet rs = s.executeQuery("select * from Player Statistics");
+			ResultSet rs = s.executeQuery("select * from player_statistics;");
 			
 			while (rs.next()) {
-				System.out.println(rs.getInt("ID") + " " + rs.getString("Username") + " "
-						+ rs.getString("Password"));
+				System.out.println(rs.getInt("id") + " " + rs.getString("username") + " "
+						+ rs.getString("password") + " " + rs.getInt("kills") + " " + rs.getInt("deaths"));
 			}
 			
 			
