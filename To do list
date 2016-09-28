@@ -6,9 +6,8 @@ TO DO LIST
  - Specific bullets for weapons e.g. rockets for rocket launcher
  - Score limit to get to
  - Create, save and load player profiles + password protection - store in SQL database
- - Download and install SQL Server Management Studio software?
  - Tutorial for SQL: https://codeforgeek.com/2014/07/java-mysql-connectivity-jdbc/
- - Make sure I can connect to the database at home. Firewall blocking me at school?
+ - I can connect to my server at home using SQL Server Management Studio. Need to be able to remotely connect
  - Window for player stats feat. kills, deaths, K/D, WMD? (+ player comparison?) - link to SQL database
  - Options for options menu: No. of kills to win, player colour?
  - Play game across LAN network? (client-server relationship/model?)
