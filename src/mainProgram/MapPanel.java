@@ -24,7 +24,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	private static final long serialVersionUID = 1L;
 
 	Random random = new Random();
-	Timer t = new Timer(1, this);
+	Timer t = new Timer(5, this);
 	Timer[] reg = new Timer[2];
 	Timer[] resp = new Timer[2];
 
@@ -104,12 +104,12 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	public void setupPlayers() {
 
-		players[0] = MainMenu.p1;
+		players[0] = LoginMain.players[0];
 		playerRect[0] = new Rectangle(20, 60, 25, 25);
 		weaponRect[0] = new Rectangle(playerRect[0].x + 20,
 				playerRect[0].y - 10, 5, 10);
 
-		players[1] = MainMenu.p2;
+		players[1] = LoginMain.players[1];
 		playerRect[1] = new Rectangle(1870, 970, 25, 25);
 		weaponRect[1] = new Rectangle(playerRect[1].x + 20,
 				playerRect[1].y - 10, 5, 10);
@@ -325,6 +325,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			JLabel[] scorel) {
 		if (playerKilled[i]) {
 			scores[j]++;
+			players[j].kills++;
+			players[i].deaths++;
 			scorel[j].setText(Integer.toString(scores[j]));
 
 			playerKilled[i] = false;
@@ -583,9 +585,11 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				vel[3] = 0;
 			}
 		}
+		
+		sortOrientation(0);
+		sortOrientation(1);
 
 		for (int i = 0; i < 2; i++) {
-			sortOrientation(i);
 
 			if (isFiring[i]) {
 				fire(i);

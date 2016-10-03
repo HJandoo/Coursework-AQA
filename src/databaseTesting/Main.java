@@ -10,16 +10,12 @@ import java.util.Scanner;
 public class Main {
 
 	public static void main(String[] args) {
+		
+		String str = "supermegabanterking";
+		
+		System.out.println(str.hashCode());
 
-		Scanner s = new Scanner(System.in);
-
-		System.out.println("Enter Username");
-
-		String u = s.next();
-
-		System.out.println("Enter Password");
-
-		String p = s.next();
+		
 
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
@@ -27,19 +23,43 @@ public class Main {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+		
+		int count = 0;
+		
+		
+		
+		@SuppressWarnings("resource")
+		Scanner s = new Scanner(System.in);
+
+		System.out.println("Enter Username");
+
+		String u = s.next();
+		String unique =  "select * from player_statistics where username = '" + u + "';";
+
+		System.out.println("Enter Password");
+
+		String p = s.next();
 
 		try {
-			Connection c = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/coursework", "HJandooDB",
-					"kierath123");
+			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "password");
 
 			Statement st = c.createStatement();
 
-			ResultSet rs = st.executeQuery(
-					"select * from player_statistics where username = '" + u + "' and password = '" + p + "'");
+			ResultSet rs = st.executeQuery(unique);
 
 			while (rs.next()) {
-				System.out.println(rs.getInt("id") + " " + rs.getString("username") + " " + rs.getString("password")
-						+ " " + rs.getInt("kills") + " " + rs.getInt("deaths"));
+				count++;
+			}
+			
+			if (count != 0) {
+				System.out.println("Duplicate user");
+			} else {
+				String create = "insert into player_statistics(username, password, kills, deaths, `K/D`) values('" + u + "', '" + p + "', 0, 0, 0);";
+				System.out.println("Unique user");
+				st.execute(create);
+				System.out.println("Created?");
+				
+				
 			}
 
 		} catch (SQLException e) {

@@ -14,7 +14,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class MainMenu extends JFrame {
@@ -94,20 +93,11 @@ public class MainMenu extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Weapon.createWeapons();
-
-				String player1Name = JOptionPane
-						.showInputDialog("Player 1 enter name");
-
-				p1 = new Player(player1Name, 1000, Weapon.weapons[0]);
-
-				String player2Name = JOptionPane
-						.showInputDialog("Player 2 enter name");
-
-				p2 = new Player(player2Name, 1000, Weapon.weapons[0]);
-				multiP = true;
-
-				@SuppressWarnings("unused")
-				MapMain m = new MapMain();
+				
+				for (int i = 0; i < 2; i++) {
+					@SuppressWarnings("unused")
+					LoginMain l = new LoginMain(i);
+				}
 
 			}
 
