@@ -37,10 +37,13 @@ public class MainMenu extends JFrame {
 
 	Color bl = Color.BLACK;
 	Color wh = Color.WHITE;
+	
+	Player[] players = new Player[2];
+	Weapon[] weapons = new Weapon[5];
+	
+	int x, y, height;
 
-	public static Player p1, p2;
-	static String player1Name;
-	static boolean multiP;
+	boolean multiP = true;
 
 	public MainMenu() {
 		setVisible(true);
@@ -48,6 +51,11 @@ public class MainMenu extends JFrame {
 		setSize(300, 505);
 		setResizable(false);
 		setLocationRelativeTo(null);
+		
+		x = getX();
+		y = getY();
+		height = getHeight();
+		
 		setTitle("Gun Mania");
 		setIconImage(img.getImage());
 
@@ -92,13 +100,13 @@ public class MainMenu extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Weapon.createWeapons();
 				
-				for (int i = 0; i < 2; i++) {
-					@SuppressWarnings("unused")
-					LoginMain l = new LoginMain(i);
-				}
+				SQLFunctions.getWeapons(weapons);
 
+				@SuppressWarnings("unused")
+				LoginMain m = new LoginMain(0, players, weapons, x, y, height, multiP);
+				
+				
 			}
 
 		});
@@ -107,6 +115,7 @@ public class MainMenu extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				
 
 			}
 
@@ -126,7 +135,6 @@ public class MainMenu extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				System.exit(0);
 			}
 

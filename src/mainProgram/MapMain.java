@@ -9,10 +9,11 @@ public class MapMain extends JFrame{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	MapPanel p = new MapPanel();
+	
 	ImageIcon img = new ImageIcon("Gun Mania Logo_RESIZED.png");
 	
-	public MapMain() {
+	public MapMain(Player[] players, Weapon[] weapons) {
+		MapPanel p = new MapPanel(players, weapons);
 		setVisible(true);
 		setSize(1920, 1080);
 		setLocationRelativeTo(null);

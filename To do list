@@ -1,12 +1,11 @@
 TO DO LIST
 
- - Regenerating health fixes - if player gets hit while regenerating, regeneration needs to stop and wait another
-   5 seconds before they start regenerating again
+ - Regenerating health fixes!!! - if player gets hit while regenerating, regeneration needs to stop and wait another
+   5 seconds before they start regenerating again!!
  - Place weapons randomly over map? - Spawn at different times?
  - Specific bullets for weapons e.g. rockets for rocket launcher
- - Score limit to get to
- - Error detection if username or password doesn't exist/offer to create new profile
- - I can connect to my server at home using SQL Server Management Studio. Need to be able to remotely connect
- - Window for player stats feat. kills, deaths, K/D, WMD? (+ player comparison?) - link to SQL database
- - Options for options menu: No. of kills to win, player colour?
+ - Score limit to get to!
+ - Remote connection to the server?
+ - JTable for player stats feat. kills, deaths, K/D, WMD? (+ player comparison?) - link to database!!
+ - Options for options menu: No. of kills to win, background and wall colour?!!
  - Play game across LAN network? (client-server relationship/model?)
