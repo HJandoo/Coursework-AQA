@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -25,22 +26,21 @@ public class LoginMain extends JFrame {
 
 	char[] pass;
 
-	int dk, dd, dkd;
+	int dk, dd, dkd, dgp;
 	int[] counter = new int[2];
 
-	JLabel uname = new JLabel("Username");
-	JLabel pword = new JLabel("Password");
+	public LoginMain(final int i, final Player[] players, final Weapon[][] weapons, final int x, final int y, final int height, final boolean multiP) {
+		
+		JLabel uname = new JLabel("Username");
+		JLabel pword = new JLabel("Password");
 
-	JTextField ufield = new JTextField();
-	JPasswordField pfield = new JPasswordField();
+		final JTextField ufield = new JTextField();
+		final JPasswordField pfield = new JPasswordField();
 
-	JButton login = new JButton("Log in");
-	JButton register = new JButton("Register");
+		JButton login = new JButton("Log in");
+		JButton register = new JButton("Register");
 
-	JPanel panel = new JPanel();
-
-
-	public LoginMain(final int i, final Player[] players, final Weapon[] weapons, final int x, final int y, final int height, final boolean multiP) {
+		JPanel panel = new JPanel();
 		
 		panel.setBackground(Color.WHITE);
 		setLocationRelativeTo(null);
@@ -70,7 +70,6 @@ public class LoginMain extends JFrame {
 		panel.add(pword);
 
 		pfield.setBounds(120, 40, 100, 20);
-		pfield.setEchoChar('*');
 		panel.add(pfield);
 
 		login.setBounds(120, 70, 100, 20);
@@ -112,6 +111,7 @@ public class LoginMain extends JFrame {
 						dk = rs.getInt("kills");
 						dd = rs.getInt("deaths");
 						dkd = rs.getInt("K/D");
+						dgp = rs.getInt("games_played");
 
 					}
 
@@ -125,7 +125,8 @@ public class LoginMain extends JFrame {
 										"Profile already logged in", JOptionPane.ERROR_MESSAGE);
 							} else {
 								
-								players[i] = new Player(duser, 1000, weapons[0], dk, dd, dkd);
+								players[i] = new Player(duser, 1000, weapons[i][0], dk, dd, dkd, dgp);
+								players[i].gamesPlayed++;
 								setVisible(false);
 								
 								@SuppressWarnings("unused")
@@ -134,7 +135,8 @@ public class LoginMain extends JFrame {
 							
 						} else if (i == 0){
 
-						players[i] = new Player(duser, 1000, weapons[0], dk, dd, dkd);
+						players[i] = new Player(duser, 1000, weapons[i][0], dk, dd, dkd, dgp);
+						players[i].gamesPlayed++;
 						setVisible(false);
 						
 						@SuppressWarnings("unused")
@@ -188,27 +190,53 @@ public class LoginMain extends JFrame {
 
 					if (count != 0) {
 						JOptionPane.showMessageDialog(getParent(),
-								" A profile already exists with that username. Please try another username",
+								"A profile already exists with that username. Please try another username",
 								"Duplicate profile", JOptionPane.ERROR_MESSAGE);
 					} else {
-						String create = "insert into player_statistics(username, password, kills, deaths, `K/D`) values('"
-								+ user + "', '" + hPass + "', 0, 0, 0);";
-						st.execute(create);
-						players[i] = new Player(user, 1000, weapons[0], 0, 0, 0);
-						setVisible(false);
-					
-						if (i == 0) {
-							@SuppressWarnings("unused")
-							LoginMain lm = new LoginMain(1, players, weapons, x, y, height, multiP);
-							
-						} else {
+						
+						JPasswordField jpf = new JPasswordField();
+						JLabel jl = new JLabel("Please confirm your password");
+						Box box = Box.createVerticalBox();
 
-							players[i] = new Player(duser, 1000, weapons[0], dk, dd, dkd);
+						
+						box.add(jl);
+						box.add(jpf);
+						
+						int x = JOptionPane.showConfirmDialog(null, box, "Password verification", JOptionPane.DEFAULT_OPTION);
+						
+						if (x == JOptionPane.OK_OPTION) {
+							@SuppressWarnings("deprecation")
+							String verify = jpf.getText();			
+						
+						if (verify.equals(passw)) {
+							String create = "insert into player_statistics(username, password, kills, deaths, `K/D`) values('"
+									+ user + "', '" + hPass + "', 0, 0, 0);";
+							st.execute(create);
+							players[i] = new Player(user, 1000, weapons[i][0], 0, 0, 0, 0);
+							players[i].gamesPlayed++;
 							setVisible(false);
+						
+							if (i == 0) {
+								@SuppressWarnings("unused")
+								LoginMain lm = new LoginMain(1, players, weapons, x, y, height, multiP);
+								
+							} else {
+
+								players[i] = new Player(user, 1000, weapons[i][0], 0, 0, 0, 0);
+								players[i].gamesPlayed++;
+								setVisible(false);
+								
+								@SuppressWarnings("unused")
+								MapMain m = new MapMain(players, weapons);
+							}	
+						} else {
+						JOptionPane.showMessageDialog(getParent(),
+									"Passwords do not match. Please try again",
+									"Passwords do not match", JOptionPane.ERROR_MESSAGE);
 							
-							@SuppressWarnings("unused")
-							MapMain m = new MapMain(players, weapons);
-						}					
+						}
+						
+						}				
 						
 					}
 

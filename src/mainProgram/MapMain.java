@@ -12,7 +12,8 @@ public class MapMain extends JFrame{
 	
 	ImageIcon img = new ImageIcon("Gun Mania Logo_RESIZED.png");
 	
-	public MapMain(Player[] players, Weapon[] weapons) {
+	public MapMain(Player[] players, Weapon[][] weapons) {
+		SQLFunctions.updateStats(players, 0);
 		MapPanel p = new MapPanel(players, weapons);
 		setVisible(true);
 		setSize(1920, 1080);

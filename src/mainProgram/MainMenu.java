@@ -22,16 +22,6 @@ public class MainMenu extends JFrame {
 
 	ImageIcon img = new ImageIcon("Gun Mania Logo_RESIZED.png");
 
-	JPanel p = new JPanel();
-
-	JLabel l1 = new JLabel("GUN MANIA");
-	JLabel l2 = new JLabel(img);
-
-	JButton playGame = new JButton("Play Game");
-	JButton stats = new JButton("Stats");
-	JButton options = new JButton("Options");
-	JButton quit = new JButton("Quit");
-
 	Font f1 = new Font("Arial", Font.BOLD, 30);
 	Font f2 = new Font("Arial", Font.BOLD, 14);
 
@@ -39,9 +29,9 @@ public class MainMenu extends JFrame {
 	Color wh = Color.WHITE;
 	
 	Player[] players = new Player[2];
-	Weapon[] weapons = new Weapon[5];
+	Weapon[][] weapons = new Weapon[2][5];
 	
-	int x, y, height;
+	static int x, y, height;
 
 	boolean multiP = true;
 
@@ -51,6 +41,16 @@ public class MainMenu extends JFrame {
 		setSize(300, 505);
 		setResizable(false);
 		setLocationRelativeTo(null);
+		
+		JPanel p = new JPanel();
+
+		JLabel l1 = new JLabel("GUN MANIA");
+		JLabel l2 = new JLabel(img);
+
+		JButton playGame = new JButton("Play Game");
+		JButton stats = new JButton("Stats");
+		JButton options = new JButton("Options");
+		JButton quit = new JButton("Quit");
 		
 		x = getX();
 		y = getY();
@@ -115,7 +115,8 @@ public class MainMenu extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+				@SuppressWarnings("unused")
+				StatsMain m = new StatsMain();
 
 			}
 

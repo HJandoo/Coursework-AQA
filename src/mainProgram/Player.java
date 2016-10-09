@@ -8,8 +8,9 @@ public class Player {
 	int kills;
 	int deaths;
 	int killdiff;
+	int gamesPlayed;
 	
-	public Player(String u, int h, Weapon w, int k, int d, int kd) {
+	public Player(String u, int h, Weapon w, int k, int d, int kd, int gp) {
 		username = u;
 		health = h;
 		weapon = w;
@@ -17,6 +18,7 @@ public class Player {
 		deaths = d;
 		kd = k - d;
 		killdiff = kd;
+		gamesPlayed = gp;
 	}
 
 }
