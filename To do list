@@ -2,13 +2,11 @@ TO DO LIST
 
  - Regenerating health fixes!!! - if player gets hit while regenerating, regeneration needs to stop and wait another
    5 seconds before they start regenerating again!!
- - Weapon mechanics: Stop user from firing if ammo is 0; add key to swap weapons; ammo crates?
- - Include range effectiveness of weapons e.g. shotguns and SMGs only effective at close range?
+ - Weapon mechanics: add key to swap weapons; include range effectiveness of weapons e.g. shotguns and SMGs only effective at close range?
  - Place weapons randomly over map? - Spawn at random times?
  - Specific bullets for weapons e.g. rockets for rocket launcher
- - Time limit!
- - Score limit to get to!
+ - Make passwords have minimum length!
+ - Time limit: Make the time limit applied in the options menu the actual time limit
  - Remote connection to the server?
- - JTable for player statistics - WMD? player comparison?!
- - Options for options menu: Make them actually do stuff!!
+ - JTable for player statistics:  WMD? player comparison?!
  - Play game across LAN network? (client-server relationship/model?)

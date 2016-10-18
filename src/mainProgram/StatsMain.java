@@ -6,13 +6,15 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
+import engine.SQLFunctions;
+
 public class StatsMain extends JFrame {
 
 
 	private static final long serialVersionUID = 1L;
 
-	Object[][] data = new Object[SQLFunctions.getNumberOfPlayers()][4];
-	String[] columns = { "Username", "Kills", "Deaths", "K/D" };
+	Object[][] data = new Object[SQLFunctions.getNumberOfPlayers()][5];
+	String[] columns = { "Username", "Kills", "Deaths", "K/D", "Win rate/%" };
 	
 	JTable t = new JTable(data, columns);
 
@@ -31,7 +33,7 @@ public class StatsMain extends JFrame {
 		setSize(400, 400);
 		setLocationRelativeTo(null);
 		setVisible(true);
-		
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 	}
 	

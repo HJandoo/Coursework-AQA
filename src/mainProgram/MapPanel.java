@@ -11,10 +11,18 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Random;
+import java.util.TimerTask;
 
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+
+import engine.Player;
+import engine.SQLFunctions;
+import engine.Weapon;
 
 public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
@@ -22,11 +30,12 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	Random random = new Random();
 	Timer t = new Timer(5, this);
-	Timer[] reg = new Timer[2];
+	java.util.Timer[] reg = new java.util.Timer[2];
 	Timer[] resp = new Timer[2];
 
 	Font font = new Font("Arial", Font.PLAIN, 20);
 	Font font2 = new Font("Arial", Font.BOLD, 12);
+	Font font3 = new Font("Arial", Font.PLAIN, 25);
 
 	Rectangle[] rects = new Rectangle[250];
 	Rectangle[] playerRect = new Rectangle[2];
@@ -34,6 +43,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	Rectangle[] gunfire = new Rectangle[2];
 	Rectangle[] hp = new Rectangle[2];
 	Rectangle hidePlayer = new Rectangle(2000, 2000, 40, 50);
+	Rectangle ammoCrate = new Rectangle(2000, 2000, 20, 20);
 
 	Player[] players = new Player[2];
 	Weapon[][] weapons = new Weapon[2][5];
@@ -47,11 +57,13 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	int[] widths = new int[250];
 	int[] count2 = new int[2];
 	int[] scores = new int[2];
+	int[] coordx = { 20, 1870 };
+	int[] coordy = { 80, 970 };
 
 	JLabel[] usernames = new JLabel[2];
 	JLabel[] weaponLabel = new JLabel[2];
 	JLabel[] ammoLabel = new JLabel[2];
-	JLabel[] scorel = new JLabel[2];
+	JLabel scoreLabel = new JLabel(Integer.toString(scores[0]) + "   " + Integer.toString(scores[1]));
 
 	boolean[] isFiring = { false, false };
 	boolean[] takingDamage = { false, false };
@@ -60,71 +72,71 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	boolean[] respawning = { false, false };
 	boolean[] unableToMove = { false, false };
 	boolean[] ableToFire = { true, true };
+	
+	static java.util.Timer ti;
 
 	public MapPanel(Player[] players, Weapon[][] weapons) {
-
 		setLayout(null);
 		setFocusable(true);
 		addKeyListener(this);
 		setFocusTraversalKeysEnabled(false);
 		t.start();
 
+		//OptionsPanel.scoreLim = 1;
+		System.out.println("SCORE: " + OptionsPanel.scoreLim);
+		
 		setupPlayers(players, weapons);
-		setupBlocks();
+		setupBlocks(rects);
 		setupHud(players);
+		spawnAmmo(ammoCrate);
+		countdown();
 
 	}
 
 	public void setupHud(Player[] players) {
-		weaponLabel[0] = new JLabel(players[0].weapon.name);
+		weaponLabel[0] = new JLabel("Weapon: " + players[0].weapon.name);
 		weaponLabel[0].setForeground(Color.RED);
 		weaponLabel[0].setFont(font);
 		weaponLabel[0].setBounds(10, 10, 200, 20);
 		add(weaponLabel[0]);
-		
+
 		ammoLabel[0] = new JLabel("Ammo: " + Integer.toString(players[1].weapon.ammo));
 		ammoLabel[0].setForeground(Color.RED);
 		ammoLabel[0].setFont(font);
-		ammoLabel[0].setBounds(10, 40, 200, 20);
+		ammoLabel[0].setBounds(10, 30, 200, 20);
 		add(ammoLabel[0]);
-		
-		weaponLabel[1] = new JLabel(players[1].weapon.name);
+
+		weaponLabel[1] = new JLabel("Weapon: " + players[1].weapon.name);
 		weaponLabel[1].setForeground(blue);
 		weaponLabel[1].setHorizontalAlignment(JLabel.RIGHT);
 		weaponLabel[1].setFont(font);
 		weaponLabel[1].setBounds(1720, 10, 190, 20);
 		add(weaponLabel[1]);
-		
+
 		ammoLabel[1] = new JLabel("Ammo: " + Integer.toString(players[1].weapon.ammo));
 		ammoLabel[1].setForeground(blue);
 		ammoLabel[1].setHorizontalAlignment(JLabel.RIGHT);
 		ammoLabel[1].setFont(font);
-		ammoLabel[1].setBounds(1720, 40, 190, 20);
+		ammoLabel[1].setBounds(1720, 30, 190, 20);
 		add(ammoLabel[1]);
 
-		scorel[0] = new JLabel(Integer.toString(scores[0]));
-		scorel[0].setForeground(Color.RED);
-		scorel[0].setFont(font);
-		scorel[0].setBounds(100, 10, 100, 20);
-		add(scorel[0]);
-
-		scorel[1] = new JLabel(Integer.toString(scores[1]));
-		scorel[1].setForeground(blue);
-		scorel[1].setFont(font);
-		scorel[1].setBounds(1820, 10, 100, 20);
-		add(scorel[1]);
+		scoreLabel.setForeground(Color.WHITE);
+		scoreLabel.setFont(font3);
+		scoreLabel.setHorizontalAlignment(JLabel.CENTER);
+		scoreLabel.setBounds(0, 2, 1920, 20);
+		add(scoreLabel);
 
 	}
 
 	public void setupPlayers(Player[] players, Weapon[][] weapons) {
-		
+
 		this.players[0] = players[0];
 		this.players[1] = players[1];
-		
+
 		this.weapons[0] = weapons[0];
 		this.weapons[1] = weapons[1];
-		
-		playerRect[0] = new Rectangle(20, 60, 25, 25);
+
+		playerRect[0] = new Rectangle(20, 80, 25, 25);
 		weaponRect[0] = new Rectangle(playerRect[0].x + 20, playerRect[0].y - 10, 5, 10);
 
 		playerRect[1] = new Rectangle(1870, 970, 25, 25);
@@ -154,7 +166,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	}
 
-	public void setupBlocks() {
+	public void setupBlocks(Rectangle[] rects) {
 		// Draws up the map by randomly placing blocks across the screen
 		for (int i = 0; i < 80; i += 4) {
 
@@ -204,6 +216,23 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	}
 
+	public void countdown() {
+		
+		ti = new java.util.Timer();
+		
+		ti.schedule(new TimerTask() {
+
+			@Override
+			public void run() {
+				System.out.println(MainMenu.timeLim);
+				MainMenu.timeLim--;
+				
+			}
+			
+		}, 0, 1000);
+		
+	}
+	
 	public void paintComponent(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
 
@@ -214,7 +243,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		g2d.setRenderingHints(rh);
 		g2d.setRenderingHints(rh2);
 
-		g.setColor(new Color(225, 225, 225));
+		g.setColor(OptionsPanel.back);
 		g.fillRect(0, 0, 1920, 1080);
 
 		for (int i = 0; i < 20; i++) {
@@ -222,15 +251,17 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		}
 
 		for (Rectangle r : rects) {
-			g.setColor(Color.BLACK);
+			g.setColor(OptionsPanel.wall);
 			g.fillRect(r.x, r.y, r.width, r.height);
 		}
 
 		g.setColor(Color.RED);
 		g.fillRect(playerRect[0].x, playerRect[0].y, playerRect[0].width, playerRect[0].height);
+		g.fillRect(925, 0, 35, 25);
 
 		g.setColor(blue);
 		g.fillRect(playerRect[1].x, playerRect[1].y, playerRect[1].width, playerRect[1].height);
+		g.fillRect(960, 0, 35, 25);
 
 		g.setColor(Color.YELLOW);
 		g.fillRect(gunfire[0].x, gunfire[0].y, gunfire[0].width, gunfire[0].height);
@@ -252,11 +283,66 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 		}
 
-		g.setColor(new Color(225, 225, 225));
+		g.setColor(OptionsPanel.back);
 		g.fillRect(hidePlayer.x, hidePlayer.y, hidePlayer.width, hidePlayer.height);
 
 		hitDetection(players);
+		
+		
+		g.setColor(new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255)));
+		g.fillRect(ammoCrate.x, ammoCrate.y, ammoCrate.width, ammoCrate.height);
+		
+		
+		for (int i = 0; i < 2; i++) {
+			if (ammoCrate.intersects(playerRect[i])) {
+				collectAmmo(i, ammoCrate);
+			}
+		}
 
+
+	}
+
+	public void spawnAmmo(final Rectangle ammoCrate) {
+		java.util.Timer ac = new java.util.Timer();
+		int i = (random.nextInt(30) + 30) * 1000;
+		System.out.println(i / 1000);
+
+		ac.schedule(new TimerTask() {
+
+			@Override
+			public void run() {
+				
+				ammoCrate.x = random.nextInt(1900);
+				ammoCrate.y = random.nextInt(1000);
+				
+				for (int i = 0; i < 250; i++) {
+					while (ammoCrate.intersects(rects[i])) {
+						ammoCrate.x = random.nextInt(1900);
+						ammoCrate.y = random.nextInt(1000);
+					}
+				}
+								
+				System.out.println("x: " + ammoCrate.x);
+				System.out.println("y: " + ammoCrate.y);				
+				System.out.println("Should be spawned");
+				
+			}
+		}, i);
+		
+		
+	}
+	
+	public void collectAmmo(int i, Rectangle ammoCrate) {
+		ammoCrate.x = 2000;
+		ammoCrate.y = 2000;
+		
+		SQLFunctions.refillAmmo(players, weapons, i);
+		
+		ammoLabel[i].setText("Ammo: " + players[i].weapon.ammo);
+		
+		System.out.println("Ammo should be refilled");
+		
+		spawnAmmo(ammoCrate);
 	}
 
 	public void hitDetection(Player[] players) {
@@ -268,7 +354,6 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			players[0].health -= players[1].weapon.damagePerShot;
 			hp[0].width = (int) (0.035 * players[0].health);
 			regenning[0] = false;
-			reg[0].restart();
 
 		}
 
@@ -279,7 +364,6 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			players[1].health -= players[0].weapon.damagePerShot;
 			hp[1].width = (int) (0.035 * players[1].health);
 			regenning[1] = false;
-			reg[1].restart();
 
 		}
 	}
@@ -300,8 +384,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				playerRect[i].x = 20;
-				playerRect[i].y = 60;
+				Random r = new Random();
+
+				playerRect[i].x = coordx[r.nextInt(2)];
+				playerRect[i].y = coordy[r.nextInt(2)];
 				players[i].health = 1000;
 				players[i].weapon = weapons[i][0];
 				hp[i].width = (int) (0.035 * players[i].health);
@@ -316,21 +402,32 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		});
 		resp[i].setRepeats(false);
 		resp[i].start();
-		
 
 	}
 
-	public void increment(int i, int j, boolean[] playerKilled, int[] scores, JLabel[] scorel, Player[] players) {
+	public void increment(int i, int j, boolean[] playerKilled, int[] scores, JLabel scoreLabel, Player[] players) {
 		if (playerKilled[i]) {
 			scores[j]++;
 			players[j].kills++;
 			players[i].deaths++;
-			scorel[j].setText(Integer.toString(scores[j]));
+			scoreLabel.setText(Integer.toString(scores[0]) + "   " + Integer.toString(scores[1]));
 
-			players[i].killdiff = players[i].kills - players[i].deaths;
-			players[j].killdiff = players[j].kills - players[j].deaths;
+			if (players[i].deaths != 0) {
+				players[i].killdiff = players[i].kills / players[i].deaths;
 
-			SQLFunctions.updateStats(players, 0);
+			} else {
+				players[i].killdiff = players[i].kills;
+
+			}
+
+			if (players[j].deaths != 0) {
+				players[j].killdiff = players[j].kills / players[j].deaths;
+
+			} else {
+				players[j].killdiff = players[j].kills;
+			}
+
+			SQLFunctions.updateStats(players);
 
 			playerKilled[i] = false;
 			respawning[i] = false;
@@ -338,22 +435,22 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		}
 
 	}
-	
+
 	public void wait(Player[] players, final int i, int delay) {
 		ableToFire[i] = false;
-		
+
 		Timer t = new Timer(delay, new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ableToFire[i] = true;
 			}
-			
+
 		});
-		
+
 		t.setRepeats(false);
 		t.start();
-		
+
 	}
 
 	public void intersections(int i, int j, int k) {
@@ -377,15 +474,26 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		}
 	}
 
-	public void fire(int i) {
+	public void fire(final int i) {
 
 		count[i]++;
 
+		java.util.Timer t = new java.util.Timer();
+
+		t.schedule(new TimerTask() {
+
+			@Override
+			public void run() {
+				players[i].weapon.ammo -= 0;
+
+				gunfire[i].x = 2000;
+				gunfire[i].y = 2000;
+
+			}
+
+		}, 10);
+
 		if (count[i] < 2) {
-			
-			players[i].weapon.ammo--;
-			
-			ammoLabel[i].setText("Ammo: " + Integer.toString(players[i].weapon.ammo));
 
 			switch (orientation[i]) {
 			case 0:
@@ -440,70 +548,69 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				}
 				break;
 			}
+
+			players[i].weapon.ammo--;
+
+			ammoLabel[i].setText("Ammo: " + Integer.toString(players[i].weapon.ammo));
+
 		} else {
 			players[i].weapon.ammo -= 0;
-			
-			gunfire[i].x = 2000;
-			gunfire[i].y = 2000;
+
 		}
 	}
 
 	public void time(final Player[] players) {
-		reg[0] = new Timer(5000, new ActionListener() {
+
+		reg[0] = new java.util.Timer();
+
+		reg[0].schedule(new TimerTask() {
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				
+			public void run() {
 				if (players[0].health >= 1000) {
 					players[0].health = 1000;
-					reg[0].stop();
+					reg[0].cancel();
 				} else {
-					reg[0].start();
 
-					takingDamage[0] = false;		
-					regen(0, players);	
-					
+					takingDamage[0] = false;
+					regen(0, players);
+
 				}
 
 			}
 
-		});
+		}, 5000);
 
-		reg[0].setRepeats(false);
-		
-		
 		if (players[0].health >= 1000) {
 			players[0].health = 1000;
-			reg[0].stop();
+			reg[0].cancel();
 		} else {
-			reg[0].setInitialDelay(5000);
-			reg[0].start();
+
 		}
 
-		reg[1] = new Timer(5000, new ActionListener() {
+		reg[1] = new java.util.Timer();
+
+		reg[1].schedule(new TimerTask() {
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void run() {
 				takingDamage[1] = false;
 				regen(1, players);
 
 				if (players[1].health >= 1000) {
 
 					players[1].health = 1000;
-					reg[1].stop();
+					reg[1].cancel();
 				}
-				
+
 			}
 
-		});
-		reg[1].setRepeats(false);
-		reg[1].start();
+		}, 5000);
 
 		if (players[1].health >= 1000) {
 
 			players[1].health = 1000;
-			reg[1].stop();
+			reg[1].cancel();
 		}
 
 	}
@@ -537,6 +644,15 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		}
 	}
 
+	public boolean hasPlayerWon(Player[] players, int score) {
+		if (score == OptionsPanel.scoreLim) {
+			return true;
+		} else {
+			return false;
+		}
+
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
@@ -564,9 +680,26 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			hidePlayer.x = 1880;
 			hidePlayer.y = 970;
 
-			increment(0, 1, playerKilled, scores, scorel, players);
-			respawn(0, players, weapons);
+			increment(0, 1, playerKilled, scores, scoreLabel, players);
 
+			if (hasPlayerWon(players, scores[1])) {
+
+				players[1].gamesWon++;
+
+				players[0].winRate = (players[0].gamesWon / players[0].gamesPlayed) * 100;
+				players[1].winRate = (players[1].gamesWon / players[1].gamesPlayed) * 100;
+
+				SQLFunctions.updateStats(players);
+
+				JOptionPane.showMessageDialog(null,
+						players[0].username + " has won!" + "\nFinal score: " + scores[0] + " - " + scores[1], "Winner",
+						JOptionPane.PLAIN_MESSAGE);
+				JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(getParent());
+				topFrame.dispose();
+
+			} else {
+				respawn(0, players, weapons);
+			}
 		}
 
 		if (players[1].health <= 0) {
@@ -581,9 +714,26 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			hidePlayer.x = 1880;
 			hidePlayer.y = 970;
 
-			increment(1, 0, playerKilled, scores, scorel, players);
-			respawn(1, players, weapons);
+			increment(1, 0, playerKilled, scores, scoreLabel, players);
 
+			if (hasPlayerWon(players, scores[0])) {
+
+				players[0].gamesWon++;
+
+				players[0].winRate = (players[0].gamesWon / players[0].gamesPlayed) * 100;
+				players[1].winRate = (players[1].gamesWon / players[1].gamesPlayed) * 100;
+
+				SQLFunctions.updateStats(players);
+
+				JOptionPane.showMessageDialog(null,
+						players[0].username + " has won!" + "\nFinal score: " + scores[0] + " - " + scores[1], "Winner",
+						JOptionPane.PLAIN_MESSAGE);
+				JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(getParent());
+				topFrame.dispose();
+			} else {
+				respawn(1, players, weapons);
+
+			}
 		}
 
 		if (playerRect[0].x < 0) {
@@ -633,13 +783,17 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			fire(0);
 			wait(players, 0, players[0].weapon.rate);
 		}
-		
+
 		if (isFiring[1]) {
 			fire(1);
 			wait(players, 1, players[1].weapon.rate);
 		}
 
-		time(players);
+		if (takingDamage[0] || takingDamage[1]) {
+			time(players);
+		} else {
+
+		}
 
 		repaint();
 	}
@@ -667,14 +821,16 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				orientation[0] = 1;
 				break;
 			case KeyEvent.VK_SPACE:
-				if (ableToFire[0]) {
+				if (ableToFire[0] && players[0].weapon.ammo != 0) {
 					isFiring[0] = true;
+				} else {
+					//ableToFire[0]  = false;
 				}
 				break;
 
 			}
 		} else {
-			
+
 		}
 
 		if (!unableToMove[1]) {
@@ -698,13 +854,15 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				orientation[1] = 1;
 				break;
 			case KeyEvent.VK_Q:
-				if (ableToFire[1]) {
+				if (ableToFire[1] && players[1].weapon.ammo != 0) {
 					isFiring[1] = true;
+				} else {
+					
 				}
 				break;
 			}
 		} else {
-			
+
 		}
 
 	}

@@ -1,12 +1,12 @@
-package mainProgram;
+package engine;
 
 public class Weapon {
 
-	int code;
-	String name;
-	int damagePerShot;
-	int rate;
-	int ammo;
+	public int code;
+	public String name;
+	public int damagePerShot;
+	public int rate;
+	public int ammo;
 	
 	public Weapon(int c, String n, int dps, int r, int a) {
 		code = c;

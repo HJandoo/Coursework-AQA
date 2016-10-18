@@ -3,6 +3,8 @@ package mainProgram;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -18,6 +20,9 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import engine.Player;
+import engine.Weapon;
+
 public class LoginMain extends JFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -26,7 +31,8 @@ public class LoginMain extends JFrame {
 
 	char[] pass;
 
-	int dk, dd, dkd, dgp;
+	int dk, dd, dkd, dgp, dgw;
+	double dwr;
 	int[] counter = new int[2];
 
 	public LoginMain(final int i, final Player[] players, final Weapon[][] weapons, final int x, final int y, final int height, final boolean multiP) {
@@ -43,7 +49,7 @@ public class LoginMain extends JFrame {
 		JPanel panel = new JPanel();
 		
 		panel.setBackground(Color.WHITE);
-		setLocationRelativeTo(null);
+		setLocationRelativeTo(null);		
 
 		if (i == 0) {
 			setBounds(x - 250, y + (height / 3), 250, 160);
@@ -54,7 +60,8 @@ public class LoginMain extends JFrame {
 		setResizable(false);
 		setTitle("Player " + (i + 1) + " log in");
 		setVisible(true);
-
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		
 		panel.setLayout(null);
 		add(panel);
 
@@ -112,6 +119,7 @@ public class LoginMain extends JFrame {
 						dd = rs.getInt("deaths");
 						dkd = rs.getInt("K/D");
 						dgp = rs.getInt("games_played");
+						dgw = rs.getInt("matches_won");
 
 					}
 
@@ -125,17 +133,24 @@ public class LoginMain extends JFrame {
 										"Profile already logged in", JOptionPane.ERROR_MESSAGE);
 							} else {
 								
-								players[i] = new Player(duser, 1000, weapons[i][0], dk, dd, dkd, dgp);
+								players[i] = new Player(duser, 1000, weapons[i][0], dk, dd, dkd, dgp, dgw, dwr);
 								players[i].gamesPlayed++;
 								setVisible(false);
 								
-								@SuppressWarnings("unused")
-								MapMain m = new MapMain(players, weapons);
+								final MapMain m = new MapMain(players, weapons);
+
+								
+								m.addWindowListener(new WindowAdapter() {
+									public void windowClosing(WindowEvent w) {
+										
+										MapPanel.ti.cancel();
+									}
+								});
 							}
 							
 						} else if (i == 0){
 
-						players[i] = new Player(duser, 1000, weapons[i][0], dk, dd, dkd, dgp);
+						players[i] = new Player(duser, 1000, weapons[i][0], dk, dd, dkd, dgp, dgw, dwr);
 						players[i].gamesPlayed++;
 						setVisible(false);
 						
@@ -212,7 +227,7 @@ public class LoginMain extends JFrame {
 							String create = "insert into player_statistics(username, password, kills, deaths, `K/D`) values('"
 									+ user + "', '" + hPass + "', 0, 0, 0);";
 							st.execute(create);
-							players[i] = new Player(user, 1000, weapons[i][0], 0, 0, 0, 0);
+							players[i] = new Player(user, 1000, weapons[i][0], 0, 0, 0, 0, 0, 0);
 							players[i].gamesPlayed++;
 							setVisible(false);
 						
@@ -222,7 +237,7 @@ public class LoginMain extends JFrame {
 								
 							} else {
 
-								players[i] = new Player(user, 1000, weapons[i][0], 0, 0, 0, 0);
+								players[i] = new Player(user, 1000, weapons[i][0], 0, 0, 0, 0, 0, 0);
 								players[i].gamesPlayed++;
 								setVisible(false);
 								

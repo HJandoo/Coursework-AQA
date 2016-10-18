@@ -6,13 +6,16 @@ public class OptionsMain extends JFrame{
 
 	private static final long serialVersionUID = 1L;
 	
-	OptionsPanel p = new OptionsPanel();
 	
-	public OptionsMain() {
+	
+	public OptionsMain(int x, int y, int[] choice) {
 		setTitle("Options");
-		setBounds(MainMenu.x + 40, MainMenu.y + 163, 250, 210);
+		setBounds(x + 40, y + 163, 250, 240);
 		setResizable(false);
 		setVisible(true);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		
+		OptionsPanel p = new OptionsPanel(choice);
 		add(p);
 		
 	}

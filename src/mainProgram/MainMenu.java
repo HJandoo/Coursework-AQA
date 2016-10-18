@@ -1,8 +1,9 @@
 package mainProgram;
 
-/** Computer Science AQA Coursework 2016/17
+/** 
+ * Computer Science AQA Coursework 2016/17 - GUN MANIA
  * Made by Harnaam Jandoo
- * 
+ * Candidate number: 5039
  */
 
 import java.awt.Color;
@@ -15,6 +16,10 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import engine.Player;
+import engine.SQLFunctions;
+import engine.Weapon;
 
 public class MainMenu extends JFrame {
 
@@ -31,11 +36,18 @@ public class MainMenu extends JFrame {
 	Player[] players = new Player[2];
 	Weapon[][] weapons = new Weapon[2][5];
 	
-	static int x, y, height;
+	static 	int[] choice = new int[3];
+	static int timeLim;
 
-	boolean multiP = true;
-
+	@SuppressWarnings("unused")
 	public MainMenu() {
+		
+		choice[0]  = 1;
+		choice[1] = 2;
+		choice[2] = 0;
+		
+		timeLim = 180;
+		
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(300, 505);
@@ -51,6 +63,12 @@ public class MainMenu extends JFrame {
 		JButton stats = new JButton("Stats");
 		JButton options = new JButton("Options");
 		JButton quit = new JButton("Quit");
+		
+		final int x;
+		final int y;
+		final int height;
+		
+		final boolean multiP = true;
 		
 		x = getX();
 		y = getY();
@@ -102,34 +120,25 @@ public class MainMenu extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				
 				SQLFunctions.getWeapons(weapons);
-
-				@SuppressWarnings("unused")
-				LoginMain m = new LoginMain(0, players, weapons, x, y, height, multiP);
 				
-				
+				LoginMain m = new LoginMain(0, players, weapons, x, y, height, multiP);		
 			}
-
 		});
 
 		stats.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				@SuppressWarnings("unused")
 				StatsMain m = new StatsMain();
-
 			}
-
 		});
 
 		options.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				@SuppressWarnings("unused")
-				OptionsMain m = new OptionsMain();
+				OptionsMain m = new OptionsMain(x, y, choice);
 			}
-
 		});
 
 		quit.addActionListener(new ActionListener() {
@@ -138,9 +147,7 @@ public class MainMenu extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
 			}
-
 		});
-
 	}
 
 	public static void main(String[] args) {
