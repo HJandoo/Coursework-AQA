@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Random;
 
 public class SQLFunctions {
 
@@ -115,6 +116,28 @@ public class SQLFunctions {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public static Weapon getRandomWeapon(Weapon weapon) {
+		Random r = new Random();
+		int i = r.nextInt(5);
+		
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+
+			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "password");
+
+			Statement st = c.createStatement();
+
+			ResultSet rs = st.executeQuery("select * from weapons where id = '" + i + "';");
+			
+			weapon = new Weapon(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getInt(5));
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return weapon;
 	}
 
 	public static void getStats(Object[][] data) {

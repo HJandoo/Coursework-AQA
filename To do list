@@ -1,12 +1,9 @@
 TO DO LIST
 
- - Regenerating health fixes!!! - if player gets hit while regenerating, regeneration needs to stop and wait another
-   5 seconds before they start regenerating again!!
+ - Regenerating health fixes: Somewhat works...
  - Weapon mechanics: add key to swap weapons; include range effectiveness of weapons e.g. shotguns and SMGs only effective at close range?
  - Place weapons randomly over map? - Spawn at random times?
  - Specific bullets for weapons e.g. rockets for rocket launcher
- - Make passwords have minimum length!
- - Time limit: Make the time limit applied in the options menu the actual time limit
- - Remote connection to the server?
- - JTable for player statistics:  WMD? player comparison?!
+ - Player stats:  WMD? player comparison?
+ - Remote connection to server?
  - Play game across LAN network? (client-server relationship/model?)

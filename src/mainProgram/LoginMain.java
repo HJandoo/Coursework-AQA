@@ -207,6 +207,10 @@ public class LoginMain extends JFrame {
 						JOptionPane.showMessageDialog(getParent(),
 								"A profile already exists with that username. Please try another username",
 								"Duplicate profile", JOptionPane.ERROR_MESSAGE);
+					} else if (passw.length() < 6) {
+						JOptionPane.showMessageDialog(getParent(),
+								"Your password is too short. Please make sure it is at least 6 characters long",
+								"Password too short", JOptionPane.ERROR_MESSAGE);
 					} else {
 						
 						JPasswordField jpf = new JPasswordField();

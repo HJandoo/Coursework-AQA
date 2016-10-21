@@ -24,7 +24,7 @@ public class OptionsPanel extends JPanel{
 	JButton apply = new JButton("Apply settings");
 	
 	Integer[] scorelims = { 10, 15, 20, 25, 30, 35, 40, 45, 50 };
-	Integer[] timelims = { 3, 4, 5, 6, 7, 8, 9, 10 };
+	static Integer[] timelims = { 3, 4, 5, 6, 7, 8, 9, 10 };
 	String[] colours = { "White", "Grey", "Black",  "Green",  "Yellow", "Orange" };
 	String[] reso = { "1920x1080", "1600x900", "1366x768", "1280x720" };
 	
@@ -34,7 +34,7 @@ public class OptionsPanel extends JPanel{
 	JComboBox<String> foreCB = new JComboBox<String>(colours);
 	JComboBox<String> resCB = new JComboBox<String>(reso);
 	
-	static int scoreLim, timeLim;
+	static int scoreLim, timeLim = 180;
 	
 	static Color[] c = { Color.WHITE, new Color(225, 225, 225), Color.BLACK, Color.GREEN, Color.YELLOW, Color.ORANGE };
 	
@@ -82,7 +82,7 @@ public class OptionsPanel extends JPanel{
 		
 		foreCB.setBounds(130, 100, 100, 20);
 		foreCB.setForeground(Color.BLACK);
-		foreCB.setSelectedItem(choice[1]);
+		foreCB.setSelectedIndex(choice[1]);
 		add(foreCB);
 		
 		resCB.setBounds(130, 130, 100, 20);
@@ -100,10 +100,8 @@ public class OptionsPanel extends JPanel{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				scoreLim = (int) scoreCB.getSelectedItem();
-				MainMenu.timeLim = (int) timeCB.getSelectedItem() * 60;
-				
-				System.out.println(MainMenu.timeLim);
-				
+				timeLim = (int) timeCB.getSelectedItem() * 60;
+								
 				choice[0] = backCB.getSelectedIndex();
 				choice[1] = foreCB.getSelectedIndex();
 				
@@ -121,12 +119,11 @@ public class OptionsPanel extends JPanel{
 				
 				JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(getParent());
 				topFrame.dispose();	
-				
-				
-				
+		
 			}
 			
 		});
 	}
+	
 	
 }

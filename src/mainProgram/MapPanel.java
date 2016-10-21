@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.text.DecimalFormat;
 import java.util.Random;
 import java.util.TimerTask;
 
@@ -44,12 +45,19 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	Rectangle[] hp = new Rectangle[2];
 	Rectangle hidePlayer = new Rectangle(2000, 2000, 40, 50);
 	Rectangle ammoCrate = new Rectangle(2000, 2000, 20, 20);
+	Rectangle wepCrate = new Rectangle(2000, 2000, 20, 20);
 
 	Player[] players = new Player[2];
 	Weapon[][] weapons = new Weapon[2][5];
 
 	Color blue = new Color(0, 129, 222);
 	static Color grey = new Color(61, 61, 61);
+
+	String time;
+
+	int tl = OptionsPanel.timeLim;
+	int minutes = (tl / 60) - 1;
+	int seconds = OptionsPanel.timeLim / (OptionsPanel.timeLim / 60);
 
 	int[] vel = new int[4];
 	int[] count = { 0, 0, 0 };
@@ -63,16 +71,18 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	JLabel[] usernames = new JLabel[2];
 	JLabel[] weaponLabel = new JLabel[2];
 	JLabel[] ammoLabel = new JLabel[2];
-	JLabel scoreLabel = new JLabel(Integer.toString(scores[0]) + "   " + Integer.toString(scores[1]));
+	JLabel[] scoreLabel = new JLabel[2];
+	JLabel tL = new JLabel(time);
 
+	boolean paused = false;
+	boolean startRegen[] = { false, false };
 	boolean[] isFiring = { false, false };
-	boolean[] takingDamage = { false, false };
 	boolean[] playerKilled = { false, false };
-	boolean[] regenning = { false, false };
 	boolean[] respawning = { false, false };
 	boolean[] unableToMove = { false, false };
 	boolean[] ableToFire = { true, true };
-	
+	boolean[] tir = { false, false };
+
 	static java.util.Timer ti;
 
 	public MapPanel(Player[] players, Weapon[][] weapons) {
@@ -82,12 +92,17 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		setFocusTraversalKeysEnabled(false);
 		t.start();
 
-		//OptionsPanel.scoreLim = 1;
-		System.out.println("SCORE: " + OptionsPanel.scoreLim);
-		
+		reg[0] = new java.util.Timer();
+		reg[1] = new java.util.Timer();
+
+		if (OptionsPanel.scoreLim == 0) {
+			OptionsPanel.scoreLim = 20;
+		}
+
 		setupPlayers(players, weapons);
 		setupBlocks(rects);
 		setupHud(players);
+		spawnWep(wepCrate);
 		spawnAmmo(ammoCrate);
 		countdown();
 
@@ -120,11 +135,26 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		ammoLabel[1].setBounds(1720, 30, 190, 20);
 		add(ammoLabel[1]);
 
-		scoreLabel.setForeground(Color.WHITE);
-		scoreLabel.setFont(font3);
-		scoreLabel.setHorizontalAlignment(JLabel.CENTER);
-		scoreLabel.setBounds(0, 2, 1920, 20);
-		add(scoreLabel);
+		scoreLabel[0] = new JLabel(Integer.toString(scores[0]));
+		scoreLabel[0].setForeground(Color.WHITE);
+		scoreLabel[0].setHorizontalAlignment(JLabel.CENTER);
+		scoreLabel[0].setFont(font3);
+		scoreLabel[0].setBounds(925, 2, 35, 20);
+		add(scoreLabel[0]);
+
+		scoreLabel[1] = new JLabel(Integer.toString(scores[1]));
+		scoreLabel[1].setForeground(Color.WHITE);
+		scoreLabel[1].setHorizontalAlignment(JLabel.CENTER);
+		scoreLabel[1].setFont(font3);
+		scoreLabel[1].setBounds(960, 2, 35, 20);
+		add(scoreLabel[1]);
+
+		tL.setBounds(940, 25, 40, 20);
+		tL.setForeground(Color.WHITE);
+		tL.setOpaque(true);
+		tL.setBackground(new Color(99, 0, 145));
+		tL.setFont(font);
+		add(tL);
 
 	}
 
@@ -217,22 +247,79 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void countdown() {
-		
+
 		ti = new java.util.Timer();
-		
+
+		final DecimalFormat d = new DecimalFormat("00");
+
 		ti.schedule(new TimerTask() {
 
 			@Override
 			public void run() {
-				System.out.println(MainMenu.timeLim);
-				MainMenu.timeLim--;
-				
+
+				if (!paused) {
+					tl--;
+					seconds--;
+				} else {
+					tl -= 0;
+					seconds -= 0;
+				}
+				if (seconds < 0) {
+					seconds = 59;
+					minutes--;
+				}
+
+				if (tl < 0) {
+					ti.cancel();
+					checkWinner();
+
+				}
+
+				time = minutes + ":" + d.format(seconds);
+
+				tL.setText(time);
+
 			}
-			
+
 		}, 0, 1000);
-		
+
 	}
-	
+
+	public void checkWinner() {
+		if (scores[0] > scores[1]) {
+			t.stop();
+			displayWinner(0, 1);
+		} else if (scores[0] < scores[1]) {
+			t.stop();
+			displayWinner(1, 0);
+		} else if (scores[0] == scores[1]) {
+			t.stop();
+			displayDraw();
+		}
+	}
+
+	public void displayWinner(int i, int j) {
+		players[i].gamesWon++;
+
+		players[i].winRate = (players[0].gamesWon / players[0].gamesPlayed) * 100;
+		players[j].winRate = (players[1].gamesWon / players[1].gamesPlayed) * 100;
+
+		SQLFunctions.updateStats(players);
+
+		JOptionPane.showMessageDialog(null,
+				players[i].username + " has won!" + "\nFinal score: " + scores[0] + " : " + scores[1], "Winner",
+				JOptionPane.PLAIN_MESSAGE);
+		JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(getParent());
+		topFrame.dispose();
+	}
+
+	public void displayDraw() {
+		JOptionPane.showMessageDialog(null, "It's a draw!" + "\nFinal score: " + scores[0] + " : " + scores[1], "Draw",
+				JOptionPane.PLAIN_MESSAGE);
+		JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(getParent());
+		topFrame.dispose();
+	}
+
 	public void paintComponent(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
 
@@ -286,94 +373,161 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		g.setColor(OptionsPanel.back);
 		g.fillRect(hidePlayer.x, hidePlayer.y, hidePlayer.width, hidePlayer.height);
 
-		hitDetection(players);
-		
-		
 		g.setColor(new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255)));
 		g.fillRect(ammoCrate.x, ammoCrate.y, ammoCrate.width, ammoCrate.height);
 		
 		
+
 		for (int i = 0; i < 2; i++) {
 			if (ammoCrate.intersects(playerRect[i])) {
 				collectAmmo(i, ammoCrate);
 			}
 		}
 
-
 	}
 
+	public void spawnWep(final Rectangle wepCrate) {
+		java.util.Timer wc = new java.util.Timer();
+		int i = (random.nextInt(20) + 20) * 1000;
+
+		wc.schedule(new TimerTask() {
+
+			@Override
+			public void run() {
+
+				wepCrate.x = random.nextInt(1900);
+				wepCrate.y = random.nextInt(1000);
+
+				for (int i = 0; i < 250; i++) {
+					while (wepCrate.intersects(rects[i])) {
+						wepCrate.x = random.nextInt(1900);
+						wepCrate.y = random.nextInt(1000);
+					}
+				}
+
+			}
+		}, i);
+	}
+	
 	public void spawnAmmo(final Rectangle ammoCrate) {
 		java.util.Timer ac = new java.util.Timer();
 		int i = (random.nextInt(30) + 30) * 1000;
-		System.out.println(i / 1000);
 
 		ac.schedule(new TimerTask() {
 
 			@Override
 			public void run() {
-				
+
 				ammoCrate.x = random.nextInt(1900);
 				ammoCrate.y = random.nextInt(1000);
-				
+
 				for (int i = 0; i < 250; i++) {
 					while (ammoCrate.intersects(rects[i])) {
 						ammoCrate.x = random.nextInt(1900);
 						ammoCrate.y = random.nextInt(1000);
 					}
 				}
-								
-				System.out.println("x: " + ammoCrate.x);
-				System.out.println("y: " + ammoCrate.y);				
-				System.out.println("Should be spawned");
-				
+
 			}
 		}, i);
-		
-		
+
 	}
 	
+	public void collectWep(int i, Rectangle wepCrate) {
+		wepCrate.x = 2000;
+		wepCrate.y = 2000;
+		
+		SQLFunctions.getRandomWeapon(players[i].weapon);
+		
+		weaponLabel[i].setText("Weapon: " + players[i].weapon.name);
+
+		spawnWep(wepCrate);
+	}
+
 	public void collectAmmo(int i, Rectangle ammoCrate) {
 		ammoCrate.x = 2000;
 		ammoCrate.y = 2000;
-		
+
 		SQLFunctions.refillAmmo(players, weapons, i);
-		
+
 		ammoLabel[i].setText("Ammo: " + players[i].weapon.ammo);
-		
-		System.out.println("Ammo should be refilled");
-		
+
 		spawnAmmo(ammoCrate);
 	}
 
-	public void hitDetection(Player[] players) {
+	public void hitDetection(final Player[] players) {
 
 		if (gunfire[1].intersects(playerRect[0])) {
+			
+			startRegen[0] = false;
 
 			// Player 1 takes damage
-			takingDamage[0] = true;
 			players[0].health -= players[1].weapon.damagePerShot;
 			hp[0].width = (int) (0.035 * players[0].health);
-			regenning[0] = false;
 
+			reg[0].schedule(new TimerTask() {
+
+				@Override
+				public void run() {
+					if (players[0].health >= 1000) {
+						players[0].health += 0;
+						System.out.println("Pls stop for full health");
+						players[0].health = 1000;
+						hp[0].width = (int) (0.035 * players[0].health);
+						cancel();
+					} else if (gunfire[1].intersects(playerRect[0])) {
+						players[0].health += 0;
+						System.out.println("Pls stop for gunfire");
+						hp[0].width = (int) (0.035 * players[0].health);
+						cancel();
+					} else {
+						System.out.println("Regenning...");
+						players[0].health++;
+						hp[0].width = (int) (0.035 * players[0].health);
+
+					}
+					
+
+				}
+
+			}, 5000, 10);
 		}
 
 		if (gunfire[0].intersects(playerRect[1])) {
 
+			startRegen[1] = false;
+
 			// Player 2 takes damage
-			takingDamage[1] = true;
 			players[1].health -= players[0].weapon.damagePerShot;
 			hp[1].width = (int) (0.035 * players[1].health);
-			regenning[1] = false;
+
+			reg[1].schedule(new TimerTask() {
+
+				public void run() {
+
+					if (players[1].health >= 1000) {
+						players[1].health += 0;
+						System.out.println("Pls stop for full health");
+						players[1].health = 1000;
+						hp[1].width = (int) (0.035 * players[1].health);
+						cancel();
+					} else if (gunfire[0].intersects(playerRect[1])) {
+						players[1].health += 0;
+						System.out.println("Pls stop for gunfire");
+						hp[1].width = (int) (0.035 * players[1].health);
+						cancel();
+					} else {
+						System.out.println("Regenning...");
+						players[1].health++;
+						hp[1].width = (int) (0.035 * players[1].health);
+
+					}
+
+				}
+
+			}, 5000, 10);
 
 		}
-	}
-
-	public void regen(final int i, Player[] players) {
-
-		regenning[i] = true;
-		players[i].health += 2;
-		hp[i].width = (int) (0.035 * players[i].health);
-
 	}
 
 	public void respawn(final int i, final Player[] players, final Weapon[][] weapons) {
@@ -405,12 +559,12 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	}
 
-	public void increment(int i, int j, boolean[] playerKilled, int[] scores, JLabel scoreLabel, Player[] players) {
+	public void increment(int i, int j, boolean[] playerKilled, int[] scores, JLabel[] scoreLabel, Player[] players) {
 		if (playerKilled[i]) {
 			scores[j]++;
 			players[j].kills++;
 			players[i].deaths++;
-			scoreLabel.setText(Integer.toString(scores[0]) + "   " + Integer.toString(scores[1]));
+			scoreLabel[j].setText(Integer.toString(scores[j]));
 
 			if (players[i].deaths != 0) {
 				players[i].killdiff = players[i].kills / players[i].deaths;
@@ -559,62 +713,6 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		}
 	}
 
-	public void time(final Player[] players) {
-
-		reg[0] = new java.util.Timer();
-
-		reg[0].schedule(new TimerTask() {
-
-			@Override
-			public void run() {
-				if (players[0].health >= 1000) {
-					players[0].health = 1000;
-					reg[0].cancel();
-				} else {
-
-					takingDamage[0] = false;
-					regen(0, players);
-
-				}
-
-			}
-
-		}, 5000);
-
-		if (players[0].health >= 1000) {
-			players[0].health = 1000;
-			reg[0].cancel();
-		} else {
-
-		}
-
-		reg[1] = new java.util.Timer();
-
-		reg[1].schedule(new TimerTask() {
-
-			@Override
-			public void run() {
-				takingDamage[1] = false;
-				regen(1, players);
-
-				if (players[1].health >= 1000) {
-
-					players[1].health = 1000;
-					reg[1].cancel();
-				}
-
-			}
-
-		}, 5000);
-
-		if (players[1].health >= 1000) {
-
-			players[1].health = 1000;
-			reg[1].cancel();
-		}
-
-	}
-
 	public void sortOrientation(int i) {
 		switch (orientation[i]) {
 		case 0:
@@ -684,18 +782,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 			if (hasPlayerWon(players, scores[1])) {
 
-				players[1].gamesWon++;
-
-				players[0].winRate = (players[0].gamesWon / players[0].gamesPlayed) * 100;
-				players[1].winRate = (players[1].gamesWon / players[1].gamesPlayed) * 100;
-
-				SQLFunctions.updateStats(players);
-
-				JOptionPane.showMessageDialog(null,
-						players[0].username + " has won!" + "\nFinal score: " + scores[0] + " - " + scores[1], "Winner",
-						JOptionPane.PLAIN_MESSAGE);
-				JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(getParent());
-				topFrame.dispose();
+				displayWinner(1, 0);
 
 			} else {
 				respawn(0, players, weapons);
@@ -718,18 +805,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 			if (hasPlayerWon(players, scores[0])) {
 
-				players[0].gamesWon++;
+				displayWinner(0, 1);
 
-				players[0].winRate = (players[0].gamesWon / players[0].gamesPlayed) * 100;
-				players[1].winRate = (players[1].gamesWon / players[1].gamesPlayed) * 100;
-
-				SQLFunctions.updateStats(players);
-
-				JOptionPane.showMessageDialog(null,
-						players[0].username + " has won!" + "\nFinal score: " + scores[0] + " - " + scores[1], "Winner",
-						JOptionPane.PLAIN_MESSAGE);
-				JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(getParent());
-				topFrame.dispose();
 			} else {
 				respawn(1, players, weapons);
 
@@ -789,11 +866,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			wait(players, 1, players[1].weapon.rate);
 		}
 
-		if (takingDamage[0] || takingDamage[1]) {
-			time(players);
-		} else {
-
-		}
+		hitDetection(players);
 
 		repaint();
 	}
@@ -824,7 +897,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				if (ableToFire[0] && players[0].weapon.ammo != 0) {
 					isFiring[0] = true;
 				} else {
-					//ableToFire[0]  = false;
+					// ableToFire[0] = false;
 				}
 				break;
 
@@ -857,12 +930,25 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				if (ableToFire[1] && players[1].weapon.ammo != 0) {
 					isFiring[1] = true;
 				} else {
-					
+
 				}
 				break;
 			}
 		} else {
 
+		}
+
+		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			t.stop();
+
+			System.out.println("Paused");
+			paused = true;
+		}
+
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			t.start();
+			System.out.println("Resumed");
+			paused = false;
 		}
 
 	}

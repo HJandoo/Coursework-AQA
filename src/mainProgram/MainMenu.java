@@ -37,16 +37,14 @@ public class MainMenu extends JFrame {
 	Weapon[][] weapons = new Weapon[2][5];
 	
 	static 	int[] choice = new int[3];
-	static int timeLim;
-
+	int time;
+	
 	@SuppressWarnings("unused")
 	public MainMenu() {
 		
 		choice[0]  = 1;
 		choice[1] = 2;
 		choice[2] = 0;
-		
-		timeLim = 180;
 		
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -121,6 +119,8 @@ public class MainMenu extends JFrame {
 				
 				SQLFunctions.getWeapons(weapons);
 				
+				getTime(time);
+				
 				LoginMain m = new LoginMain(0, players, weapons, x, y, height, multiP);		
 			}
 		});
@@ -148,6 +148,44 @@ public class MainMenu extends JFrame {
 				System.exit(0);
 			}
 		});
+	}
+	
+	@SuppressWarnings("unused")
+	public void getTime(int time) {
+		boolean timeFound = false;
+		
+		if (OptionsPanel.timeLim == 0) {
+			OptionsPanel.timeLim = 180;
+		} else {
+			
+			int[] diff = new int[OptionsPanel.timelims.length];
+			
+			for (int i = 0; i < OptionsPanel.timelims.length; i++) {
+				
+				if (OptionsPanel.timeLim != OptionsPanel.timelims[i]) {
+					diff[i] = OptionsPanel.timelims[i] - OptionsPanel.timeLim;
+					timeFound = false;
+				} else {
+					timeFound = true;
+				}
+			}
+			
+			if (!timeFound) {
+				int small = diff[0];
+				int index = 0;
+				
+				for (int i = 0; i < OptionsPanel.timelims.length; i++) {
+					if (diff[i] < small) {
+						small = diff[i];
+						index = i;
+					}
+				}
+				time = OptionsPanel.timeLim + diff[0];
+			}
+	
+		}
+		
+		
 	}
 
 	public static void main(String[] args) {
