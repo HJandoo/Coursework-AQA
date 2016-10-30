@@ -120,8 +120,8 @@ public class SQLFunctions {
 	
 	public static Weapon getRandomWeapon(Weapon weapon) {
 		Random r = new Random();
-		int i = r.nextInt(5);
-		
+		int i = r.nextInt(5) + 1;
+				
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 
@@ -129,14 +129,17 @@ public class SQLFunctions {
 
 			Statement st = c.createStatement();
 
-			ResultSet rs = st.executeQuery("select * from weapons where id = '" + i + "';");
+			ResultSet rs = st.executeQuery("select * from weapons where idweapons = '" + i + "';");
 			
-			weapon = new Weapon(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getInt(5));
+			while (rs.next()) {
+				weapon = new Weapon(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getInt(5));
+				
+				return weapon;
+			} 
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 		return weapon;
 	}
 

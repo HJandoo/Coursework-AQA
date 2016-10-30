@@ -1,9 +1,14 @@
 TO DO LIST
 
- - Regenerating health fixes: Somewhat works...
- - Weapon mechanics: add key to swap weapons; include range effectiveness of weapons e.g. shotguns and SMGs only effective at close range?
- - Place weapons randomly over map? - Spawn at random times?
- - Specific bullets for weapons e.g. rockets for rocket launcher
- - Player stats:  WMD? player comparison?
- - Remote connection to server?
- - Play game across LAN network? (client-server relationship/model?)
+ - Regenerating health fixes:- Somewhat works...
+ - Weapon mechanics:- Key to swap weapons
+ 					- Range effectiveness of weapons e.g. SMG good at close range?
+ 					- Splash damage for bazooka
+					- Sound effects?
+					- Automatic and semi-automatic fire: Somewhat works...
+					- Specific bullets for weapons e.g. rockets for bazooka
+ - Player stats:- WMD? 
+ 				- Player comparison?
+ 				- EXP?
+ - Networking stuff:- Remote connection to server?
+ 					- Play game across LAN network?

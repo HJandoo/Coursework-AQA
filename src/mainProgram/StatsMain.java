@@ -10,12 +10,11 @@ import engine.SQLFunctions;
 
 public class StatsMain extends JFrame {
 
-
 	private static final long serialVersionUID = 1L;
 
 	Object[][] data = new Object[SQLFunctions.getNumberOfPlayers()][5];
 	String[] columns = { "Username", "Kills", "Deaths", "K/D", "Win rate/%" };
-	
+
 	JTable t = new JTable(data, columns);
 
 	public StatsMain() {

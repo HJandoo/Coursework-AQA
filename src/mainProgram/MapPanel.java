@@ -376,11 +376,16 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		g.setColor(new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255)));
 		g.fillRect(ammoCrate.x, ammoCrate.y, ammoCrate.width, ammoCrate.height);
 		
+		g.setColor(new Color(128, 72, 0));
+		g.fillRect(wepCrate.x, wepCrate.y, wepCrate.width, wepCrate.height);
 		
 
 		for (int i = 0; i < 2; i++) {
 			if (ammoCrate.intersects(playerRect[i])) {
 				collectAmmo(i, ammoCrate);
+			}
+			if (wepCrate.intersects(playerRect[i])) {
+				collectWep(players, i, wepCrate);
 			}
 		}
 
@@ -388,8 +393,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	public void spawnWep(final Rectangle wepCrate) {
 		java.util.Timer wc = new java.util.Timer();
-		int i = (random.nextInt(20) + 20) * 1000;
-
+		int i = (random.nextInt(20) + 20) * 1000;		
 		wc.schedule(new TimerTask() {
 
 			@Override
@@ -433,13 +437,14 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	}
 	
-	public void collectWep(int i, Rectangle wepCrate) {
+	public void collectWep(Player[] players, int i, Rectangle wepCrate) {
 		wepCrate.x = 2000;
 		wepCrate.y = 2000;
 		
-		SQLFunctions.getRandomWeapon(players[i].weapon);
-		
+		players[i].weapon = SQLFunctions.getRandomWeapon(players[i].weapon);
+	
 		weaponLabel[i].setText("Weapon: " + players[i].weapon.name);
+		ammoLabel[i].setText("Ammo: " + players[i].weapon.ammo);
 
 		spawnWep(wepCrate);
 	}
@@ -590,7 +595,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	}
 
-	public void wait(Player[] players, final int i, int delay) {
+	public void wait(final int i, int delay) {
 		ableToFire[i] = false;
 
 		Timer t = new Timer(delay, new ActionListener() {
@@ -629,7 +634,114 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void fire(final int i) {
+		
+		switch (players[i].weapon.code) {
+		case 0:
+			semiauto(i);
+			break;
+		case 1:
+			auto(i);
+			break;
+		case 2:
+			auto(i);
+			break;
+		case 3:
+			semiauto(i);
+			break;
+		case 4:
+			semiauto(i);
+			break;
+		}
+		
+		
+	}
+	
+	public void auto(final int i) {
 
+		java.util.Timer t = new java.util.Timer();
+
+		t.schedule(new TimerTask() {
+
+			@Override
+			public void run() {
+				players[i].weapon.ammo -= 0;
+
+				gunfire[i].x = 2000;
+				gunfire[i].y = 2000;
+
+			}
+
+		}, 10);
+
+		if (ableToFire[i]) {
+
+			switch (orientation[i]) {
+			case 0:
+				gunfire[i].x = weaponRect[i].x + 2;
+				gunfire[i].y = weaponRect[i].y - 2000;
+				gunfire[i].width = 2;
+				gunfire[i].height = 2000;
+
+				for (int j = 0; j < 250; j++) {
+					if (gunfire[i].intersects(rects[j])) {
+						gunfire[i].y = rects[j].y + rects[j].height;
+						gunfire[i].height = weaponRect[i].y - gunfire[i].y;
+					}
+				}
+				break;
+			case 1:
+				gunfire[i].x = weaponRect[i].x;
+				gunfire[i].y = weaponRect[i].y + 2;
+				gunfire[i].width = 2000;
+				gunfire[i].height = 2;
+
+				for (int j = 0; j < 250; j++) {
+					if (gunfire[i].intersects(rects[j])) {
+						gunfire[i].width = rects[j].x - weaponRect[i].x;
+					}
+				}
+				break;
+			case 2:
+				gunfire[i].x = weaponRect[i].x + 2;
+				gunfire[i].y = weaponRect[i].y;
+				gunfire[i].width = 2;
+				gunfire[i].height = 2000;
+
+				for (int j = 0; j < 250; j++) {
+					if (gunfire[i].intersects(rects[j])) {
+						gunfire[i].y = weaponRect[i].y;
+						gunfire[i].height = rects[j].y - weaponRect[i].y;
+					}
+				}
+				break;
+			case 3:
+				gunfire[i].x = weaponRect[i].x - 2000;
+				gunfire[i].y = weaponRect[i].y + 2;
+				gunfire[i].width = 2000;
+				gunfire[i].height = 2;
+
+				for (int j = 0; j < 250; j++) {
+					if (gunfire[i].intersects(rects[j])) {
+						gunfire[i].x = rects[j].x + rects[j].width;
+						gunfire[i].width = weaponRect[i].x - gunfire[i].x;
+					}
+				}
+				break;
+			}
+
+			players[i].weapon.ammo--;
+			
+			ammoLabel[i].setText("Ammo: " + Integer.toString(players[i].weapon.ammo));
+			ableToFire[i] = false;
+			wait(i, players[i].weapon.rate);
+
+		} else {
+			players[i].weapon.ammo -= 0;
+
+		}
+	}
+	
+	public void semiauto(final int i) {
 		count[i]++;
 
 		java.util.Timer t = new java.util.Timer();
@@ -858,12 +970,12 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 		if (isFiring[0]) {
 			fire(0);
-			wait(players, 0, players[0].weapon.rate);
+			wait(0, players[0].weapon.rate);
 		}
 
 		if (isFiring[1]) {
 			fire(1);
-			wait(players, 1, players[1].weapon.rate);
+			wait(1, players[1].weapon.rate);
 		}
 
 		hitDetection(players);
@@ -873,6 +985,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
+		
+		if (e.getKeyCode() == KeyEvent.VK_1) {
+			collectWep(players, 0, wepCrate);
+		}
 
 		if (!unableToMove[0]) {
 			switch (e.getKeyCode()) {

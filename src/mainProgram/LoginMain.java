@@ -20,6 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import engine.Hash;
 import engine.Player;
 import engine.Weapon;
 
@@ -35,8 +36,9 @@ public class LoginMain extends JFrame {
 	double dwr;
 	int[] counter = new int[2];
 
-	public LoginMain(final int i, final Player[] players, final Weapon[][] weapons, final int x, final int y, final int height, final boolean multiP) {
-		
+	public LoginMain(final int i, final Player[] players, final Weapon[][] weapons, final int x, final int y,
+			final int height, final boolean multiP) {
+
 		JLabel uname = new JLabel("Username");
 		JLabel pword = new JLabel("Password");
 
@@ -47,9 +49,9 @@ public class LoginMain extends JFrame {
 		JButton register = new JButton("Register");
 
 		JPanel panel = new JPanel();
-		
+
 		panel.setBackground(Color.WHITE);
-		setLocationRelativeTo(null);		
+		setLocationRelativeTo(null);
 
 		if (i == 0) {
 			setBounds(x - 250, y + (height / 3), 250, 160);
@@ -61,7 +63,7 @@ public class LoginMain extends JFrame {
 		setTitle("Player " + (i + 1) + " log in");
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		
+
 		panel.setLayout(null);
 		add(panel);
 
@@ -92,87 +94,91 @@ public class LoginMain extends JFrame {
 
 				user = ufield.getText();
 				pass = pfield.getPassword();
-
+				int count = 0;
 				String passw = new String(pass);
-				int hPass = passw.hashCode();
 
-				String unique = "select * from player_statistics where username = '" + user + "' and password = '"
-						+ hPass + "';";
+				if (pass.length < 6) {
+					JOptionPane.showMessageDialog(getParent(), "Invalid username or password",
+							"Login doesn't exist", JOptionPane.ERROR_MESSAGE);			
+					} else {
 
-				try {
-					Class.forName("com.mysql.jdbc.Driver");
+					int hPass = Hash.getHash(passw);
 
-					int count = 0;
+					String unique = "select * from player_statistics where username = '" + user + "' and password = '"
+							+ hPass + "';";
 
-					Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root",
-							"password");
+					try {
+						Class.forName("com.mysql.jdbc.Driver");
 
-					Statement st = c.createStatement();
+						count = 0;
 
-					ResultSet rs = st.executeQuery(unique);
+						Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root",
+								"password");
 
-					while (rs.next()) {
-						count++;
-						duser = rs.getString("username");
-						dpass = rs.getString("password");
-						dk = rs.getInt("kills");
-						dd = rs.getInt("deaths");
-						dkd = rs.getInt("K/D");
-						dgp = rs.getInt("games_played");
-						dgw = rs.getInt("matches_won");
+						Statement st = c.createStatement();
 
-					}
+						ResultSet rs = st.executeQuery(unique);
 
-					if (count == 1) {
-												
-						if (i == 1) {
-							
-							if (players[0].username.equals(user)){
-								JOptionPane.showMessageDialog(getParent(),
-										"That profile is already logged in",
-										"Profile already logged in", JOptionPane.ERROR_MESSAGE);
-							} else {
-								
+						while (rs.next()) {
+							count++;
+							duser = rs.getString("username");
+							dpass = rs.getString("password");
+							dk = rs.getInt("kills");
+							dd = rs.getInt("deaths");
+							dkd = rs.getInt("K/D");
+							dgp = rs.getInt("games_played");
+							dgw = rs.getInt("matches_won");
+
+						}
+
+						if (count == 1) {
+
+							if (i == 1) {
+
+								if (players[0].username.equals(user)) {
+									JOptionPane.showMessageDialog(getParent(), "That profile is already logged in",
+											"Profile already logged in", JOptionPane.ERROR_MESSAGE);
+								} else {
+
+									players[i] = new Player(duser, 1000, weapons[i][0], dk, dd, dkd, dgp, dgw, dwr);
+									players[i].gamesPlayed++;
+									setVisible(false);
+
+									final MapMain m = new MapMain(players, weapons);
+
+									m.addWindowListener(new WindowAdapter() {
+										public void windowClosing(WindowEvent w) {
+
+											MapPanel.ti.cancel();
+										}
+									});
+								}
+
+							} else if (i == 0) {
+
 								players[i] = new Player(duser, 1000, weapons[i][0], dk, dd, dkd, dgp, dgw, dwr);
 								players[i].gamesPlayed++;
 								setVisible(false);
-								
-								final MapMain m = new MapMain(players, weapons);
 
-								
-								m.addWindowListener(new WindowAdapter() {
-									public void windowClosing(WindowEvent w) {
-										
-										MapPanel.ti.cancel();
-									}
-								});
+								@SuppressWarnings("unused")
+								LoginMain lm = new LoginMain(1, players, weapons, x, y, height, multiP);
+
 							}
-							
-						} else if (i == 0){
 
-						players[i] = new Player(duser, 1000, weapons[i][0], dk, dd, dkd, dgp, dgw, dwr);
-						players[i].gamesPlayed++;
-						setVisible(false);
-						
-						@SuppressWarnings("unused")
-						LoginMain lm = new LoginMain(1, players, weapons, x, y, height, multiP);
-						
+						} else {
+							JOptionPane.showMessageDialog(getParent(), "Invalid username or password",
+									"Login doesn't exist", JOptionPane.ERROR_MESSAGE);
+
 						}
 
-					} else {
-						JOptionPane.showMessageDialog(getParent(),
-								"Invalid username or password",
-								"Login doesn't exist", JOptionPane.ERROR_MESSAGE);
-
+					} catch (SQLException | ClassNotFoundException e) {
+						JOptionPane.showMessageDialog(getParent(), "Something went wrong... :(", "Error",
+								JOptionPane.ERROR_MESSAGE);
+						e.printStackTrace();
 					}
 
-				} catch (SQLException | ClassNotFoundException e) {
-					JOptionPane.showMessageDialog(getParent(), "Something went wrong... :(", "Error",
-							JOptionPane.ERROR_MESSAGE);
-					e.printStackTrace();
 				}
 
-				
 			}
 
 		});
@@ -185,7 +191,6 @@ public class LoginMain extends JFrame {
 				pass = pfield.getPassword();
 
 				String passw = new String(pass);
-				int hPass = passw.hashCode();
 
 				int count = 0;
 
@@ -196,7 +201,8 @@ public class LoginMain extends JFrame {
 							"password");
 					Statement st = c.createStatement();
 
-					ResultSet rs = st.executeQuery("select * from player_statistics where `username` = '" + user + "';");
+					ResultSet rs = st
+							.executeQuery("select * from player_statistics where `username` = '" + user + "';");
 
 					while (rs.next()) {
 						count++;
@@ -212,51 +218,52 @@ public class LoginMain extends JFrame {
 								"Your password is too short. Please make sure it is at least 6 characters long",
 								"Password too short", JOptionPane.ERROR_MESSAGE);
 					} else {
-						
+
+						int hPass = Hash.getHash(passw);
+
 						JPasswordField jpf = new JPasswordField();
-						JLabel jl = new JLabel("Please confirm your password");
+						JLabel jl = new JLabel("Please re-enter your password (remember your password is case-sensitive)");
 						Box box = Box.createVerticalBox();
 
-						
 						box.add(jl);
 						box.add(jpf);
-						
-						int x = JOptionPane.showConfirmDialog(null, box, "Password verification", JOptionPane.DEFAULT_OPTION);
-						
+
+						int x = JOptionPane.showConfirmDialog(getParent(), box, "Password verification",
+								JOptionPane.DEFAULT_OPTION);
+
 						if (x == JOptionPane.OK_OPTION) {
 							@SuppressWarnings("deprecation")
-							String verify = jpf.getText();			
-						
-						if (verify.equals(passw)) {
-							String create = "insert into player_statistics(username, password, kills, deaths, `K/D`) values('"
-									+ user + "', '" + hPass + "', 0, 0, 0);";
-							st.execute(create);
-							players[i] = new Player(user, 1000, weapons[i][0], 0, 0, 0, 0, 0, 0);
-							players[i].gamesPlayed++;
-							setVisible(false);
-						
-							if (i == 0) {
-								@SuppressWarnings("unused")
-								LoginMain lm = new LoginMain(1, players, weapons, x, y, height, multiP);
-								
-							} else {
+							String verify = jpf.getText();
 
+							if (verify.equals(passw)) {
+								String create = "insert into player_statistics(username, password, kills, deaths, `K/D`) values('"
+										+ user + "', '" + hPass + "', 0, 0, 0);";
+								st.execute(create);
 								players[i] = new Player(user, 1000, weapons[i][0], 0, 0, 0, 0, 0, 0);
 								players[i].gamesPlayed++;
 								setVisible(false);
-								
-								@SuppressWarnings("unused")
-								MapMain m = new MapMain(players, weapons);
-							}	
-						} else {
-						JOptionPane.showMessageDialog(getParent(),
-									"Passwords do not match. Please try again",
-									"Passwords do not match", JOptionPane.ERROR_MESSAGE);
-							
+
+								if (i == 0) {
+									@SuppressWarnings("unused")
+									LoginMain lm = new LoginMain(1, players, weapons, x, y, height, multiP);
+
+								} else {
+
+									players[i] = new Player(user, 1000, weapons[i][0], 0, 0, 0, 0, 0, 0);
+									players[i].gamesPlayed++;
+									setVisible(false);
+
+									@SuppressWarnings("unused")
+									MapMain m = new MapMain(players, weapons);
+								}
+							} else {
+								JOptionPane.showMessageDialog(getParent(), "Passwords do not match. Please try again",
+										"Passwords do not match", JOptionPane.ERROR_MESSAGE);
+
+							}
+
 						}
-						
-						}				
-						
+
 					}
 
 				} catch (ClassNotFoundException | SQLException e1) {
@@ -267,8 +274,6 @@ public class LoginMain extends JFrame {
 
 		});
 
-		
-		
 	}
 
 }
