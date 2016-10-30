@@ -1,6 +1,6 @@
 TO DO LIST
 
- - Regenerating health fixes:- Somewhat works...
+ - Player mechanics:- Regenerating health fixes:- Somewhat works...
  - Weapon mechanics:- Key to swap weapons
  					- Range effectiveness of weapons e.g. SMG good at close range?
  					- Splash damage for bazooka
@@ -10,5 +10,6 @@ TO DO LIST
  - Player stats:- WMD? 
  				- Player comparison?
  				- EXP?
+ - Game options:- Set the game to allow different resolutions
  - Networking stuff:- Remote connection to server?
  					- Play game across LAN network?
