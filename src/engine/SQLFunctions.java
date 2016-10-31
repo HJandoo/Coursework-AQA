@@ -177,4 +177,13 @@ public class SQLFunctions {
 		players[i].weapon.ammo = weapons[i][players[i].weapon.code - 1].ammo;
 	}
 
+	public static void getOfflineWeapons(Weapon[][] weapons) {
+		
+		for (int i = 0; i < 2; i++) {
+
+			weapons[i][0] = new Weapon(0, "Pistol", 70, 100, 400);
+			
+		}
+		
+	}
 }

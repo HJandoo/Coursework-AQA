@@ -1,5 +1,10 @@
 package hashTesting;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 public class Main {
 	
 	public static int getHash(String plain) {
@@ -27,7 +32,27 @@ public class Main {
 		return hash;
 	}
 	
+	public static void sha2() {
+		String s = "this is really confusing0";
+		
+		try {
+			MessageDigest d = MessageDigest.getInstance("SHA-256");
+			d.update(s.getBytes("UTF-8"));
+			byte[] hash = d.digest();
+			
+			String.format("%064x", new java.math.BigInteger(1, hash));
+			
+			
+			System.out.println(hash);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
 	public static void main(String[] args) {
 		getHash("password");//1234698240
+		
+		sha2();
 	}
 }
