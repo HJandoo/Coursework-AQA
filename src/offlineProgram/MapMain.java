@@ -20,7 +20,7 @@ public class MapMain extends JFrame{
 		setSize(1920, 1080);
 		setLocationRelativeTo(null);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
-		setTitle("Gun Mania");
+		setTitle("Gun Mania OFFLINE");
 		setIconImage(img.getImage());
 		add(p);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);	

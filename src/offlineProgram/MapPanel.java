@@ -310,7 +310,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 		//SQLFunctions.updateStats(players);
 
-		JOptionPane.showMessageDialog(null,
+		JOptionPane.showMessageDialog(getParent(),
 				players[i].username + " has won!" + "\nFinal score: " + scores[0] + " : " + scores[1], "Winner",
 				JOptionPane.PLAIN_MESSAGE);
 		JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(getParent());
@@ -459,7 +459,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 		//SQLFunctions.refillAmmo(players, weapons, i);
 		
-		players[i].weapon.ammo = weapons[0][0].ammo;
+		players[i].weapon.ammo = 70;
 
 		ammoLabel[i].setText("Ammo: " + players[i].weapon.ammo);
 
@@ -482,17 +482,14 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				public void run() {
 					if (players[0].health >= 1000) {
 						players[0].health += 0;
-						System.out.println("Pls stop for full health");
 						players[0].health = 1000;
 						hp[0].width = (int) (0.035 * players[0].health);
 						cancel();
 					} else if (gunfire[1].intersects(playerRect[0])) {
 						players[0].health += 0;
-						System.out.println("Pls stop for gunfire");
 						hp[0].width = (int) (0.035 * players[0].health);
 						cancel();
 					} else {
-						System.out.println("Regenning...");
 						players[0].health++;
 						hp[0].width = (int) (0.035 * players[0].health);
 
@@ -518,17 +515,14 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 					if (players[1].health >= 1000) {
 						players[1].health += 0;
-						System.out.println("Pls stop for full health");
 						players[1].health = 1000;
 						hp[1].width = (int) (0.035 * players[1].health);
 						cancel();
 					} else if (gunfire[0].intersects(playerRect[1])) {
 						players[1].health += 0;
-						System.out.println("Pls stop for gunfire");
 						hp[1].width = (int) (0.035 * players[1].health);
 						cancel();
 					} else {
-						System.out.println("Regenning...");
 						players[1].health++;
 						hp[1].width = (int) (0.035 * players[1].health);
 

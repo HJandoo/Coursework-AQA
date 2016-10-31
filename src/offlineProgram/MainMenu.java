@@ -15,6 +15,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import engine.Player;
@@ -129,7 +130,7 @@ public class MainMenu extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+				JOptionPane.showMessageDialog(getParent(), "Sorry, this can't be used in offline mode", "This can't be used", JOptionPane.ERROR_MESSAGE);
 			}
 		});
 
