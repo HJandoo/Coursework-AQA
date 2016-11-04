@@ -482,17 +482,14 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				public void run() {
 					if (players[0].health >= 1000) {
 						players[0].health += 0;
-						System.out.println("Pls stop for full health");
 						players[0].health = 1000;
 						hp[0].width = (int) (0.035 * players[0].health);
 						cancel();
 					} else if (gunfire[1].intersects(playerRect[0])) {
 						players[0].health += 0;
-						System.out.println("Pls stop for gunfire");
 						hp[0].width = (int) (0.035 * players[0].health);
 						cancel();
 					} else {
-						System.out.println("Regenning...");
 						players[0].health++;
 						hp[0].width = (int) (0.035 * players[0].health);
 
@@ -518,17 +515,14 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 					if (players[1].health >= 1000) {
 						players[1].health += 0;
-						System.out.println("Pls stop for full health");
 						players[1].health = 1000;
 						hp[1].width = (int) (0.035 * players[1].health);
 						cancel();
 					} else if (gunfire[0].intersects(playerRect[1])) {
 						players[1].health += 0;
-						System.out.println("Pls stop for gunfire");
 						hp[1].width = (int) (0.035 * players[1].health);
 						cancel();
 					} else {
-						System.out.println("Regenning...");
 						players[1].health++;
 						hp[1].width = (int) (0.035 * players[1].health);
 
@@ -1022,7 +1016,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		if (e.getKeyCode() == KeyEvent.VK_1) {
 			Random r = new Random();
 			
-			players[0].weapon = weapons[0][r.nextInt(5)];
+			players[0].weapon = weapons[0][r.nextInt(6)];
 			weaponLabel[0].setText("Weapon: " + players[0].weapon.name);
 			ammoLabel[0].setText("Ammo: " + players[0].weapon.ammo);
 		}

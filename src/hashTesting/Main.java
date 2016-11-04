@@ -30,7 +30,7 @@ public class Main {
 	}
 	
 	public static void sha2() {
-		String s = "this is really confusing0";
+		String s = "this is really confusing";
 		
 		try {
 			MessageDigest d = MessageDigest.getInstance("SHA-256");
