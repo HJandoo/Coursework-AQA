@@ -10,7 +10,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.File;
 import java.text.DecimalFormat;
 import java.util.Random;
 import java.util.TimerTask;
@@ -89,6 +88,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	static java.util.Timer ti;
 	Timer[] wait = new Timer[2];
+	
+	double newdps = 0;
 
 
 	public MapPanel(Player[] players, Weapon[][] weapons) {
@@ -473,7 +474,9 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			startRegen[0] = false;
 
 			// Player 1 takes damage
-			players[0].health -= players[1].weapon.damagePerShot;
+
+			rangeOrientation(1, 0);
+			players[0].health -= newdps;
 			hp[0].width = (int) (0.035 * players[0].health);
 
 			reg[0].schedule(new TimerTask() {
@@ -506,7 +509,9 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			startRegen[1] = false;
 
 			// Player 2 takes damage
-			players[1].health -= players[0].weapon.damagePerShot;
+					
+			rangeOrientation(0, 1);
+			players[1].health -= newdps;
 			hp[1].width = (int) (0.035 * players[1].health);
 
 			reg[1].schedule(new TimerTask() {
@@ -777,7 +782,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 						gunfire[i].y = rects[j].y + rects[j].height;
 						gunfire[i].height = weaponRect[i].y - gunfire[i].y;
 					}
-				}
+				}	
 				break;
 			case 1:
 				gunfire[i].x = weaponRect[i].x;
@@ -802,7 +807,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 						gunfire[i].y = weaponRect[i].y;
 						gunfire[i].height = rects[j].y - weaponRect[i].y;
 					}
-				}
+				}				
 				break;
 			case 3:
 				gunfire[i].x = weaponRect[i].x - 2000;
@@ -815,7 +820,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 						gunfire[i].x = rects[j].x + rects[j].width;
 						gunfire[i].width = weaponRect[i].x - gunfire[i].x;
 					}
-				}
+				}	
 				break;
 			}
 
@@ -850,6 +855,98 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			
 		}).start();
 		
+	}
+	
+	public void rangeOrientation(int i, int j) {
+		double dist;
+		
+		if (orientation[i] == 0) {
+			dist = Math.abs((playerRect[j].y + playerRect[j].height) - weaponRect[i].y);
+			range(i, dist, newdps);
+		} else if (orientation[i] == 1) {
+			dist = Math.abs(playerRect[j].x - (weaponRect[i].x + weaponRect[i].width));
+			range(i, dist, newdps);
+		} else if (orientation[i] == 2) {
+			dist = Math.abs((weaponRect[i].y + weaponRect[i].height) - playerRect[j].y);
+			range(i, dist, newdps);
+		} else if (orientation[i] == 3) {
+			dist = Math.abs((playerRect[j].x + playerRect[j].width) - weaponRect[i].x);
+			range(i, dist, newdps);
+		}
+	}
+	
+	public void range(int i, double dist, double dps) {
+		
+		double multi = 1;
+		
+		switch (players[i].weapon.code) {
+		case 0:
+			if (dist >= 170 && dist <= 280) {
+				multi = 0.9;
+			} else if (dist > 280 && dist <= 420) {
+				multi = 0.84;
+			} else if (dist > 420 && dist <= 560) {
+				multi = 0.8;
+			} else if (dist > 560) {
+				multi = 0.77;
+			} else {
+				multi = 1;
+			}
+			dps = (double) players[i].weapon.damagePerShot * multi;
+			break;
+		case 1:
+			if (dist >= 140 && dist <= 280) {
+				multi = 0.9;
+			} else if (dist > 280 && dist <= 420) {
+				multi = 0.7;
+			} else if (dist > 420 && dist <= 560) {
+				multi = 0.55;
+			} else if (dist > 560) {
+				multi = 0.35;
+			} else {
+				multi = 1;
+			}
+			dps = (double) players[i].weapon.damagePerShot * multi;
+			break;
+		case 2:
+			if (dist >= 140 && dist <= 280) {
+				multi = 0.94;
+			} else if (dist > 280 && dist <= 420) {
+				multi = 0.9;
+			} else if (dist > 420 && dist <= 560) {
+				multi = 0.87;
+			} else if (dist > 560) {
+				multi = 0.85;
+			} else {
+				multi = 1;
+			}
+			dps = (double)  players[i].weapon.damagePerShot * multi;
+			break;
+		case 3:
+			multi = 1;
+			dps = (double) players[i].weapon.damagePerShot * multi;
+			break;
+		case 4:
+			if (dist >= 100 && dist <= 280) {
+				multi = 0.68;
+			} else if (dist > 280 && dist <= 420) {
+				multi = 0.43;
+			} else if (dist > 420 && dist <= 560) {
+				multi = 0.35;
+			} else if (dist > 560) {
+				multi = 0.08;
+			} else {
+				multi = 1;
+			}
+			dps = (double) players[i].weapon.damagePerShot * multi;
+			
+			break;
+		case 5:
+			multi = 1;
+			dps = (double) players[i].weapon.damagePerShot * multi;
+			break;
+		} 
+		newdps = dps;
 	}
 
 	public void sortOrientation(int i) {

@@ -1,10 +1,11 @@
 TO DO LIST
 
  - Player mechanics:- Regenerating health fixes:- Somewhat works...
+ 					- Additional armor
  - Weapon mechanics:- Key to swap weapons
- 					- Range effectiveness of weapons e.g. shotgun good at close range
  					- Splash damage for bazooka
 					- Specific bullets for weapons e.g. rockets for bazooka
+					- Weapon range for offline version
 					- Sound effects for offline version
  - Player stats:- WMD? 
  				- Player comparison?
