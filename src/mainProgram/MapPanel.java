@@ -10,10 +10,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.Random;
 import java.util.TimerTask;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -84,6 +88,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	boolean[] tir = { false, false };
 
 	static java.util.Timer ti;
+	Timer[] wait = new Timer[2];
+
 
 	public MapPanel(Player[] players, Weapon[][] weapons) {
 		setLayout(null);
@@ -597,16 +603,15 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	public void wait(final int i, int delay) {
 		ableToFire[i] = false;
-
+				
 		Timer t = new Timer(delay, new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ableToFire[i] = true;
 			}
-
+			
 		});
-
 		t.setRepeats(false);
 		t.start();
 
@@ -634,7 +639,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void fire(final int i) {
-		
+	
 		switch (players[i].weapon.code) {
 		case 0:
 			semiauto(i);
@@ -651,8 +656,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		case 4:
 			semiauto(i);
 			break;
+		case 5:
+			semiauto(i);
+			break;
 		}
-		
 		
 	}
 	
@@ -733,12 +740,15 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			
 			ammoLabel[i].setText("Ammo: " + Integer.toString(players[i].weapon.ammo));
 			ableToFire[i] = false;
-			wait(i, players[i].weapon.rate);
+			
+			snd(i);
 
 		} else {
 			players[i].weapon.ammo -= 0;
 
 		}
+		
+		
 	}
 	
 	public void semiauto(final int i) {
@@ -758,7 +768,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 
 		}, 10);
-
+		
 		if (count[i] < 2) {
 
 			switch (orientation[i]) {
@@ -818,11 +828,34 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			players[i].weapon.ammo--;
 
 			ammoLabel[i].setText("Ammo: " + Integer.toString(players[i].weapon.ammo));
+			
+			snd(i);
 
 		} else {
 			players[i].weapon.ammo -= 0;
 
 		}
+	}
+
+	public void snd(final int i) {
+		
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					AudioInputStream inputStream = AudioSystem.getAudioInputStream(players[i].weapon.sound);
+					Clip clip = AudioSystem.getClip();
+					clip.open(inputStream);
+					clip.start();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+			}
+			
+		}).start();
+		
 	}
 
 	public void sortOrientation(int i) {
@@ -987,7 +1020,11 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	public void keyPressed(KeyEvent e) {
 		
 		if (e.getKeyCode() == KeyEvent.VK_1) {
-			collectWep(players, 0, wepCrate);
+			Random r = new Random();
+			
+			players[0].weapon = weapons[0][r.nextInt(5)];
+			weaponLabel[0].setText("Weapon: " + players[0].weapon.name);
+			ammoLabel[0].setText("Ammo: " + players[0].weapon.ammo);
 		}
 
 		if (!unableToMove[0]) {

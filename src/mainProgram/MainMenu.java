@@ -34,7 +34,7 @@ public class MainMenu extends JFrame {
 	Color wh = Color.WHITE;
 	
 	Player[] players = new Player[2];
-	Weapon[][] weapons = new Weapon[2][5];
+	Weapon[][] weapons = new Weapon[2][6];
 	
 	static 	int[] choice = new int[3];
 	int time;

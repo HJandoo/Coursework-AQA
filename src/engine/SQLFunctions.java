@@ -1,5 +1,6 @@
 package engine;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -106,8 +107,8 @@ public class SQLFunctions {
 
 			while (rs.next()) {
 
-				weapons[0][i] = new Weapon(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getInt(5));
-				weapons[1][i] = new Weapon(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getInt(5));
+				weapons[0][i] = new Weapon(rs.getInt(1) - 1, rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getInt(5), new File(rs.getString(6)));
+				weapons[1][i] = new Weapon(rs.getInt(1) - 1, rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getInt(5), new File(rs.getString(6)));
 				i++;
 
 			}
@@ -132,7 +133,7 @@ public class SQLFunctions {
 			ResultSet rs = st.executeQuery("select * from weapons where idweapons = '" + i + "';");
 			
 			while (rs.next()) {
-				weapon = new Weapon(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getInt(5));
+				weapon = new Weapon(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getInt(5), new File(rs.getString(6)));
 				
 				return weapon;
 			} 
@@ -181,7 +182,7 @@ public class SQLFunctions {
 		
 		for (int i = 0; i < 2; i++) {
 
-			weapons[i][0] = new Weapon(0, "Pistol", 70, 400, 70);
+			weapons[i][0] = new Weapon(0, "Pistol", 70, 400, 70, new File("Pistol.wav"));
 			
 		}
 		
