@@ -48,7 +48,7 @@ public class Main {
 	}
 	
 	public static void main(String[] args) {
-		getHash("password");//1234698240
+		getHash("this is really confusing");
 		
 		sha2();
 	}

@@ -91,7 +91,6 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	
 	double newdps = 0;
 
-
 	public MapPanel(Player[] players, Weapon[][] weapons) {
 		setLayout(null);
 		setFocusable(true);
@@ -1138,10 +1137,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				orientation[0] = 1;
 				break;
 			case KeyEvent.VK_SPACE:
-				if (ableToFire[0] && players[0].weapon.ammo != 0) {
+				if (players[0].weapon.ammo > 0) {
 					isFiring[0] = true;
 				} else {
-					// ableToFire[0] = false;
+					ableToFire[0] = false;
 				}
 				break;
 
@@ -1171,10 +1170,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				orientation[1] = 1;
 				break;
 			case KeyEvent.VK_Q:
-				if (ableToFire[1] && players[1].weapon.ammo != 0) {
+				if (players[1].weapon.ammo > 0) {
 					isFiring[1] = true;
 				} else {
-
+					ableToFire[1] = false;
 				}
 				break;
 			}

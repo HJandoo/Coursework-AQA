@@ -7,6 +7,8 @@ TO DO LIST
 					- Specific bullets for weapons e.g. rockets for bazooka
 					- Weapon range for offline version
 					- Sound effects for offline version
+					- Automatic fire fix
+ - Game mechanics:- Add pop-up messages on HUD for weapon changes/who killed who/how long til respawn
  - Player stats:- WMD? 
  				- Player comparison?
  				- XP?
