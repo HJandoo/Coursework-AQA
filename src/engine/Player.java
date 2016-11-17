@@ -10,9 +10,9 @@ public class Player {
 	public double killdiff;
 	public double gamesPlayed;
 	public double gamesWon;
-	public double winRate;
+	public Double winRate;
 	
-	public Player(String u, int h, Weapon w, double k, double d, double kd, double gp, double gw, double wr) {
+	public Player(String u, int h, Weapon w, double k, double d, double kd, double gp, double gw, Double wr) {
 		username = u;
 		health = h;
 		weapon = w;

@@ -25,7 +25,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import engine.Player;
-import engine.SQLFunctions;
 import engine.Weapon;
 
 public class MapPanel extends JPanel implements ActionListener, KeyListener {
@@ -97,8 +96,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		setFocusTraversalKeysEnabled(false);
 		t.start();
 		
-		players[0] = new Player("Player 1", 1000, weapons[0][0], 0, 0, 0, 0, 0, 0);
-		players[1] = new Player("Player 2", 1000, weapons[1][0], 0, 0, 0, 0, 0, 0);
+		players[0] = new Player("Player 1", 1000, weapons[0][0], 0, 0, 0, 0, 0, 0.0);
+		players[1] = new Player("Player 2", 1000, weapons[1][0], 0, 0, 0, 0, 0, 0.0);
 		
 
 		reg[0] = new java.util.Timer();

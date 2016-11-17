@@ -15,7 +15,7 @@ public class SQLFunctions {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 
-			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "password");
+			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "Ht3jkdtw7Hvx");
 
 			Statement st = c.createStatement();
 
@@ -38,7 +38,7 @@ public class SQLFunctions {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 
-			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "password");
+			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "Ht3jkdtw7Hvx");
 
 			Statement st = c.createStatement();
 
@@ -67,7 +67,7 @@ public class SQLFunctions {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 
-			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "password");
+			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "Ht3jkdtw7Hvx");
 
 			Statement st = c.createStatement();
 
@@ -79,6 +79,11 @@ public class SQLFunctions {
 			}
 
 			for (int j = 0; j < i; j++) {
+				
+				if (players[j].winRate == null) {
+					players[j].winRate = 0.0;
+				}
+				
 				st.execute("update `coursework`.`player_statistics`" + "set `kills` = '" + players[j].kills
 						+ "', `deaths` = '" + players[j].deaths + "', `K/D` = '" + players[j].killdiff
 						+ "', `games_played` = '" + players[j].gamesPlayed + "', `matches_won` = '"
@@ -99,7 +104,7 @@ public class SQLFunctions {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 
-			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "password");
+			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "Ht3jkdtw7Hvx");
 
 			Statement st = c.createStatement();
 
@@ -126,7 +131,7 @@ public class SQLFunctions {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 
-			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "password");
+			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "Ht3jkdtw7Hvx");
 
 			Statement st = c.createStatement();
 
@@ -151,7 +156,7 @@ public class SQLFunctions {
 
 			Class.forName("com.mysql.jdbc.Driver");
 
-			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "password");
+			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "Ht3jkdtw7Hvx");
 
 			Statement st = c.createStatement();
 
@@ -175,7 +180,7 @@ public class SQLFunctions {
 	public static void refillAmmo(Player[] players, Weapon[][] weapons, int i) {
 		getWeapons(weapons);
 		
-		players[i].weapon.ammo = weapons[i][players[i].weapon.code - 1].ammo;
+		players[i].weapon.ammo = weapons[i][players[i].weapon.code].ammo;
 	}
 
 	public static void getOfflineWeapons(Weapon[][] weapons) {

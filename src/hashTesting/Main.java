@@ -48,8 +48,8 @@ public class Main {
 	}
 	
 	public static void main(String[] args) {
-		getHash("this is really confusing");
+		getHash("Ht3jkdtw7Hvx");
 		
-		sha2();
+		//sha2();
 	}
 }
