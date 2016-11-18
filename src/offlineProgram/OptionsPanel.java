@@ -28,20 +28,22 @@ public class OptionsPanel extends JPanel{
 	String[] colours = { "White", "Grey", "Black",  "Green",  "Yellow", "Orange" };
 	String[] reso = { "1920x1080", "1600x900", "1366x768", "1280x720" };
 	
-	JComboBox<Integer> scoreCB = new JComboBox<Integer>(scorelims);
-	JComboBox<Integer> timeCB = new JComboBox<Integer>(timelims);
-	JComboBox<String> backCB = new JComboBox<String>(colours);
-	JComboBox<String> foreCB = new JComboBox<String>(colours);
-	JComboBox<String> resCB = new JComboBox<String>(reso);
+	JComboBox<Integer> scoreComboBox = new JComboBox<Integer>(scorelims);
+	JComboBox<Integer> timeComboBox = new JComboBox<Integer>(timelims);
+	JComboBox<String> backgroundComboBox = new JComboBox<String>(colours);
+	JComboBox<String> wallComboBox = new JComboBox<String>(colours);
+	JComboBox<String> resolutionComboBox = new JComboBox<String>(reso);
 	
 	static int scoreLim, timeLim = 180;
 	
-	static Color[] c = { Color.WHITE, new Color(225, 225, 225), Color.BLACK, Color.GREEN, Color.YELLOW, Color.ORANGE };
+	static Color[] colourChoices = { Color.WHITE, new Color(225, 225, 225), Color.BLACK, Color.GREEN, Color.YELLOW, Color.ORANGE };
 	
-	static Color back = c[1], wall = c[2];
+	static Color backgroundColour = colourChoices[1], wallColour = colourChoices[2];
 
 	public OptionsPanel(final int[] choice) {
-
+		// Initialising properties of the panel as well as the components
+		// to give the desired layout for the options menu
+		
 		setLayout(null);
 		setBackground(Color.WHITE);
 		
@@ -65,58 +67,61 @@ public class OptionsPanel extends JPanel{
 		rs.setForeground(Color.BLACK);
 		add(rs);
 		
-		scoreCB.setBounds(130, 10, 100, 20);
-		scoreCB.setSelectedItem(20);
-		scoreCB.setForeground(Color.BLACK);
-		add(scoreCB);
+		scoreComboBox.setBounds(130, 10, 100, 20);
+		scoreComboBox.setSelectedItem(20);
+		scoreComboBox.setForeground(Color.BLACK);
+		add(scoreComboBox);
 		
-		timeCB.setBounds(130, 40, 100, 20);
-		timeCB.setForeground(Color.BLACK);
-		timeCB.setSelectedIndex(choice[2]);
-		add(timeCB);
+		timeComboBox.setBounds(130, 40, 100, 20);
+		timeComboBox.setForeground(Color.BLACK);
+		timeComboBox.setSelectedIndex(choice[2]);
+		add(timeComboBox);
 		
-		backCB.setBounds(130, 70, 100, 20);
-		backCB.setForeground(Color.BLACK);
-		backCB.setSelectedIndex(choice[0]);
-		add(backCB);
+		backgroundComboBox.setBounds(130, 70, 100, 20);
+		backgroundComboBox.setForeground(Color.BLACK);
+		backgroundComboBox.setSelectedIndex(choice[0]);
+		add(backgroundComboBox);
 		
-		foreCB.setBounds(130, 100, 100, 20);
-		foreCB.setForeground(Color.BLACK);
-		foreCB.setSelectedIndex(choice[1]);
-		add(foreCB);
+		wallComboBox.setBounds(130, 100, 100, 20);
+		wallComboBox.setForeground(Color.BLACK);
+		wallComboBox.setSelectedIndex(choice[1]);
+		add(wallComboBox);
 		
-		resCB.setBounds(130, 130, 100, 20);
-		resCB.setForeground(Color.BLACK);
-		resCB.setSelectedItem("1920x1080");
-		add(resCB);
+		resolutionComboBox.setBounds(130, 130, 100, 20);
+		resolutionComboBox.setForeground(Color.BLACK);
+		resolutionComboBox.setSelectedItem("1920x1080");
+		add(resolutionComboBox);
 		
 		apply.setBounds(10, 170, 220, 30);
 		apply.setForeground(Color.BLACK);
 		apply.setBackground(new Color(225, 225, 225));
 		add(apply);
 		
+		// When the button 'apply' is pressed, retrieve information in 
+		// the comboBoxes and alter the game depending on this info
 		apply.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				scoreLim = (int) scoreCB.getSelectedItem();
-				timeLim = (int) timeCB.getSelectedItem() * 60;
+				scoreLim = (int) scoreComboBox.getSelectedItem();
+				timeLim = (int) timeComboBox.getSelectedItem() * 60;
 								
-				choice[0] = backCB.getSelectedIndex();
-				choice[1] = foreCB.getSelectedIndex();
+				choice[0] = backgroundComboBox.getSelectedIndex();
+				choice[1] = wallComboBox.getSelectedIndex();
 				
-				backCB.setSelectedIndex(choice[0]);
-				foreCB.setSelectedIndex(choice[1]);
+				backgroundComboBox.setSelectedIndex(choice[0]);
+				wallComboBox.setSelectedIndex(choice[1]);
 
 				for (int i = 0; i < 6; i++) {
 					if (choice[0] == i) {
-						back = c[i];						
+						backgroundColour = colourChoices[i];						
 					}	
 					if (choice[1] == i) {
-						wall = c[i];
+						wallColour = colourChoices[i];
 					}
 				}
 				
+				// Close the options window once complete
 				JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(getParent());
 				topFrame.dispose();	
 		

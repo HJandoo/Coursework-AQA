@@ -826,26 +826,32 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	public void intersections(int i, int j, int k) {
 		// This is used to stop players from being able
 		// to travel through the walls
+		
+		if (playerRect[i].intersects(rects[k])) {
+			whichSide(i, j, k);		
+		}
 
-		if (playerRect[i].intersects(rects[k]) && vel[j] != 0) {
-			// Stop the movement of the player
+	}
+	
+	public void whichSide(int i, int j, int k) {
+		
+		if (vel[j] > 0 && playerRect[i].x > rects[k].x - playerRect[i].width) {
 			vel[j] = 0;
-
-			if (orientation[i] == 1) {
-				playerRect[i].x = rects[k].x - playerRect[i].width;
-			} else if (orientation[i] == 3) {
-				playerRect[i].x = rects[k].x + rects[k].width;
-			}
-
-		} else if (playerRect[i].intersects(rects[k]) && vel[j + 1] != 0) {
-			// Stop the movement of the player
+			//Has touched LHS moving RIGHT
+			playerRect[i].x = rects[k].x - playerRect[i].width;
+			
+		} else if (vel[j] < 0 && playerRect[i].x < rects[k].x + rects[k].width){
+			vel[j] = 0;
+			//Has touched RHS moving LEFT
+			playerRect[i].x = rects[k].x + rects[k].width;
+		} else if (vel[j + 1] < 0 && playerRect[i].y < rects[k].y + rects[k].height) {
 			vel[j + 1] = 0;
-
-			if (orientation[i] == 0) {
-				playerRect[i].y = rects[k].y + rects[k].height;
-			} else if (orientation[i] == 2) {
-				playerRect[i].y = rects[k].y - playerRect[i].height;
-			}
+			// Has touched LOWER moving UP
+			playerRect[i].y = rects[k].y + rects[k].height;
+		} else if (vel[j + 1] > 0 && playerRect[i].y > rects[k].y - playerRect[i].height) {
+			vel[j + 1] = 0;
+			// Has touched UPPER moving DOWN
+			playerRect[i].y = rects[k].y - playerRect[i].height;
 		}
 	}
 

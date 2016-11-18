@@ -31,6 +31,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	private static final long serialVersionUID = 1L;
 
+	// Initialise variables
+
 	Random random = new Random();
 	Timer t = new Timer(5, this);
 	java.util.Timer[] reg = new java.util.Timer[2];
@@ -56,6 +58,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	static Color grey = new Color(61, 61, 61);
 
 	String time;
+	String message;
 
 	int tl = OptionsPanel.timeLim;
 	int minutes = (tl / 60) - 1;
@@ -75,6 +78,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	JLabel[] ammoLabel = new JLabel[2];
 	JLabel[] scoreLabel = new JLabel[2];
 	JLabel tL = new JLabel(time);
+	JLabel mL = new JLabel();
 
 	boolean paused = false;
 	boolean startRegen[] = { false, false };
@@ -86,44 +90,49 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	boolean[] tir = { false, false };
 
 	static java.util.Timer ti;
+	Timer[] wait = new Timer[2];
 
 	double newdps = 0;
-	
+
 	public MapPanel(Player[] players, Weapon[][] weapons) {
+		// Assign properties to this panel and initialise
+		// some components
 		setLayout(null);
 		setFocusable(true);
 		addKeyListener(this);
 		setFocusTraversalKeysEnabled(false);
 		t.start();
-		
-		players[0] = new Player("Player 1", 1000, weapons[0][0], 0, 0, 0, 0, 0, 0.0);
-		players[1] = new Player("Player 2", 1000, weapons[1][0], 0, 0, 0, 0, 0, 0.0);
-		
 
 		reg[0] = new java.util.Timer();
 		reg[1] = new java.util.Timer();
 
+		// Makes sure that the score limit is never
+		// zero or null
 		if (OptionsPanel.scoreLim == 0) {
 			OptionsPanel.scoreLim = 20;
 		}
 
+		// Methods used to start the game
 		setupPlayers(players, weapons);
 		setupBlocks(rects);
 		setupHud(players);
-		//spawnWep(wepCrate);
+		spawnWep(wepCrate);
 		spawnAmmo(ammoCrate);
 		countdown();
 
 	}
 
 	public void setupHud(Player[] players) {
+		// This creates the Heads-Up Display (HUD) for
+		// both of the players
+
 		weaponLabel[0] = new JLabel("Weapon: " + players[0].weapon.name);
 		weaponLabel[0].setForeground(Color.RED);
 		weaponLabel[0].setFont(font);
 		weaponLabel[0].setBounds(10, 10, 200, 20);
 		add(weaponLabel[0]);
 
-		ammoLabel[0] = new JLabel("Ammo: " + Integer.toString(players[1].weapon.ammo));
+		ammoLabel[0] = new JLabel("Ammo: " + Integer.toString(players[0].ammo));
 		ammoLabel[0].setForeground(Color.RED);
 		ammoLabel[0].setFont(font);
 		ammoLabel[0].setBounds(10, 30, 200, 20);
@@ -136,7 +145,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		weaponLabel[1].setBounds(1720, 10, 190, 20);
 		add(weaponLabel[1]);
 
-		ammoLabel[1] = new JLabel("Ammo: " + Integer.toString(players[1].weapon.ammo));
+		ammoLabel[1] = new JLabel("Ammo: " + Integer.toString(players[1].ammo));
 		ammoLabel[1].setForeground(blue);
 		ammoLabel[1].setHorizontalAlignment(JLabel.RIGHT);
 		ammoLabel[1].setFont(font);
@@ -164,22 +173,31 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		tL.setFont(font);
 		add(tL);
 
+		mL.setBounds(0, 50, 1920, 20);
+		mL.setForeground(Color.WHITE);
+		mL.setHorizontalAlignment(JLabel.CENTER);
+		mL.setFont(font);
+		add(mL);
+
 	}
 
 	public void setupPlayers(Player[] players, Weapon[][] weapons) {
-
+		// This allows for the global and local player objects are
+		// one-in-the-same
 		this.players[0] = players[0];
 		this.players[1] = players[1];
 
 		this.weapons[0] = weapons[0];
 		this.weapons[1] = weapons[1];
 
+		// Give each player an assigned rectangle
 		playerRect[0] = new Rectangle(20, 80, 25, 25);
 		weaponRect[0] = new Rectangle(playerRect[0].x + 20, playerRect[0].y - 10, 5, 10);
 
 		playerRect[1] = new Rectangle(1870, 970, 25, 25);
 		weaponRect[1] = new Rectangle(playerRect[1].x + 20, playerRect[1].y - 10, 5, 10);
 
+		// Display each player's username below their rectangle
 		usernames[0] = new JLabel(players[0].username);
 		usernames[0].setForeground(Color.RED);
 		usernames[0].setFont(font2);
@@ -195,9 +213,11 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		add(usernames[0]);
 		add(usernames[1]);
 
+		// Display player's health bar above their rectangle
 		hp[0] = new Rectangle(playerRect[0].x - 5, playerRect[0].y - 20, 35, 5);
 		hp[1] = new Rectangle(playerRect[1].x - 5, playerRect[1].y - 20, 35, 5);
 
+		// Give each player a starting velocity of 0
 		for (int i = 0; i < 4; i++) {
 			vel[i] = 0;
 		}
@@ -213,11 +233,15 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			int x3 = x1, y3 = y2 + 30;
 			int x4 = x1 + 30, y4 = y3;
 
+			// This creates in total an L shape object to add some variety of
+			// walls
 			rects[i] = new Rectangle(x1, y1, 30, 30);
 			rects[i + 1] = new Rectangle(x2, y2, 30, 30);
 			rects[i + 2] = new Rectangle(x3, y3, 30, 30);
 			rects[i + 3] = new Rectangle(x4, y4, 30, 30);
 
+			// This keeps the blocks within certain bounds and repositions them
+			// if necessary
 			while (rects[i].x < 40 || rects[i].x > 1800 || rects[i].y < 60 || rects[i].y > 990) {
 				x1 = 30 * random.nextInt(64);
 				y1 = 30 * random.nextInt(36);
@@ -236,6 +260,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 		}
 
+		// Positions blocks that don't intentionaly form a shape across the map
+		// again within certain bounds and repositions them if necessary
 		for (int i = 80; i < 250; i++) {
 
 			int width = 30 * random.nextInt(2) + 30;
@@ -248,6 +274,9 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 		}
 
+		// Positions the gunfire rectangles off the screen so they are not
+		// visible
+		// to the users
 		for (int i = 0; i < 2; i++) {
 			gunfire[i] = new Rectangle(2000, 2000, 50, 50);
 		}
@@ -255,16 +284,19 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void countdown() {
+		// This is what causes the timer to count down at secondly intervals
+		// and updates the amount of time left to the HUD
 
 		ti = new java.util.Timer();
 
 		final DecimalFormat d = new DecimalFormat("00");
 
+		// This timer is set to run every 1000 milliseconds (1 second)
 		ti.schedule(new TimerTask() {
 
 			@Override
 			public void run() {
-
+				// Checks to see if the game is paused
 				if (!paused) {
 					tl--;
 					seconds--;
@@ -272,19 +304,24 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 					tl -= 0;
 					seconds -= 0;
 				}
+
+				// This allows the seconds counter to loop back to
+				// 59 if the timer changes minute e.g. from 3:00 to 2:59
 				if (seconds < 0) {
 					seconds = 59;
 					minutes--;
 				}
 
 				if (tl < 0) {
+					// If the timer reaches 0, then the program stops the game
+					// and checks to see if there is a winner based on scores
 					ti.cancel();
 					checkWinner();
 
 				}
 
+				// Updates the time left to the HUD
 				time = minutes + ":" + d.format(seconds);
-
 				tL.setText(time);
 
 			}
@@ -293,28 +330,81 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	}
 
+	public void displayOnHud(int i, int j, int mess) {
+		
+		if (i == 0) {
+			mL.setForeground(Color.RED);
+		} else {
+			mL.setForeground(blue);
+		}
+
+		switch (mess) {
+		case 0:
+			message = players[i].username + " killed " + players[j].username;
+			mL.setText(message);
+			break;
+		case 1:
+			message = players[i].username + " picked up " + players[i].weapon.name;
+			mL.setText(message);
+			break;
+		case 2:
+			message = players[i].username + " ammo refilled";
+			mL.setText(message);
+			break;
+		}
+
+		java.util.Timer t = new java.util.Timer();
+
+		t.schedule(new TimerTask() {
+
+			@Override
+			public void run() {
+				mL.setText("");
+				mL.setOpaque(false);
+			}
+		}, 5000);
+
+	}
+
 	public void checkWinner() {
+		// This compares the scores of the players to see who has won if the
+		// timer runs out before a player reaches the target score to get
+
 		if (scores[0] > scores[1]) {
+			// If player 1's score is greater than player 2's
+			// show to user that player 1 has won
 			t.stop();
 			displayWinner(0, 1);
 		} else if (scores[0] < scores[1]) {
+			// If player 2's score is greater than player 1's
+			// show to user that player 2 has won
 			t.stop();
 			displayWinner(1, 0);
 		} else if (scores[0] == scores[1]) {
+			// If the player's scores are equal, show
+			// to user that it's a draw
 			t.stop();
 			displayDraw();
 		}
 	}
 
 	public void displayWinner(int i, int j) {
+		// This updates necessary information and then displays that a
+		// player has won the game
+
+		// Increment gamesWon for the player that won the game
 		players[i].gamesWon++;
 
+		// Update the player's winRate
 		players[i].winRate = (players[0].gamesWon / players[0].gamesPlayed) * 100;
 		players[j].winRate = (players[1].gamesWon / players[1].gamesPlayed) * 100;
 
-		//SQLFunctions.updateStats(players);
+		// Execute a statement to change the values for these players in the
+		// database
+		// SQLFunctions.updateStats(players);
 
-		JOptionPane.showMessageDialog(getParent(),
+		// Display message to the user that a player has won
+		JOptionPane.showMessageDialog(null,
 				players[i].username + " has won!" + "\nFinal score: " + scores[0] + " : " + scores[1], "Winner",
 				JOptionPane.PLAIN_MESSAGE);
 		JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(getParent());
@@ -322,6 +412,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void displayDraw() {
+		// Display message to user that says that it's a draw
 		JOptionPane.showMessageDialog(null, "It's a draw!" + "\nFinal score: " + scores[0] + " : " + scores[1], "Draw",
 				JOptionPane.PLAIN_MESSAGE);
 		JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(getParent());
@@ -329,6 +420,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void paintComponent(Graphics g) {
+		// Draws everything onto the panel, such as the walls, the player
+		// rectangles,
+		// the player's weapon rectangles and the player's gunfire rectangles
+
 		Graphics2D g2d = (Graphics2D) g;
 
 		RenderingHints rh = new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING,
@@ -338,7 +433,9 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		g2d.setRenderingHints(rh);
 		g2d.setRenderingHints(rh2);
 
-		g.setColor(OptionsPanel.back);
+		// Applies the background colour to the panel as chosen in the options
+		// menu
+		g.setColor(OptionsPanel.backgroundColour);
 		g.fillRect(0, 0, 1920, 1080);
 
 		for (int i = 0; i < 20; i++) {
@@ -346,10 +443,12 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		}
 
 		for (Rectangle r : rects) {
-			g.setColor(OptionsPanel.wall);
+			// Draws the wall rectangles onto the panel
+			g.setColor(OptionsPanel.wallColour);
 			g.fillRect(r.x, r.y, r.width, r.height);
 		}
 
+		// Draws the players' rectangles onto the panel
 		g.setColor(Color.RED);
 		g.fillRect(playerRect[0].x, playerRect[0].y, playerRect[0].width, playerRect[0].height);
 		g.fillRect(925, 0, 35, 25);
@@ -358,18 +457,22 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		g.fillRect(playerRect[1].x, playerRect[1].y, playerRect[1].width, playerRect[1].height);
 		g.fillRect(960, 0, 35, 25);
 
+		// Draw the gunfire rectangles onto the panel
 		g.setColor(Color.YELLOW);
 		g.fillRect(gunfire[0].x, gunfire[0].y, gunfire[0].width, gunfire[0].height);
 		g.fillRect(gunfire[1].x, gunfire[1].y, gunfire[1].width, gunfire[1].height);
 
+		// Draw the players' weapon rectangles onto the panel
 		g.setColor(grey);
 		g.fillRect(weaponRect[0].x, weaponRect[0].y, weaponRect[0].width, weaponRect[0].height);
 		g.fillRect(weaponRect[1].x, weaponRect[1].y, weaponRect[1].width, weaponRect[1].height);
 
+		// Draw the players' health bars onto the panel
 		g.setColor(Color.GREEN);
 		g.fillRect(hp[0].x, hp[0].y, hp[0].width, hp[0].height);
 		g.fillRect(hp[1].x, hp[1].y, hp[1].width, hp[1].height);
 
+		// Prevents players from being able to move through the walls
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 4; j += 2) {
 				for (int k = 0; k < 250; k++) {
@@ -378,16 +481,19 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 		}
 
-		g.setColor(OptionsPanel.back);
+		// Draws rectangle that is used to cover the killed player
+		g.setColor(OptionsPanel.backgroundColour);
 		g.fillRect(hidePlayer.x, hidePlayer.y, hidePlayer.width, hidePlayer.height);
 
+		// Draws the ammo crate rectangle onto the panel
 		g.setColor(new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255)));
 		g.fillRect(ammoCrate.x, ammoCrate.y, ammoCrate.width, ammoCrate.height);
-		
+
+		// Draws the weapon crate onto the panel
 		g.setColor(new Color(128, 72, 0));
 		g.fillRect(wepCrate.x, wepCrate.y, wepCrate.width, wepCrate.height);
-		
 
+		// Detects if a user picks up an ammo crate or a weapon crate
 		for (int i = 0; i < 2; i++) {
 			if (ammoCrate.intersects(playerRect[i])) {
 				collectAmmo(i, ammoCrate);
@@ -400,17 +506,23 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void spawnWep(final Rectangle wepCrate) {
+		// This makes the weapon crate appear on the screen
+		// at a random time between 20 and 39 seconds
+
 		java.util.Timer wc = new java.util.Timer();
-		int i = (random.nextInt(20) + 20) * 1000;		
+		int i = (random.nextInt(20) + 20) * 1000;
 		wc.schedule(new TimerTask() {
 
 			@Override
 			public void run() {
 
+				// The weapon crate is positioned randomly on the panel
 				wepCrate.x = random.nextInt(1900);
 				wepCrate.y = random.nextInt(1000);
 
 				for (int i = 0; i < 250; i++) {
+					// This prevents the weapon crate from appearing in one
+					// of the walls where it can't be reached
 					while (wepCrate.intersects(rects[i])) {
 						wepCrate.x = random.nextInt(1900);
 						wepCrate.y = random.nextInt(1000);
@@ -420,8 +532,11 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 		}, i);
 	}
-	
+
 	public void spawnAmmo(final Rectangle ammoCrate) {
+		// This makes the ammo crate appear on the screen at
+		// a random time between 30 and 59 seconds
+
 		java.util.Timer ac = new java.util.Timer();
 		int i = (random.nextInt(30) + 30) * 1000;
 
@@ -430,10 +545,13 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			@Override
 			public void run() {
 
+				// The ammo crate is positioned randomly on the panel
 				ammoCrate.x = random.nextInt(1900);
 				ammoCrate.y = random.nextInt(1000);
 
 				for (int i = 0; i < 250; i++) {
+					// This prevents the ammo crate from appearing in one
+					// of the walsl where it can't be reached
 					while (ammoCrate.intersects(rects[i])) {
 						ammoCrate.x = random.nextInt(1900);
 						ammoCrate.y = random.nextInt(1000);
@@ -444,43 +562,104 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		}, i);
 
 	}
-	
+
 	public void collectWep(Player[] players, int i, Rectangle wepCrate) {
+		// This removes the weapon crate and changes the player's weapon
+		// once they have collected the weapon crate
+
+		// Weapon crate is positioned off the map
 		wepCrate.x = 2000;
 		wepCrate.y = 2000;
-		
-		//players[i].weapon = SQLFunctions.getRandomWeapon(players[i].weapon);
-	
-		weaponLabel[i].setText("Weapon: " + players[i].weapon.name);
-		ammoLabel[i].setText("Ammo: " + players[i].weapon.ammo);
 
+		// This gives the player a new random weapon that exists on the database
+		players[i].weapon = getRandomWeapon(i, players[i]);
+
+		// Update the HUD to display the new weapon and ammo that the player has
+		weaponLabel[i].setText("Weapon: " + players[i].weapon.name);
+		ammoLabel[i].setText("Ammo: " + players[i].ammo);
+
+		int j;
+
+		if (i == 0) {
+			j = 1;
+		} else {
+			j = 0;
+		}
+
+		displayOnHud(i, j, 1);
+
+		// Rerun the code to make the weapon crate appear
 		spawnWep(wepCrate);
 	}
 
 	public void collectAmmo(int i, Rectangle ammoCrate) {
+		// This removes the ammo crate and gives the player
+		// maximum ammo for their current weapon according to
+		// the database
+
+		// Ammo crate is positioned off the map
 		ammoCrate.x = 2000;
 		ammoCrate.y = 2000;
 
-		//SQLFunctions.refillAmmo(players, weapons, i);
-		
-		players[i].weapon.ammo = 70;
+		// Retrieves the meximum ammo for the player's current weapon
+		// and sets the player's ammo to this amount
+		players[i].ammo = getFullAmmo(players[i]);
 
-		ammoLabel[i].setText("Ammo: " + players[i].weapon.ammo);
+		// Update the HUD to display the new amount of ammo the player has
+		ammoLabel[i].setText("Ammo: " + players[i].ammo);
 
+		int j;
+
+		if (i == 0) {
+			j = 1;
+		} else {
+			j = 0;
+		}
+
+		displayOnHud(i, j, 2);
+
+		// Rerun the code to make the ammo crate appear
 		spawnAmmo(ammoCrate);
 	}
 
+	public int getFullAmmo(Player player) {
+		int ammo = player.weapon.ammo;
+		return ammo;
+
+	}
+
+	public Weapon getRandomWeapon(int i, Player player) {
+		Random r = new Random();
+		int rWep = r.nextInt(5) + 1;
+		player.weapon = weapons[i][rWep];
+		player.ammo = weapons[i][rWep].ammo;
+
+		return player.weapon;
+
+	}
+
 	public void hitDetection(final Player[] players) {
+		// Checks to see if a player has been hit by the oppoenet's
+		// gunfire and it decreases the player's health according to
+		// the damagePerShot of the opponent's weapon
 
 		if (gunfire[1].intersects(playerRect[0])) {
-			
+			// If player 2's gunfire rect touches player 1's rectangle,
+			// then player 1 takes damage
+
 			startRegen[0] = false;
 
-			// Player 1 takes damage
-			rangeOrientation(1, 0);			
+			// This decreases the amount of damage player 2 does to player 1
+			// depending on the distance between them and player 2's weapon
+			rangeOrientation(1, 0);
+
+			// Player 1's health is decreased and health bar is updated
+			players[0].health -= newdps;
 			hp[0].width = (int) (0.035 * players[0].health);
 
 			reg[0].schedule(new TimerTask() {
+				// If player 1 has not been hit in more that 5 seconds, then
+				// player 1's health begins to regenerate
 
 				@Override
 				public void run() {
@@ -498,7 +677,6 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 						hp[0].width = (int) (0.035 * players[0].health);
 
 					}
-					
 
 				}
 
@@ -510,7 +688,9 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			startRegen[1] = false;
 
 			// Player 2 takes damage
-			rangeOrientation(1, 0);
+
+			rangeOrientation(0, 1);
+			players[1].health -= newdps;
 			hp[1].width = (int) (0.035 * players[1].health);
 
 			reg[1].schedule(new TimerTask() {
@@ -540,17 +720,24 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void respawn(final int i, final Player[] players, final Weapon[][] weapons) {
+		// This makes the player just killed wait 5 seconds before
+		// they can play again
+
 		unableToMove[i] = true;
 
+		// Initialising a timer that is specific for the player killed
 		resp[i] = new Timer(5000, new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
 				Random r = new Random();
-
+				// This randomly chooses the position of the player just killed
+				// on the map
+				// so that the player is less likely to be 'spawn-trapped'
 				playerRect[i].x = coordx[r.nextInt(2)];
 				playerRect[i].y = coordy[r.nextInt(2)];
+				// Gives the player basic starting traits
 				players[i].health = 1000;
 				players[i].weapon = weapons[i][0];
 				hp[i].width = (int) (0.035 * players[i].health);
@@ -570,28 +757,38 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	public void increment(int i, int j, boolean[] playerKilled, int[] scores, JLabel[] scoreLabel, Player[] players) {
 		if (playerKilled[i]) {
+			// If a player has been killed, increment the in-game score
+			// and increment the killer's total kills stat and the killed's
+			// total deaths stat
+			
+			// The int i represents the player who was killed
+			// The int j represents the killer
 			scores[j]++;
 			players[j].kills++;
 			players[i].deaths++;
 			scoreLabel[j].setText(Integer.toString(scores[j]));
 
+			// This if statement prevents the player 1 kill difference ratio
+			// from being infinity as Java can't represent infinity as a number
 			if (players[i].deaths != 0) {
 				players[i].killdiff = players[i].kills / players[i].deaths;
-
 			} else {
 				players[i].killdiff = players[i].kills;
-
 			}
 
+			// This if statement does the exact same as above but it
+			// is for player 2
 			if (players[j].deaths != 0) {
 				players[j].killdiff = players[j].kills / players[j].deaths;
-
 			} else {
 				players[j].killdiff = players[j].kills;
 			}
 
-			//SQLFunctions.updateStats(players);
+			// Uploads latest changes in the stats to the database
+			// SQLFunctions.updateStats(players);
 
+			// playerKilled is turned to false to prevent the score from
+			// always incrementing until the 5 second respawn time has run out
 			playerKilled[i] = false;
 			respawning[i] = false;
 
@@ -600,8 +797,18 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void wait(final int i, int delay) {
+		// This is used to prevent users from firing incredibly fast
+		// so that means the game can have both automatic and
+		// semi-automatic weapons by factoring in a unique rate of fire
+
+		// Stops the user from being able to fire
 		ableToFire[i] = false;
 
+		// This timer is used to make ableToFire true again once
+		// the the timer has waited the amount of time as the
+		// player's weapon's rate of fire, e.g. if the player's
+		// rate of fire was 200ms, then the timer waits 200ms before
+		// turning ableToFire true again
 		Timer t = new Timer(delay, new ActionListener() {
 
 			@Override
@@ -610,47 +817,57 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 
 		});
-
 		t.setRepeats(false);
 		t.start();
 
 	}
 
 	public void intersections(int i, int j, int k) {
-		if (playerRect[i].intersects(rects[k]) && vel[j] != 0) {
+		// This is used to stop players from being able
+		// to travel through the walls
+		
+		if (playerRect[i].intersects(rects[k])) {
+			whichSide(i, j, k);		
+		}
+
+	}
+	
+	public void whichSide(int i, int j, int k) {
+		
+		if (vel[j] > 0 && playerRect[i].x > rects[k].x - playerRect[i].width) {
 			vel[j] = 0;
-
-			if (orientation[i] == 1) {
-				playerRect[i].x = rects[k].x - playerRect[i].width;
-			} else if (orientation[i] == 3) {
-				playerRect[i].x = rects[k].x + rects[k].width;
-			}
-
-		} else if (playerRect[i].intersects(rects[k]) && vel[j + 1] != 0) {
+			//Has touched LHS moving RIGHT
+			playerRect[i].x = rects[k].x - playerRect[i].width;
+			
+		} else if (vel[j] < 0 && playerRect[i].x < rects[k].x + rects[k].width){
+			vel[j] = 0;
+			//Has touched RHS moving LEFT
+			playerRect[i].x = rects[k].x + rects[k].width;
+		} else if (vel[j + 1] < 0 && playerRect[i].y < rects[k].y + rects[k].height) {
 			vel[j + 1] = 0;
-
-			if (orientation[i] == 0) {
-				playerRect[i].y = rects[k].y + rects[k].height;
-			} else if (orientation[i] == 2) {
-				playerRect[i].y = rects[k].y - playerRect[i].height;
-			}
+			// Has touched LOWER moving UP
+			playerRect[i].y = rects[k].y + rects[k].height;
+		} else if (vel[j + 1] > 0 && playerRect[i].y > rects[k].y - playerRect[i].height) {
+			vel[j + 1] = 0;
+			// Has touched UPPER moving DOWN
+			playerRect[i].y = rects[k].y - playerRect[i].height;
 		}
 	}
 
 	public void fire(final int i) {
-		
+		// This is used to determine what type of firing mode
+		// should be used depending on the player's current weapon.
+		// This is only called when the player fires their weapon
+
 		switch (players[i].weapon.code) {
-		case 0:
-			semiauto(i);
-			break;
 		case 1:
-			auto(i);
+			semiauto(i);
 			break;
 		case 2:
 			auto(i);
 			break;
 		case 3:
-			semiauto(i);
+			auto(i);
 			break;
 		case 4:
 			semiauto(i);
@@ -658,20 +875,27 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		case 5:
 			semiauto(i);
 			break;
+		case 6:
+			semiauto(i);
+			break;
 		}
-		
-		
-	}
-	
-	public void auto(final int i) {
 
+	}
+
+	public void auto(final int i) {
+		// This is used to give the players an automatic type of firing
+		// for their current weapon
+
+		// This timer causes the gunfire to quickly flash as it would
+		// in real life
 		java.util.Timer t = new java.util.Timer();
 
 		t.schedule(new TimerTask() {
 
 			@Override
 			public void run() {
-				players[i].weapon.ammo -= 0;
+				// Decrease the player's ammo
+				players[i].ammo -= 0;
 
 				gunfire[i].x = 2000;
 				gunfire[i].y = 2000;
@@ -680,8 +904,11 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 		}, 10);
 
+		// Only fire if ableToFire is true
 		if (ableToFire[i]) {
 
+			// Sort out the orientation of the player and then position
+			// the guinfire rectangle on the screen accordingly
 			switch (orientation[i]) {
 			case 0:
 				gunfire[i].x = weaponRect[i].x + 2;
@@ -689,6 +916,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				gunfire[i].width = 2;
 				gunfire[i].height = 2000;
 
+				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
 					if (gunfire[i].intersects(rects[j])) {
 						gunfire[i].y = rects[j].y + rects[j].height;
@@ -702,6 +930,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				gunfire[i].width = 2000;
 				gunfire[i].height = 2;
 
+				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
 					if (gunfire[i].intersects(rects[j])) {
 						gunfire[i].width = rects[j].x - weaponRect[i].x;
@@ -714,6 +943,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				gunfire[i].width = 2;
 				gunfire[i].height = 2000;
 
+				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
 					if (gunfire[i].intersects(rects[j])) {
 						gunfire[i].y = weaponRect[i].y;
@@ -727,6 +957,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				gunfire[i].width = 2000;
 				gunfire[i].height = 2;
 
+				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
 					if (gunfire[i].intersects(rects[j])) {
 						gunfire[i].x = rects[j].x + rects[j].width;
@@ -736,31 +967,39 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				break;
 			}
 
-			players[i].weapon.ammo--;
-			
-			ammoLabel[i].setText("Ammo: " + Integer.toString(players[i].weapon.ammo));
+			// Lower the amount of ammo the player has and update the HUD
+			// to show this change
+			players[i].ammo--;
+			ammoLabel[i].setText("Ammo: " + Integer.toString(players[i].ammo));
 			ableToFire[i] = false;
-			
+
+			// Trigger sound effect
 			snd(i);
 
 		} else {
-			players[i].weapon.ammo -= 0;
+			// Do not decrease the player's ammo
+			players[i].ammo -= 0;
 
 		}
-		
-		
+
 	}
-	
+
 	public void semiauto(final int i) {
+		// This is used to give the players a semi-automatic type
+		// of firing for their current weapon
+
 		count[i]++;
 
+		// This timer causes the gunfire to quickly flash as it would
+		// in real life
 		java.util.Timer t = new java.util.Timer();
 
 		t.schedule(new TimerTask() {
 
 			@Override
 			public void run() {
-				players[i].weapon.ammo -= 0;
+				// Decrease the player's ammo
+				players[i].ammo -= 0;
 
 				gunfire[i].x = 2000;
 				gunfire[i].y = 2000;
@@ -768,9 +1007,12 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 
 		}, 10);
-		
+
+		// Only fire if the incrementing count variable is less than 2
 		if (count[i] < 2) {
 
+			// Sort out the orientation of the player and then position
+			// the guinfire rectangle on the screen accordingly
 			switch (orientation[i]) {
 			case 0:
 				gunfire[i].x = weaponRect[i].x + 2;
@@ -778,12 +1020,13 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				gunfire[i].width = 2;
 				gunfire[i].height = 2000;
 
+				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
 					if (gunfire[i].intersects(rects[j])) {
 						gunfire[i].y = rects[j].y + rects[j].height;
 						gunfire[i].height = weaponRect[i].y - gunfire[i].y;
 					}
-				}	
+				}
 				break;
 			case 1:
 				gunfire[i].x = weaponRect[i].x;
@@ -791,6 +1034,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				gunfire[i].width = 2000;
 				gunfire[i].height = 2;
 
+				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
 					if (gunfire[i].intersects(rects[j])) {
 						gunfire[i].width = rects[j].x - weaponRect[i].x;
@@ -803,12 +1047,13 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				gunfire[i].width = 2;
 				gunfire[i].height = 2000;
 
+				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
 					if (gunfire[i].intersects(rects[j])) {
 						gunfire[i].y = weaponRect[i].y;
 						gunfire[i].height = rects[j].y - weaponRect[i].y;
 					}
-				}				
+				}
 				break;
 			case 3:
 				gunfire[i].x = weaponRect[i].x - 2000;
@@ -816,29 +1061,35 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				gunfire[i].width = 2000;
 				gunfire[i].height = 2;
 
+				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
 					if (gunfire[i].intersects(rects[j])) {
 						gunfire[i].x = rects[j].x + rects[j].width;
 						gunfire[i].width = weaponRect[i].x - gunfire[i].x;
 					}
-				}	
+				}
 				break;
 			}
 
-			players[i].weapon.ammo--;
+			// Lower the amount of ammo the player has and update the HUD
+			// to show this change
+			players[i].ammo--;
+			ammoLabel[i].setText("Ammo: " + Integer.toString(players[i].ammo));
 
-			ammoLabel[i].setText("Ammo: " + Integer.toString(players[i].weapon.ammo));
-			
+			// Trigger sound effect
 			snd(i);
 
 		} else {
-			players[i].weapon.ammo -= 0;
+			// Do not decrease the player's ammo
+			players[i].ammo -= 0;
 
 		}
 	}
 
 	public void snd(final int i) {
-		
+		// This is used to play the sound effect of the weapon being used
+		// by the player when they fire
+
 		new Thread(new Runnable() {
 
 			@Override
@@ -851,16 +1102,22 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				
+
 			}
-			
+
 		}).start();
-		
+
 	}
-	
+
 	public void rangeOrientation(int i, int j) {
+		// This is used to determine how far away the player being fired at is
+		// from the player firing at them and it uses the orientation of the
+		// firing player to get the necessary distance value needed to add
+		// range effectiveness to the weapons. The main calculation is made
+		// in the method 'range'
+
 		double dist;
-		
+
 		if (orientation[i] == 0) {
 			dist = Math.abs((playerRect[j].y + playerRect[j].height) - weaponRect[i].y);
 			range(i, dist, newdps);
@@ -875,82 +1132,91 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			range(i, dist, newdps);
 		}
 	}
-	
-	public void range(int i, double dist, double dps) {
-		
-		double multi = 1;
-		
+
+	public void range(int i, double distance, double dps) {
+		// This method applies a multiplier to the player's weapon's
+		// damagePerShot value based on what weapon the player is using
+		// and also how far away the player is from their opponent player.
+		// The new damagePerShot value is stored first in the parameter dps
+		// and then in the variable newdps
+
+		double multiplier = 1;
+
 		switch (players[i].weapon.code) {
-		case 0:
-			if (dist >= 170 && dist <= 280) {
-				multi = 0.9;
-			} else if (dist > 280 && dist <= 420) {
-				multi = 0.84;
-			} else if (dist > 420 && dist <= 560) {
-				multi = 0.8;
-			} else if (dist > 560) {
-				multi = 0.77;
-			} else {
-				multi = 1;
-			}
-			dps = (double) players[i].weapon.damagePerShot * multi;
-			break;
 		case 1:
-			if (dist >= 140 && dist <= 280) {
-				multi = 0.9;
-			} else if (dist > 280 && dist <= 420) {
-				multi = 0.7;
-			} else if (dist > 420 && dist <= 560) {
-				multi = 0.55;
-			} else if (dist > 560) {
-				multi = 0.35;
+			if (distance >= 170 && distance <= 280) {
+				multiplier = 0.9;
+			} else if (distance > 280 && distance <= 420) {
+				multiplier = 0.84;
+			} else if (distance > 420 && distance <= 560) {
+				multiplier = 0.8;
+			} else if (distance > 560) {
+				multiplier = 0.77;
 			} else {
-				multi = 1;
+				multiplier = 1;
 			}
-			dps = (double) players[i].weapon.damagePerShot * multi;
+			dps = (double) players[i].weapon.damagePerShot * multiplier;
 			break;
 		case 2:
-			if (dist >= 140 && dist <= 280) {
-				multi = 0.94;
-			} else if (dist > 280 && dist <= 420) {
-				multi = 0.9;
-			} else if (dist > 420 && dist <= 560) {
-				multi = 0.87;
-			} else if (dist > 560) {
-				multi = 0.85;
+			if (distance >= 140 && distance <= 280) {
+				multiplier = 0.9;
+			} else if (distance > 280 && distance <= 420) {
+				multiplier = 0.7;
+			} else if (distance > 420 && distance <= 560) {
+				multiplier = 0.55;
+			} else if (distance > 560) {
+				multiplier = 0.35;
 			} else {
-				multi = 1;
+				multiplier = 1;
 			}
-			dps = (double)  players[i].weapon.damagePerShot * multi;
+			dps = (double) players[i].weapon.damagePerShot * multiplier;
 			break;
 		case 3:
-			multi = 1;
-			dps = (double) players[i].weapon.damagePerShot * multi;
+			if (distance >= 140 && distance <= 280) {
+				multiplier = 0.94;
+			} else if (distance > 280 && distance <= 420) {
+				multiplier = 0.9;
+			} else if (distance > 420 && distance <= 560) {
+				multiplier = 0.87;
+			} else if (distance > 560) {
+				multiplier = 0.85;
+			} else {
+				multiplier = 1;
+			}
+			dps = (double) players[i].weapon.damagePerShot * multiplier;
 			break;
 		case 4:
-			if (dist >= 100 && dist <= 280) {
-				multi = 0.68;
-			} else if (dist > 280 && dist <= 420) {
-				multi = 0.43;
-			} else if (dist > 420 && dist <= 560) {
-				multi = 0.35;
-			} else if (dist > 560) {
-				multi = 0.08;
-			} else {
-				multi = 1;
-			}
-			dps = (double) players[i].weapon.damagePerShot * multi;
-			
+			multiplier = 1;
+			dps = (double) players[i].weapon.damagePerShot * multiplier;
 			break;
 		case 5:
-			multi = 1;
-			dps = (double) players[i].weapon.damagePerShot * multi;
+			if (distance >= 100 && distance <= 280) {
+				multiplier = 0.56;
+			} else if (distance > 280 && distance <= 420) {
+				multiplier = 0.33;
+			} else if (distance > 420 && distance <= 560) {
+				multiplier = 0.17;
+			} else if (distance > 560) {
+				multiplier = 0.08;
+			} else {
+				multiplier = 1;
+			}
+			dps = (double) players[i].weapon.damagePerShot * multiplier;
+
 			break;
-		} 
+		case 6:
+			multiplier = 1;
+			dps = (double) players[i].weapon.damagePerShot * multiplier;
+			break;
+		}
 		newdps = dps;
 	}
 
 	public void sortOrientation(int i) {
+		// This determines the position of the weapon rectangle
+		// depending on the orientation of the player so that it
+		// looks like the player is facing a certain direction
+
 		switch (orientation[i]) {
 		case 0:
 			weaponRect[i].x = playerRect[i].x + 20;
@@ -980,6 +1246,9 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public boolean hasPlayerWon(Player[] players, int score) {
+		// This is used to see if a player has reached the
+		// intended score limit
+
 		if (score == OptionsPanel.scoreLim) {
 			return true;
 		} else {
@@ -990,6 +1259,9 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		// This is used mainly to control the movement and positioning
+		// of rectangles on the screen as well as things like
+		// constantly checking for if a player has been killed or not
 
 		playerRect[0].x += vel[0];
 		playerRect[0].y += vel[1];
@@ -1004,6 +1276,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		usernames[1].setBounds(playerRect[1].x - 25, playerRect[1].y + 20, 75, 40);
 
 		if (players[0].health <= 0) {
+			// If player 1 has been killed then hide the player rectangle from
+			// the screen
 			playerKilled[0] = true;
 			respawning[0] = true;
 			unableToMove[0] = true;
@@ -1015,18 +1289,25 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			hidePlayer.x = 1880;
 			hidePlayer.y = 970;
 
+			// Increment the score of player 2
 			increment(0, 1, playerKilled, scores, scoreLabel, players);
+			
+			displayOnHud(1, 0, 0);
 
 			if (hasPlayerWon(players, scores[1])) {
-
+				// If player 2 has reached the score limit, then end the game
+				// and display that player 2 has won
 				displayWinner(1, 0);
 
 			} else {
+				// Allow player 1 to respawn otherwise
 				respawn(0, players, weapons);
 			}
 		}
 
 		if (players[1].health <= 0) {
+			// If player 2 has been killed then hide the player rectangle from
+			// the screen
 			playerKilled[1] = true;
 			respawning[1] = true;
 			unableToMove[1] = true;
@@ -1038,86 +1319,99 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			hidePlayer.x = 1880;
 			hidePlayer.y = 970;
 
+			// Increment the score of player 1
 			increment(1, 0, playerKilled, scores, scoreLabel, players);
+			displayOnHud(0, 1, 0);
 
 			if (hasPlayerWon(players, scores[0])) {
-
+				// If player 1 has reached the score limit, then end the game
+				// and display that player 1 has won
 				displayWinner(0, 1);
 
 			} else {
+				// Allow player 2 to respawn otherwise
 				respawn(1, players, weapons);
 
 			}
 		}
 
+		// This collection of if statements prevent the players from
+		// being able to leave the boundaries of the screen
 		if (playerRect[0].x < 0) {
 			playerRect[0].x = 0;
 			vel[0] = 0;
 		}
-
 		if (playerRect[0].x > 1895) {
 			playerRect[0].x = 1895;
 			vel[0] = 0;
 		}
-
 		if (playerRect[0].y < 0) {
 			playerRect[0].y = 0;
 			vel[1] = 0;
 		}
-
 		if (playerRect[0].y > 995) {
 			playerRect[0].y = 995;
 			vel[1] = 0;
 		}
-
 		if (playerRect[1].x < 0) {
 			playerRect[1].x = 0;
 			vel[2] = 0;
 		}
-
 		if (playerRect[1].x > 1895) {
 			playerRect[1].x = 1895;
 			vel[2] = 0;
 		}
-
 		if (playerRect[1].y < 0) {
 			playerRect[1].y = 0;
 			vel[3] = 0;
 		}
-
 		if (playerRect[1].y > 995) {
 			playerRect[1].y = 995;
 			vel[3] = 0;
 		}
 
+		// Actively check for where to position the weapon
+		// rectangle to give the player an orientation
 		sortOrientation(0);
 		sortOrientation(1);
 
 		if (isFiring[0]) {
+			// If player 1 wants to fire, then display
+			// the gunfire rectangle and wait until the rate
+			// of fire timer ends
 			fire(0);
 			wait(0, players[0].weapon.rate);
 		}
 
 		if (isFiring[1]) {
 			fire(1);
+			// If player 1 wants to fire, then display
+			// the gunfire rectangle and wait until the rate
+			// of fire timer ends
 			wait(1, players[1].weapon.rate);
 		}
 
+		// Checks to see if a player has been hit with gunfire
 		hitDetection(players);
 
+		// Update changes to the screen
 		repaint();
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		
+
 		if (e.getKeyCode() == KeyEvent.VK_1) {
-			collectWep(players, 0, wepCrate);
+			players[0].weapon = getRandomWeapon(0, players[0]);
+			weaponLabel[0].setText("Weapon: " + players[0].weapon.name);
+			ammoLabel[0].setText("Ammo: " + players[0].ammo);
 		}
 
 		if (!unableToMove[0]) {
+			// If player 1 isn't dead and hence can move then
+			// allow the player to input keys to control their rectangle
 			switch (e.getKeyCode()) {
-			// PLAYER ONE KEYS
+			// Player 1 key assignments for moving and firing
 			case KeyEvent.VK_UP:
 				vel[1] = -2;
 				orientation[0] = 0;
@@ -1135,22 +1429,23 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				orientation[0] = 1;
 				break;
 			case KeyEvent.VK_SPACE:
-				if (ableToFire[0] && players[0].weapon.ammo != 0) {
+				if (players[0].ammo > 0) {
 					isFiring[0] = true;
 				} else {
-					// ableToFire[0] = false;
+					ableToFire[0] = false;
 				}
 				break;
 
 			}
 		} else {
-
+			// Don't assign and keys to player 1
 		}
 
 		if (!unableToMove[1]) {
+			// If player 2 isn't dead and hence can move then
+			// allow the player to input keys to control their rectangle
 			switch (e.getKeyCode()) {
-
-			// PLAYER TWO KEYS
+			// Player 2 key assignments for moving and firing
 			case KeyEvent.VK_W:
 				vel[3] = -2;
 				orientation[1] = 0;
@@ -1168,25 +1463,29 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				orientation[1] = 1;
 				break;
 			case KeyEvent.VK_Q:
-				if (ableToFire[1] && players[1].weapon.ammo != 0) {
+				if (players[1].ammo > 0) {
 					isFiring[1] = true;
 				} else {
-
+					ableToFire[1] = false;
 				}
 				break;
 			}
 		} else {
-
+			// Don't assign and keys to player 2
 		}
 
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-			t.stop();
+			// If Escape is pressed, the game pauses
 
+			t.stop();
 			System.out.println("Paused");
 			paused = true;
 		}
 
 		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			// If Enter is pressed while the game is paused,
+			// the game is resumed
+
 			t.start();
 			System.out.println("Resumed");
 			paused = false;
@@ -1196,30 +1495,33 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	@Override
 	public void keyReleased(KeyEvent e) {
+		// These if statements regarding the int[] vel stop the player from
+		// moving
+		// if they release one of the keys used to move their rectangle
 		if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_UP) {
 			vel[1] = 0;
 		}
-
 		if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			vel[0] = 0;
 		}
-
 		if (e.getKeyCode() == KeyEvent.VK_S || e.getKeyCode() == KeyEvent.VK_W) {
 			vel[3] = 0;
 		}
-
 		if (e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_D) {
 			vel[2] = 0;
 		}
 
 		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+			// If spacebar is released then stop player 1 from
+			// firing their weapon
 			gunfire[0].x = 2000;
 			gunfire[0].y = 2000;
 			isFiring[0] = false;
 			count[0] = 0;
 		}
-
 		if (e.getKeyCode() == KeyEvent.VK_Q) {
+			// If Q is released then stop player 2 from
+			// firing their weapon
 			gunfire[1].x = 2000;
 			gunfire[1].y = 2000;
 			isFiring[1] = false;
