@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.Random;
 
 public class SQLFunctions {
 
@@ -15,7 +14,8 @@ public class SQLFunctions {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 
-			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "Ht3jkdtw7Hvx");
+			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root",
+					"Ht3jkdtw7Hvx");
 
 			Statement st = c.createStatement();
 
@@ -38,7 +38,8 @@ public class SQLFunctions {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 
-			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "Ht3jkdtw7Hvx");
+			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root",
+					"Ht3jkdtw7Hvx");
 
 			Statement st = c.createStatement();
 
@@ -67,7 +68,8 @@ public class SQLFunctions {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 
-			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "Ht3jkdtw7Hvx");
+			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root",
+					"Ht3jkdtw7Hvx");
 
 			Statement st = c.createStatement();
 
@@ -79,11 +81,11 @@ public class SQLFunctions {
 			}
 
 			for (int j = 0; j < i; j++) {
-				
+
 				if (players[j].winRate == null) {
 					players[j].winRate = 0.0;
 				}
-				
+
 				st.execute("update `coursework`.`player_statistics`" + "set `kills` = '" + players[j].kills
 						+ "', `deaths` = '" + players[j].deaths + "', `K/D` = '" + players[j].killdiff
 						+ "', `games_played` = '" + players[j].gamesPlayed + "', `matches_won` = '"
@@ -104,7 +106,8 @@ public class SQLFunctions {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 
-			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "Ht3jkdtw7Hvx");
+			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root",
+					"Ht3jkdtw7Hvx");
 
 			Statement st = c.createStatement();
 
@@ -112,8 +115,10 @@ public class SQLFunctions {
 
 			while (rs.next()) {
 
-				weapons[0][i] = new Weapon(rs.getInt(1) - 1, rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getInt(5), new File(rs.getString(6)));
-				weapons[1][i] = new Weapon(rs.getInt(1) - 1, rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getInt(5), new File(rs.getString(6)));
+				weapons[0][i] = new Weapon(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getInt(5),
+						new File(rs.getString(6)));
+				weapons[1][i] = new Weapon(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getInt(5),
+						new File(rs.getString(6)));
 				i++;
 
 			}
@@ -123,31 +128,6 @@ public class SQLFunctions {
 		}
 
 	}
-	
-	public static Weapon getRandomWeapon(Weapon weapon) {
-		Random r = new Random();
-		int i = r.nextInt(5) + 1;
-				
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-
-			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "Ht3jkdtw7Hvx");
-
-			Statement st = c.createStatement();
-
-			ResultSet rs = st.executeQuery("select * from weapons where idweapons = '" + i + "';");
-			
-			while (rs.next()) {
-				weapon = new Weapon(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getInt(5), new File(rs.getString(6)));
-				
-				return weapon;
-			} 
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return weapon;
-	}
 
 	public static void getStats(Object[][] data) {
 		int i = 0;
@@ -155,11 +135,9 @@ public class SQLFunctions {
 		try {
 
 			Class.forName("com.mysql.jdbc.Driver");
-
-			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "Ht3jkdtw7Hvx");
-
+			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root",
+					"Ht3jkdtw7Hvx");
 			Statement st = c.createStatement();
-
 			ResultSet rs = st.executeQuery("select username, kills, deaths, `K/D`, win_rate from player_statistics;");
 
 			while (rs.next() && i < getNumberOfPlayers()) {
@@ -177,19 +155,13 @@ public class SQLFunctions {
 
 	}
 
-	public static void refillAmmo(Player[] players, Weapon[][] weapons, int i) {
-		getWeapons(weapons);
-		
-		players[i].weapon.ammo = weapons[i][players[i].weapon.code].ammo;
-	}
-
 	public static void getOfflineWeapons(Weapon[][] weapons) {
-		
+
 		for (int i = 0; i < 2; i++) {
 
 			weapons[i][0] = new Weapon(0, "Pistol", 70, 400, 70, new File("Pistol.wav"));
-			
+
 		}
-		
+
 	}
 }
