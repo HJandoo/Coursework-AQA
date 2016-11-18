@@ -1,6 +1,7 @@
 TO DO LIST
 
  - Player mechanics:- Regenerating health fixes:- Somewhat works...
+ 					- Player velocities in two dimensional array
  					- Additional armor
  - Weapon mechanics:- Key to swap weapons
  					- Splash damage for bazooka

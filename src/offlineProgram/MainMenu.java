@@ -75,9 +75,9 @@ public class MainMenu extends JFrame {
 		
 		setTitle("Gun Mania OFFLINE");
 		setIconImage(img.getImage());
-
-		p.setLayout(null);
 		add(p);
+		p.setLayout(null);
+		
 		p.setBackground(wh);
 
 		l1.setBounds(10, 10, 280, 40);
