@@ -98,8 +98,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	public MapPanel(Player[] players, Weapon[][] weapons) {
 		// Assign properties to this panel and initialise
 		// some components
-		
-		
+			
 		setLayout(null);
 		setFocusable(true);
 		addKeyListener(this);

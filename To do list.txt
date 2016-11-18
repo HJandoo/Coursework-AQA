@@ -1,15 +1,12 @@
 TO DO LIST
 
  - Player mechanics:- Regenerating health fixes:- Somewhat works...
- 					- Player velocities in two dimensional array
  					- Additional armor
  - Weapon mechanics:- Key to swap weapons
  					- Splash damage for bazooka
 					- Specific bullets for weapons e.g. rockets for bazooka
 					- Weapon range for offline version
 					- Sound effects for offline version
-					- Automatic fire fix
- - Game mechanics:- Add pop-up messages on HUD for weapon changes/who killed who/how long til respawn
  - Player stats:- WMD? 
  				- Player comparison?
  				- XP?
