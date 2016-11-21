@@ -192,11 +192,11 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		this.weapons[1] = weapons[1];
 
 		// Give each player an assigned rectangle
-		playerRect[0] = new Rectangle(20, 80, 25, 25);
-		weaponRect[0] = new Rectangle(playerRect[0].x + 20, playerRect[0].y - 10, 5, 10);
-
-		playerRect[1] = new Rectangle(1870, 970, 25, 25);
-		weaponRect[1] = new Rectangle(playerRect[1].x + 20, playerRect[1].y - 10, 5, 10);
+		playerRect[0] = new Rectangle(MapMain.getResWidth() / 96, MapMain.getResHeight() / (int) 13.5, MapMain.getResWidth() / (int) 76.8, MapMain.getResHeight() / (int) 43.2);
+		weaponRect[0] = new Rectangle(playerRect[0].x + ((4 * playerRect[0].width) / 5), playerRect[0].y - ((2 * playerRect[0].width) / 5), playerRect[0].width / 5, (2 * playerRect[0].height) / 5);
+		
+		playerRect[1] = new Rectangle(MapMain.getResWidth() - (MapMain.getResWidth() / (int) 38.4), MapMain.getResHeight() - (MapMain.getResHeight() / (int) 9.81), MapMain.getResWidth() / (int) 76.8, MapMain.getResHeight() / (int) 43.2);
+		weaponRect[1] = new Rectangle(playerRect[1].x + ((4 * playerRect[1].width) / 5), playerRect[1].y - ((2 * playerRect[1].width) / 5), playerRect[1].width / 5, (2 * playerRect[1].height) / 5);
 
 		// Display each player's username below their rectangle
 		usernames[0] = new JLabel(players[0].username);
@@ -227,37 +227,41 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void setupBlocks(Rectangle[] rects) {
+		
+		int fmw = MapMain.getResWidth() / 64, fmh = MapMain.getResHeight() / 36, dw = MapMain.getResWidth() / 10, dh = MapMain.getResHeight() / 10;
+		
 		// Draws up the map by randomly placing blocks across the screen
 		for (int i = 0; i < 80; i += 4) {
 
-			int x1 = 30 * random.nextInt(64), y1 = 30 * random.nextInt(36);
-			int x2 = x1, y2 = y1 + 30;
-			int x3 = x1, y3 = y2 + 30;
-			int x4 = x1 + 30, y4 = y3;
+			int x1 = fmw * random.nextInt(MapMain.getResWidth() / 30), y1 = 30 * random.nextInt(MapMain.getResHeight() / 30);
+			int x2 = x1, y2 = y1 + fmh;
+			int x3 = x1, y3 = y2 + fmh;
+			int x4 = x1 + fmw, y4 = y3;
 
 			// This creates in total an L shape object to add some variety of
 			// walls
-			rects[i] = new Rectangle(x1, y1, 30, 30);
-			rects[i + 1] = new Rectangle(x2, y2, 30, 30);
-			rects[i + 2] = new Rectangle(x3, y3, 30, 30);
-			rects[i + 3] = new Rectangle(x4, y4, 30, 30);
+			rects[i] = new Rectangle(x1, y1, fmw, fmh);
+			rects[i + 1] = new Rectangle(x2, y2, fmw, fmh);
+			rects[i + 2] = new Rectangle(x3, y3, fmw, fmh);
+			rects[i + 3] = new Rectangle(x4, y4, fmw, fmh);
 
 			// This keeps the blocks within certain bounds and repositions them
 			// if necessary
-			while (rects[i].x < 40 || rects[i].x > 1800 || rects[i].y < 60 || rects[i].y > 990) {
-				x1 = 30 * random.nextInt(64);
-				y1 = 30 * random.nextInt(36);
+			while (rects[i].x < MapMain.getResWidth() / 48 || rects[i].x > MapMain.getResWidth() - (MapMain.getResWidth() / 16)
+					|| rects[i].y < MapMain.getResHeight() / 18 || rects[i].y > MapMain.getResHeight() - (MapMain.getResHeight() / 12)) {
+				x1 = fmw * random.nextInt(dw);
+				y1 = fmh * random.nextInt(dh);
 				x2 = x1;
-				y2 = y1 + 30;
+				y2 = y1 + fmh;
 				x3 = x1;
-				y3 = y2 + 30;
-				x4 = x1 + 30;
+				y3 = y2 + fmh;
+				x4 = x1 + fmw;
 				y4 = y3;
 
-				rects[i] = new Rectangle(x1, y1, 30, 30);
-				rects[i + 1] = new Rectangle(x2, y2, 30, 30);
-				rects[i + 2] = new Rectangle(x3, y3, 30, 30);
-				rects[i + 3] = new Rectangle(x4, y4, 30, 30);
+				rects[i] = new Rectangle(x1, y1, fmw, fmh);
+				rects[i + 1] = new Rectangle(x2, y2, fmw, fmh);
+				rects[i + 2] = new Rectangle(x3, y3, fmw, fmh);
+				rects[i + 3] = new Rectangle(x4, y4, fmw, fmh);
 
 			}
 		}
@@ -266,13 +270,14 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		// again within certain bounds and repositions them if necessary
 		for (int i = 80; i < 250; i++) {
 
-			int width = 30 * random.nextInt(2) + 30;
-			int height = 30 * random.nextInt(2) + 30;
+			int width = fmw * random.nextInt(2) + fmw;
+			int height = fmh * random.nextInt(2) + fmh;
 
-			rects[i] = new Rectangle(30 * random.nextInt(192), 30 * random.nextInt(108), width, height);
+			rects[i] = new Rectangle(fmw * random.nextInt(dw), fmh * random.nextInt(dh), width, height);
 
-			while (rects[i].x < 60 || rects[i].x > 1770 || rects[i].y < 30 || rects[i].y > 930) {
-				rects[i] = new Rectangle(30 * random.nextInt(192), 30 * random.nextInt(108), width, height);
+			while (rects[i].x < MapMain.getResWidth() / 48 || rects[i].x > (MapMain.getResWidth() - (MapMain.getResWidth() / 16)) - fmw
+					|| rects[i].y < fmh || rects[i].y > (MapMain.getResHeight() - (MapMain.getResHeight() / 12)) - (2 * fmh)) {
+				rects[i] = new Rectangle(fmw * random.nextInt(dw), fmh * random.nextInt(dh), width, height);
 			}
 		}
 
@@ -915,7 +920,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 		// Only fire if ableToFire is true
 		if (count[i] % mod == 0) {
-
+			
 			// Sort out the orientation of the player and then position
 			// the guinfire rectangle on the screen accordingly
 			switch (orientation[i]) {
@@ -1228,10 +1233,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 		switch (orientation[i]) {
 		case 0:
-			weaponRect[i].x = playerRect[i].x + 20;
-			weaponRect[i].y = playerRect[i].y - 10;
-			weaponRect[i].width = 5;
-			weaponRect[i].height = 10;
+			weaponRect[i].x = playerRect[0].x + ((4 * playerRect[0].width) / 5);
+			weaponRect[i].y = playerRect[0].y - ((2 * playerRect[0].width) / 5);
+			weaponRect[i].width = playerRect[0].width / 5;
+			weaponRect[i].height = (2 * playerRect[0].height) / 5;
 			break;
 		case 1:
 			weaponRect[i].x = playerRect[i].x + 25;

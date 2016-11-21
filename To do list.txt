@@ -1,15 +1,19 @@
 TO DO LIST
 
  - Player mechanics:- Regenerating health fixes:- Somewhat works...
- 					- Additional armor
- - Weapon mechanics:- Key to swap weapons
- 					- Splash damage for bazooka
+ 					- Additional armor?
+ - Weapon mechanics:- Splash damage for bazooka
 					- Specific bullets for weapons e.g. rockets for bazooka
 					- Weapon range for offline version
 					- Sound effects for offline version
  - Player stats:- WMD? 
  				- Player comparison?
  				- XP?
- - Game options:- Set the game to allow different resolutions/dynamic resizing
+ - Game options:- Resolutions:- Blocks and player rects all done
+ 							  - Working on weapon rects and their orientation
+ 							  - Also gunfire rects need resizing
+ 							  - Score/timer label need to be centered
+ 							  - Player 2 information needs to be on the screen
+ 							  - All HUD components need to be sized down on smaller resolutions (font size relative to resolution)
  - Networking stuff:- Remote connection to server?
  					- Play game across LAN network?
