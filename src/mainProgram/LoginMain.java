@@ -163,7 +163,7 @@ public class LoginMain extends JFrame {
 									setVisible(false);
 									
 									// Once the player is logged in, the main game window is launched
-									final MapMain m = new MapMain(players, weapons);
+									MapMain m = new MapMain(players, weapons);
 
 									m.addWindowListener(new WindowAdapter() {
 										public void windowClosing(WindowEvent w) {

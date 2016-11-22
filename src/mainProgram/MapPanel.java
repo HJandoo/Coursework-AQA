@@ -39,9 +39,9 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	java.util.Timer[] reg = new java.util.Timer[2];
 	Timer[] resp = new Timer[2];
 
-	Font font = new Font("Arial", Font.PLAIN, 20);
-	Font font2 = new Font("Arial", Font.BOLD, 12);
-	Font font3 = new Font("Arial", Font.PLAIN, 25);
+	Font font1;
+	Font font2/* = new Font("Arial", Font.BOLD, 12)*/;
+	Font font3/* = new Font("Arial", Font.PLAIN, 25)*/;
 
 	Rectangle[] rects = new Rectangle[250];
 	Rectangle[] playerRect = new Rectangle[2];
@@ -98,6 +98,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	public MapPanel(Player[] players, Weapon[][] weapons) {
 		// Assign properties to this panel and initialise
 		// some components
+
 		setLayout(null);
 		setFocusable(true);
 		addKeyListener(this);
@@ -112,72 +113,99 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		if (OptionsPanel.scoreLim == 0) {
 			OptionsPanel.scoreLim = 20;
 		}
+		
+		
 
 		// Methods used to start the game
 		setupPlayers(players, weapons);
 		setupBlocks(rects);
-		setupHud(players);
+		setupHud(players, font1, font3, weaponLabel, ammoLabel, scoreLabel, tL, mL);
 		spawnWep(wepCrate);
 		spawnAmmo(ammoCrate);
 		countdown();
 
 	}
+	
+	public int fontSize() {
+		int width = MapMain.getResWidth();
+		int font = 20;
+		
+		switch (width) {
+		case 1920:
+			font = 20;
+			return font;
+		case 1600:
+			font = 17;
+			return font;
+		case 1366:
+			font = 14;
+			return font;
+		case 1280:
+			font = 13;
+			return font;
+		}
+		
+		return font;
+	}
 
-	public void setupHud(Player[] players) {
+	public void setupHud(Player[] players, Font font1, Font font3, JLabel[] wL, JLabel[] aL, JLabel[] sL, JLabel tL, JLabel mL) {
 		// This creates the Heads-Up Display (HUD) for
 		// both of the players
+		
+		font1 = new Font("Arial", Font.PLAIN, fontSize());
+		font3 = new Font("Arial", Font.PLAIN, (5 * fontSize()) / 4);
 
-		weaponLabel[0] = new JLabel("Weapon: " + players[0].weapon.name);
-		weaponLabel[0].setForeground(Color.RED);
-		weaponLabel[0].setFont(font);
-		weaponLabel[0].setBounds(10, 10, 200, 20);
-		add(weaponLabel[0]);
+		wL[0] = new JLabel("Weapon: " + players[0].weapon.name);
+		wL[0].setForeground(Color.RED);
+		wL[0].setFont(new Font("Arial", Font.PLAIN, fontSize()));
+		wL[0].setBounds(10, 10, 200, 20);
+		add(wL[0]);
 
-		ammoLabel[0] = new JLabel("Ammo: " + Integer.toString(players[0].ammo));
-		ammoLabel[0].setForeground(Color.RED);
-		ammoLabel[0].setFont(font);
-		ammoLabel[0].setBounds(10, 30, 200, 20);
-		add(ammoLabel[0]);
+		aL[0] = new JLabel("Ammo: " + Integer.toString(players[0].ammo));
+		aL[0].setForeground(Color.RED);
+		aL[0].setFont(font1);
+		aL[0].setBounds(10, 30, 200, 20);
+		add(aL[0]);
 
-		weaponLabel[1] = new JLabel("Weapon: " + players[1].weapon.name);
-		weaponLabel[1].setForeground(blue);
-		weaponLabel[1].setHorizontalAlignment(JLabel.RIGHT);
-		weaponLabel[1].setFont(font);
-		weaponLabel[1].setBounds(1720, 10, 190, 20);
-		add(weaponLabel[1]);
+		wL[1] = new JLabel("Weapon: " + players[1].weapon.name);
+		wL[1].setForeground(blue);
+		wL[1].setHorizontalAlignment(JLabel.RIGHT);
+		wL[1].setFont(font1);
+		wL[1].setBounds(0, 10, MapMain.getResWidth() - 10, 20);
+		add(wL[1]);
 
-		ammoLabel[1] = new JLabel("Ammo: " + Integer.toString(players[1].ammo));
-		ammoLabel[1].setForeground(blue);
-		ammoLabel[1].setHorizontalAlignment(JLabel.RIGHT);
-		ammoLabel[1].setFont(font);
-		ammoLabel[1].setBounds(1720, 30, 190, 20);
-		add(ammoLabel[1]);
+		aL[1] = new JLabel("Ammo: " + Integer.toString(players[1].ammo));
+		aL[1].setForeground(blue);
+		aL[1].setHorizontalAlignment(JLabel.RIGHT);
+		aL[1].setFont(font1);
+		aL[1].setBounds(0, 30, MapMain.getResWidth() - 10, 20);
+		add(aL[1]);
 
-		scoreLabel[0] = new JLabel(Integer.toString(scores[0]));
-		scoreLabel[0].setForeground(Color.WHITE);
-		scoreLabel[0].setHorizontalAlignment(JLabel.CENTER);
-		scoreLabel[0].setFont(font3);
-		scoreLabel[0].setBounds(925, 2, 35, 20);
-		add(scoreLabel[0]);
+		sL[0] = new JLabel(Integer.toString(scores[0]));
+		sL[0].setForeground(Color.WHITE);
+		sL[0].setHorizontalAlignment(JLabel.CENTER);
+		sL[0].setFont(font3);
+		sL[0].setBounds(925, 2, 35, 20);
+		add(sL[0]);
 
-		scoreLabel[1] = new JLabel(Integer.toString(scores[1]));
-		scoreLabel[1].setForeground(Color.WHITE);
-		scoreLabel[1].setHorizontalAlignment(JLabel.CENTER);
-		scoreLabel[1].setFont(font3);
-		scoreLabel[1].setBounds(960, 2, 35, 20);
-		add(scoreLabel[1]);
+		sL[1] = new JLabel(Integer.toString(scores[1]));
+		sL[1].setForeground(Color.WHITE);
+		sL[1].setHorizontalAlignment(JLabel.CENTER);
+		sL[1].setFont(font3);
+		sL[1].setBounds(960, 2, 35, 20);
+		add(sL[1]);
 
 		tL.setBounds(940, 25, 40, 20);
 		tL.setForeground(Color.WHITE);
 		tL.setOpaque(true);
 		tL.setBackground(new Color(99, 0, 145));
-		tL.setFont(font);
+		tL.setFont(font1);
 		add(tL);
 
-		mL.setBounds(0, 50, 1920, 20);
+		mL.setBounds(0, 50, MapMain.getResWidth(), 20);
 		mL.setForeground(Color.WHITE);
 		mL.setHorizontalAlignment(JLabel.CENTER);
-		mL.setFont(font);
+		mL.setFont(font1);
 		add(mL);
 
 	}
@@ -1230,31 +1258,38 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		// This determines the position of the weapon rectangle
 		// depending on the orientation of the player so that it
 		// looks like the player is facing a certain direction
+		int fix = 0;
+		
+		if (MapMain.getResWidth() < 1920) {
+			fix = 1;
+		} else {
+			fix = 0;
+		}
 
 		switch (orientation[i]) {
 		case 0:
-			weaponRect[i].x = playerRect[0].x + ((4 * playerRect[0].width) / 5);
-			weaponRect[i].y = playerRect[0].y - ((2 * playerRect[0].width) / 5);
-			weaponRect[i].width = playerRect[0].width / 5;
-			weaponRect[i].height = (2 * playerRect[0].height) / 5;
+			weaponRect[i].x = playerRect[i].x + ((4 * playerRect[i].width) / 5) + fix;
+			weaponRect[i].y = playerRect[i].y - ((2 * playerRect[i].width) / 5);
+			weaponRect[i].width = playerRect[i].width / 5;
+			weaponRect[i].height = (2 * playerRect[i].height) / 5;
 			break;
 		case 1:
-			weaponRect[i].x = playerRect[i].x + 25;
-			weaponRect[i].y = playerRect[i].y + 20;
-			weaponRect[i].width = 10;
-			weaponRect[i].height = 5;
+			weaponRect[i].x = playerRect[i].x + playerRect[i].width;
+			weaponRect[i].y = playerRect[i].y + ((4 * playerRect[i].height) / 5) + fix;
+			weaponRect[i].width = (2 * playerRect[i].width) / 5;
+			weaponRect[i].height = playerRect[i].height / 5;
 			break;
 		case 2:
 			weaponRect[i].x = playerRect[i].x;
-			weaponRect[i].y = playerRect[i].y + 25;
-			weaponRect[i].width = 5;
-			weaponRect[i].height = 10;
+			weaponRect[i].y = playerRect[i].y + playerRect[i].height;
+			weaponRect[i].width = playerRect[i].width / 5;
+			weaponRect[i].height = (2 * playerRect[i].height) / 5;
 			break;
 		case 3:
-			weaponRect[i].x = playerRect[i].x - 10;
+			weaponRect[i].x = playerRect[i].x - ((2 * playerRect[i].height) / 5);
 			weaponRect[i].y = playerRect[i].y;
-			weaponRect[i].width = 10;
-			weaponRect[i].height = 5;
+			weaponRect[i].width = (2 * playerRect[i].width) / 5;
+			weaponRect[i].height = playerRect[i].height / 5;
 			break;
 		}
 	}
@@ -1355,32 +1390,32 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			playerRect[0].x = 0;
 			vel[0][0] = 0;
 		}
-		if (playerRect[0].x > 1895) {
-			playerRect[0].x = 1895;
+		if (playerRect[0].x > MapMain.getResWidth() - playerRect[0].width) {
+			playerRect[0].x = MapMain.getResWidth() - playerRect[0].width;
 			vel[0][0] = 0;
 		}
 		if (playerRect[0].y < 0) {
 			playerRect[0].y = 0;
 			vel[0][1] = 0;
 		}
-		if (playerRect[0].y > 995) {
-			playerRect[0].y = 995;
+		if (playerRect[0].y > MapMain.getResHeight() - playerRect[0].height) {
+			playerRect[0].y = MapMain.getResHeight() - playerRect[0].height;
 			vel[0][1] = 0;
 		}
 		if (playerRect[1].x < 0) {
 			playerRect[1].x = 0;
 			vel[1][0] = 0;
 		}
-		if (playerRect[1].x > 1895) {
-			playerRect[1].x = 1895;
+		if (playerRect[1].x > MapMain.getResWidth() - playerRect[1].width) {
+			playerRect[1].x = MapMain.getResWidth() - playerRect[1].width;
 			vel[1][0] = 0;
 		}
 		if (playerRect[1].y < 0) {
 			playerRect[1].y = 0;
 			vel[1][1] = 0;
 		}
-		if (playerRect[1].y > 995) {
-			playerRect[1].y = 995;
+		if (playerRect[1].y > MapMain.getResHeight() - playerRect[1].height) {
+			playerRect[1].y = MapMain.getResHeight() - playerRect[1].height;
 			vel[1][1] = 0;
 		}
 

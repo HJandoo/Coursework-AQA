@@ -9,11 +9,9 @@ TO DO LIST
  - Player stats:- WMD? 
  				- Player comparison?
  				- XP?
- - Game options:- Resolutions:- Blocks and player rects all done
- 							  - Working on weapon rects and their orientation
- 							  - Also gunfire rects need resizing
- 							  - Score/timer label need to be centered
- 							  - Player 2 information needs to be on the screen
- 							  - All HUD components need to be sized down on smaller resolutions (font size relative to resolution)
+ - Game options:- Resolutions:- Block, player and weapon rects all done
+ 							  - Gunfire rects need resizing
+ 							  - Scoreboard and timer labels need to be centered and sized
+ 							  - Weapon and Ammo HUD components done. Font size should be realative to resolution
  - Networking stuff:- Remote connection to server?
  					- Play game across LAN network?

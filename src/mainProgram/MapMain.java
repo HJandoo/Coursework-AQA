@@ -16,7 +16,7 @@ public class MapMain extends JFrame{
 	static int w, h;
 	
 	public MapMain(Player[] players, Weapon[][] weapons) {
-		
+		setUndecorated(true);
 		// This increments the matches played by the players by 1
 		// and updates the database to match this change
 		SQLFunctions.updateMatches(players, 0);
