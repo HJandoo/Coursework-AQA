@@ -8,7 +8,5 @@ TO DO LIST
  - Player stats:- WMD?
  - Game options:- Resolutions:- Gunfire rects need resizing
  							  - Hiding block for when a player is respawning needs to be positioned for each resolution
- 							  - Health bar is resized but needs to decrease relative to player health and resolution
- 							  - Spawn points need to be positioned relative to resolution
  - Networking stuff:- Remote connection to server
  					- Play game across LAN network?
