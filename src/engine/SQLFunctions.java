@@ -158,8 +158,12 @@ public class SQLFunctions {
 	public static void getOfflineWeapons(Weapon[][] weapons) {
 
 		for (int i = 0; i < 2; i++) {
-			weapons[i][1] = new Weapon(1, "Pistol", 70, 400, 70, new File("Pistol.wav"));
-
+			weapons[i][1] = new Weapon(1, "Pistol", 120, 400, 70, new File("Pistol.wav"));
+			weapons[i][2] = new Weapon(2, "SMG", 40, 90, 250, new File("SMG.wav"));
+			weapons[i][3] = new Weapon(3, "Machine Gun", 90, 170, 200, new File("Machine Gun.wav"));
+			weapons[i][4] = new Weapon(4, "Sniper Rifle", 700, 700, 16, new File("Sniper Rifle.wav"));
+			weapons[i][5] = new Weapon(5, "Shotgun", 1000, 1500, 12, new File("Shotgun.wav"));
+			weapons[i][6] = new Weapon(6, "Bazooka", 1200, 2000, 4, new File("Pistol.wav"));
 		}
 
 	}

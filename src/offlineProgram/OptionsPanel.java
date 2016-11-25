@@ -34,7 +34,7 @@ public class OptionsPanel extends JPanel{
 	JComboBox<String> wallComboBox = new JComboBox<String>(colours);
 	JComboBox<String> resolutionComboBox = new JComboBox<String>(reso);
 	
-	static int scoreLim, timeLim = 180;
+	static int scoreLim, timeLim = 180, res;
 	
 	static Color[] colourChoices = { Color.WHITE, new Color(225, 225, 225), Color.BLACK, Color.GREEN, Color.YELLOW, Color.ORANGE };
 	
@@ -108,6 +108,7 @@ public class OptionsPanel extends JPanel{
 								
 				choice[0] = backgroundComboBox.getSelectedIndex();
 				choice[1] = wallComboBox.getSelectedIndex();
+				choice[2] = resolutionComboBox.getSelectedIndex();
 				
 				backgroundComboBox.setSelectedIndex(choice[0]);
 				wallComboBox.setSelectedIndex(choice[1]);
@@ -119,6 +120,9 @@ public class OptionsPanel extends JPanel{
 					if (choice[1] == i) {
 						wallColour = colourChoices[i];
 					}
+					if (choice[2] == i) {
+						res = choice[2];
+					}
 				}
 				
 				// Close the options window once complete
@@ -129,6 +133,5 @@ public class OptionsPanel extends JPanel{
 			
 		});
 	}
-	
 	
 }

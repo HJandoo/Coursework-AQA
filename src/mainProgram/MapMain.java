@@ -4,7 +4,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 import engine.Player;
-import engine.SQLFunctions;
 import engine.Weapon;
 
 public class MapMain extends JFrame{
@@ -19,7 +18,7 @@ public class MapMain extends JFrame{
 		setUndecorated(true);
 		// This increments the matches played by the players by 1
 		// and updates the database to match this change
-		SQLFunctions.updateMatches(players, 0);
+		//SQLFunctions.updateMatches(players, 0);
 		// Initialise the panel for the main gamed
 		MapPanel p = new MapPanel(players, weapons);
 		// Assign properties to this frame

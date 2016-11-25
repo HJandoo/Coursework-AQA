@@ -35,22 +35,22 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	// Initialise variables
 
 	Random random = new Random();
-	Timer t = new Timer(5, this);
-	java.util.Timer[] reg = new java.util.Timer[2];
-	Timer[] resp = new Timer[2];
+	Timer timer = new Timer(5, this);
+	java.util.Timer[] regeneratingTimer = new java.util.Timer[2];
+	Timer[] respawnTimer = new Timer[2];
 
 	Font font1;
-	Font font2/* = new Font("Arial", Font.BOLD, 12)*/;
-	Font font3/* = new Font("Arial", Font.PLAIN, 25)*/;
+	Font font2;
+	Font font3;
 
-	Rectangle[] rects = new Rectangle[250];
+	Rectangle[] wallRect = new Rectangle[250];
 	Rectangle[] playerRect = new Rectangle[2];
 	Rectangle[] weaponRect = new Rectangle[2];
 	Rectangle[] gunfire = new Rectangle[2];
-	Rectangle[] hp = new Rectangle[2];
+	Rectangle[] healthBar = new Rectangle[2];
 	Rectangle hidePlayer = new Rectangle(2000, 2000, 40, 50);
-	Rectangle ammoCrate = new Rectangle(2000, 2000, 20, 20);
-	Rectangle wepCrate = new Rectangle(2000, 2000, 20, 20);
+	Rectangle ammoCrate;
+	Rectangle wepCrate;
 
 	Player[] players = new Player[2];
 	Weapon[][] weapons = new Weapon[2][5];
@@ -61,39 +61,40 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	String time;
 	String message;
 
-	int tl = OptionsPanel.timeLim;
-	int minutes = (tl / 60) - 1;
+	int timeLimit = OptionsPanel.timeLim;
+	int minutes = (timeLimit / 60) - 1;
 	int seconds = OptionsPanel.timeLim / (OptionsPanel.timeLim / 60);
-
-	int[][] vel = new int[2][2];
+	int screenWidth = MapMain.getResWidth(), screenHeight = MapMain.getResHeight();
+	
+	
+	double[][] velocity = new double[2][2];
 	int[] count = { 0, 0, 0 };
 	int[] orientation = { 0, 0 };
 	int[] widths = new int[250];
 	int[] count2 = new int[2];
 	int[] scores = new int[2];
-	int[] coordx = { 20, 1870 };
-	int[] coordy = { 80, 970 };
+	int[] coordx = { screenWidth / 96, screenWidth - (screenWidth / (int) 38.4) };
+	int[] coordy = { screenHeight / (int) 13.5, screenHeight - (screenHeight / 20) };
 
 	JLabel[] usernames = new JLabel[2];
 	JLabel[] weaponLabel = new JLabel[2];
 	JLabel[] ammoLabel = new JLabel[2];
 	JLabel[] scoreLabel = new JLabel[2];
-	JLabel tL = new JLabel(time);
-	JLabel mL = new JLabel();
+	JLabel timeLabel = new JLabel(time);
+	JLabel messageLabel = new JLabel();
 
 	boolean paused = false;
-	boolean startRegen[] = { false, false };
+	boolean[] startRegen = { false, false };
 	boolean[] isFiring = { false, false };
 	boolean[] playerKilled = { false, false };
 	boolean[] respawning = { false, false };
 	boolean[] unableToMove = { false, false };
 	boolean[] ableToFire = { true, true };
-	boolean[] tir = { false, false };
 
-	static java.util.Timer ti;
+	static java.util.Timer ti  = new java.util.Timer();
 	Timer[] wait = new Timer[2];
 
-	double newdps = 0;
+	double newDamagePerShot = 0;
 
 	public MapPanel(Player[] players, Weapon[][] weapons) {
 		// Assign properties to this panel and initialise
@@ -103,54 +104,57 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		setFocusable(true);
 		addKeyListener(this);
 		setFocusTraversalKeysEnabled(false);
-		t.start();
+		timer.start();
 
-		reg[0] = new java.util.Timer();
-		reg[1] = new java.util.Timer();
+		regeneratingTimer[0] = new java.util.Timer();
+		regeneratingTimer[1] = new java.util.Timer();
 
+		wepCrate = new Rectangle(2000, 2000, screenWidth / 96, screenHeight / 54);
+		ammoCrate = new Rectangle(2000, 2000, screenWidth / 96, screenHeight / 54);
+		
 		// Makes sure that the score limit is never
 		// zero or null
 		if (OptionsPanel.scoreLim == 0) {
 			OptionsPanel.scoreLim = 20;
 		}
-		
-		
 
 		// Methods used to start the game
-		setupPlayers(players, weapons);
-		setupBlocks(rects);
-		setupHud(players, font1, font3, weaponLabel, ammoLabel, scoreLabel, tL, mL);
+		setupPlayers(players, weapons, playerRect, weaponRect, usernames, healthBar, font2, velocity);
+		setupBlocks(wallRect);
+		setupHud(players, font1, font3, weaponLabel, ammoLabel, scoreLabel, timeLabel, messageLabel);
 		spawnWep(wepCrate);
 		spawnAmmo(ammoCrate);
-		countdown();
+		countdown(ti);
 
 	}
 	
 	public int fontSize() {
-		int width = MapMain.getResWidth();
-		int font = 20;
+
+		int fontSize = 20;
 		
-		switch (width) {
+		switch (screenWidth) {
 		case 1920:
-			font = 20;
-			return font;
+			fontSize = 20;
+			return fontSize;
 		case 1600:
-			font = 17;
-			return font;
+			fontSize = 17;
+			return fontSize;
 		case 1366:
-			font = 14;
-			return font;
+			fontSize = 14;
+			return fontSize;
 		case 1280:
-			font = 13;
-			return font;
+			fontSize = 13;
+			return fontSize;
 		}
 		
-		return font;
+		return fontSize;
 	}
 
 	public void setupHud(Player[] players, Font font1, Font font3, JLabel[] wL, JLabel[] aL, JLabel[] sL, JLabel tL, JLabel mL) {
 		// This creates the Heads-Up Display (HUD) for
 		// both of the players
+		
+		int midpoint = screenWidth / 2;
 		
 		font1 = new Font("Arial", Font.PLAIN, fontSize());
 		font3 = new Font("Arial", Font.PLAIN, (5 * fontSize()) / 4);
@@ -158,51 +162,52 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		wL[0] = new JLabel("Weapon: " + players[0].weapon.name);
 		wL[0].setForeground(Color.RED);
 		wL[0].setFont(new Font("Arial", Font.PLAIN, fontSize()));
-		wL[0].setBounds(10, 10, 200, 20);
+		wL[0].setBounds(screenWidth / 192, screenHeight / 108, 200, 20);
 		add(wL[0]);
 
 		aL[0] = new JLabel("Ammo: " + Integer.toString(players[0].ammo));
 		aL[0].setForeground(Color.RED);
 		aL[0].setFont(font1);
-		aL[0].setBounds(10, 30, 200, 20);
+		aL[0].setBounds(screenWidth / 192, screenHeight / 36, 200, 20);
 		add(aL[0]);
 
 		wL[1] = new JLabel("Weapon: " + players[1].weapon.name);
 		wL[1].setForeground(blue);
 		wL[1].setHorizontalAlignment(JLabel.RIGHT);
 		wL[1].setFont(font1);
-		wL[1].setBounds(0, 10, MapMain.getResWidth() - 10, 20);
+		wL[1].setBounds(0, screenHeight / 108, screenWidth - 10, 20);
 		add(wL[1]);
 
 		aL[1] = new JLabel("Ammo: " + Integer.toString(players[1].ammo));
 		aL[1].setForeground(blue);
 		aL[1].setHorizontalAlignment(JLabel.RIGHT);
 		aL[1].setFont(font1);
-		aL[1].setBounds(0, 30, MapMain.getResWidth() - 10, 20);
+		aL[1].setBounds(0, screenHeight / 36, screenWidth - 10, 20);
 		add(aL[1]);
 
 		sL[0] = new JLabel(Integer.toString(scores[0]));
 		sL[0].setForeground(Color.WHITE);
 		sL[0].setHorizontalAlignment(JLabel.CENTER);
 		sL[0].setFont(font3);
-		sL[0].setBounds(925, 2, 35, 20);
+		sL[0].setBounds(midpoint - (screenWidth / (int) 54.857), 2, screenWidth / (int) 54.857, screenHeight / 54);
 		add(sL[0]);
 
 		sL[1] = new JLabel(Integer.toString(scores[1]));
 		sL[1].setForeground(Color.WHITE);
 		sL[1].setHorizontalAlignment(JLabel.CENTER);
 		sL[1].setFont(font3);
-		sL[1].setBounds(960, 2, 35, 20);
+		sL[1].setBounds(midpoint, 2, screenWidth / (int) 54.857, screenHeight / 54);
 		add(sL[1]);
 
-		tL.setBounds(940, 25, 40, 20);
+		tL.setBounds(midpoint - (screenWidth / 96), screenHeight / (int) 43.2, screenWidth / 48, screenHeight / 54);
 		tL.setForeground(Color.WHITE);
+		tL.setHorizontalAlignment(JLabel.CENTER);
 		tL.setOpaque(true);
 		tL.setBackground(new Color(99, 0, 145));
 		tL.setFont(font1);
 		add(tL);
 
-		mL.setBounds(0, 50, MapMain.getResWidth(), 20);
+		mL.setBounds(0, screenHeight / (int) 21.6, screenWidth, 20);
 		mL.setForeground(Color.WHITE);
 		mL.setHorizontalAlignment(JLabel.CENTER);
 		mL.setFont(font1);
@@ -210,7 +215,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	}
 
-	public void setupPlayers(Player[] players, Weapon[][] weapons) {
+	public void setupPlayers(Player[] players, Weapon[][] weapons, Rectangle[] playerRect, Rectangle[] weaponRect, JLabel[] usernames, Rectangle[] hp, Font font2, double[][] vel) {
+				
+		font2 = new Font("Arial", Font.BOLD, (3 * fontSize()) / 5);
+		
 		// This allows for the global and local player objects are
 		// one-in-the-same
 		this.players[0] = players[0];
@@ -220,10 +228,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		this.weapons[1] = weapons[1];
 
 		// Give each player an assigned rectangle
-		playerRect[0] = new Rectangle(MapMain.getResWidth() / 96, MapMain.getResHeight() / (int) 13.5, MapMain.getResWidth() / (int) 76.8, MapMain.getResHeight() / (int) 43.2);
+		playerRect[0] = new Rectangle(screenWidth / 96, screenHeight / (int) 13.5, screenWidth / (int) 76.8, screenHeight / (int) 43.2);
 		weaponRect[0] = new Rectangle(playerRect[0].x + ((4 * playerRect[0].width) / 5), playerRect[0].y - ((2 * playerRect[0].width) / 5), playerRect[0].width / 5, (2 * playerRect[0].height) / 5);
 		
-		playerRect[1] = new Rectangle(MapMain.getResWidth() - (MapMain.getResWidth() / (int) 38.4), MapMain.getResHeight() - (MapMain.getResHeight() / (int) 9.81), MapMain.getResWidth() / (int) 76.8, MapMain.getResHeight() / (int) 43.2);
+		playerRect[1] = new Rectangle(screenWidth - (screenWidth / (int) 38.4), screenHeight - (screenHeight / 20), screenWidth / (int) 76.8, screenHeight / (int) 43.2);
 		weaponRect[1] = new Rectangle(playerRect[1].x + ((4 * playerRect[1].width) / 5), playerRect[1].y - ((2 * playerRect[1].width) / 5), playerRect[1].width / 5, (2 * playerRect[1].height) / 5);
 
 		// Display each player's username below their rectangle
@@ -231,20 +239,20 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		usernames[0].setForeground(Color.RED);
 		usernames[0].setFont(font2);
 		usernames[0].setHorizontalAlignment(JLabel.CENTER);
-		usernames[0].setBounds(playerRect[0].x - 25, playerRect[0].y + 20, 75, 40);
+		usernames[0].setBounds(playerRect[0].x - playerRect[0].width, playerRect[0].y + ((4 * playerRect[0].height) / 5), 3 * playerRect[0].width, (8 * playerRect[0].height) / 5);
 
 		usernames[1] = new JLabel(players[1].username);
 		usernames[1].setForeground(blue);
 		usernames[1].setFont(font2);
 		usernames[1].setHorizontalAlignment(JLabel.CENTER);
-		usernames[1].setBounds(playerRect[1].x - 25, playerRect[1].y + 20, 75, 40);
+		usernames[1].setBounds(playerRect[1].x - playerRect[1].width, playerRect[1].y + ((4 * playerRect[1].height) / 5), 3 * playerRect[1].width, (8 * playerRect[1].height) / 5);
 
 		add(usernames[0]);
 		add(usernames[1]);
 
 		// Display player's health bar above their rectangle
-		hp[0] = new Rectangle(playerRect[0].x - 5, playerRect[0].y - 20, 35, 5);
-		hp[1] = new Rectangle(playerRect[1].x - 5, playerRect[1].y - 20, 35, 5);
+		hp[0] = new Rectangle(playerRect[0].x - (playerRect[0].width / 5), playerRect[0].y - ((4 * playerRect[0].height) / 5), (7 * playerRect[0].width) / 5, playerRect[0].height / 5);
+		hp[1] = new Rectangle(playerRect[1].x - (playerRect[1].width / 5), playerRect[1].y - ((4 * playerRect[1].height) / 5), (7 * playerRect[1].width) / 5, playerRect[1].height / 5);
 
 		// Give each player a starting velocity of 0
 		for (int i = 0; i < 2; i++) {
@@ -256,12 +264,12 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	public void setupBlocks(Rectangle[] rects) {
 		
-		int fmw = MapMain.getResWidth() / 64, fmh = MapMain.getResHeight() / 36, dw = MapMain.getResWidth() / 10, dh = MapMain.getResHeight() / 10;
+		int fmw = screenWidth / 64, fmh = screenHeight / 36, dw = screenWidth / 10, dh = screenHeight / 10;
 		
 		// Draws up the map by randomly placing blocks across the screen
 		for (int i = 0; i < 80; i += 4) {
 
-			int x1 = fmw * random.nextInt(MapMain.getResWidth() / 30), y1 = 30 * random.nextInt(MapMain.getResHeight() / 30);
+			int x1 = fmw * random.nextInt(screenWidth / fmw), y1 = fmh * random.nextInt(screenHeight / fmh);
 			int x2 = x1, y2 = y1 + fmh;
 			int x3 = x1, y3 = y2 + fmh;
 			int x4 = x1 + fmw, y4 = y3;
@@ -275,8 +283,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 			// This keeps the blocks within certain bounds and repositions them
 			// if necessary
-			while (rects[i].x < MapMain.getResWidth() / 48 || rects[i].x > MapMain.getResWidth() - (MapMain.getResWidth() / 16)
-					|| rects[i].y < MapMain.getResHeight() / 18 || rects[i].y > MapMain.getResHeight() - (MapMain.getResHeight() / 12)) {
+			while (rects[i].x < screenWidth / 48 || rects[i].x > screenWidth - (screenWidth / 16)
+					|| rects[i].y < screenHeight / 18 || rects[i].y > screenHeight - (screenHeight / 12)) {
 				x1 = fmw * random.nextInt(dw);
 				y1 = fmh * random.nextInt(dh);
 				x2 = x1;
@@ -303,8 +311,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 			rects[i] = new Rectangle(fmw * random.nextInt(dw), fmh * random.nextInt(dh), width, height);
 
-			while (rects[i].x < MapMain.getResWidth() / 48 || rects[i].x > (MapMain.getResWidth() - (MapMain.getResWidth() / 16)) - fmw
-					|| rects[i].y < fmh || rects[i].y > (MapMain.getResHeight() - (MapMain.getResHeight() / 12)) - (2 * fmh)) {
+			while (rects[i].x < screenWidth / 48 || rects[i].x > (screenWidth - (screenWidth / 16)) - fmw
+					|| rects[i].y < fmh || rects[i].y > (screenHeight - (screenHeight / 12)) - (2 * fmh)) {
 				rects[i] = new Rectangle(fmw * random.nextInt(dw), fmh * random.nextInt(dh), width, height);
 			}
 		}
@@ -318,25 +326,25 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	}
 
-	public void countdown() {
+	public void countdown(java.util.Timer timer) {
 		// This is what causes the timer to count down at secondly intervals
 		// and updates the amount of time left to the HUD
-
-		ti = new java.util.Timer();
+		
+		timer = new java.util.Timer();
 
 		final DecimalFormat d = new DecimalFormat("00");
 
 		// This timer is set to run every 1000 milliseconds (1 second)
-		ti.schedule(new TimerTask() {
+		timer.schedule(new TimerTask() {
 
 			@Override
 			public void run() {
 				// Checks to see if the game is paused
 				if (!paused) {
-					tl--;
+					timeLimit--;
 					seconds--;
 				} else {
-					tl -= 0;
+					timeLimit -= 0;
 					seconds -= 0;
 				}
 
@@ -347,25 +355,28 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 					minutes--;
 				}
 
-				if (tl < 0) {
+				if (timeLimit < 0) {
 					// If the timer reaches 0, then the program stops the game
 					// and checks to see if there is a winner based on scores
-					ti.cancel();
 					checkWinner();
 
 				}
 
 				// Updates the time left to the HUD
 				time = minutes + ":" + d.format(seconds);
-				tL.setText(time);
+				timeLabel.setText(time);
 
 			}
 
 		}, 0, 1000);
+		
+		if (timeLimit < 0) {
+			timer.cancel();
+		}
 
 	}
 
-	public void displayOnHud(int i, int j, int mess) {
+	public void displayOnHud(Player[] players, int i, int j, int mess, final JLabel mL, String message) {
 		
 		if (i == 0) {
 			mL.setForeground(Color.RED);
@@ -408,17 +419,17 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		if (scores[0] > scores[1]) {
 			// If player 1's score is greater than player 2's
 			// show to user that player 1 has won
-			t.stop();
+			timer.stop();
 			displayWinner(0, 1);
 		} else if (scores[0] < scores[1]) {
 			// If player 2's score is greater than player 1's
 			// show to user that player 2 has won
-			t.stop();
+			timer.stop();
 			displayWinner(1, 0);
 		} else if (scores[0] == scores[1]) {
 			// If the player's scores are equal, show
 			// to user that it's a draw
-			t.stop();
+			timer.stop();
 			displayDraw();
 		}
 	}
@@ -471,13 +482,13 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		// Applies the background colour to the panel as chosen in the options
 		// menu
 		g.setColor(OptionsPanel.backgroundColour);
-		g.fillRect(0, 0, 1920, 1080);
+		g.fillRect(0, 0, screenWidth, screenHeight);
 
 		for (int i = 0; i < 20; i++) {
-			rects[i] = new Rectangle(rects[i].x, rects[i].y, rects[i].width, rects[i].height);
+			wallRect[i] = new Rectangle(wallRect[i].x, wallRect[i].y, wallRect[i].width, wallRect[i].height);
 		}
 
-		for (Rectangle r : rects) {
+		for (Rectangle r : wallRect) {
 			// Draws the wall rectangles onto the panel
 			g.setColor(OptionsPanel.wallColour);
 			g.fillRect(r.x, r.y, r.width, r.height);
@@ -486,11 +497,11 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		// Draws the players' rectangles onto the panel
 		g.setColor(Color.RED);
 		g.fillRect(playerRect[0].x, playerRect[0].y, playerRect[0].width, playerRect[0].height);
-		g.fillRect(925, 0, 35, 25);
+		g.fillRect((screenWidth / 2) - (screenWidth / (int) 54.857), 0, screenWidth / (int) 54.857, screenHeight / (int) 43.2);
 
 		g.setColor(blue);
 		g.fillRect(playerRect[1].x, playerRect[1].y, playerRect[1].width, playerRect[1].height);
-		g.fillRect(960, 0, 35, 25);
+		g.fillRect(screenWidth / 2, 0, screenWidth / (int) 54.857, screenHeight / (int) 43.2);
 
 		// Draw the gunfire rectangles onto the panel
 		g.setColor(Color.YELLOW);
@@ -504,8 +515,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 		// Draw the players' health bars onto the panel
 		g.setColor(Color.GREEN);
-		g.fillRect(hp[0].x, hp[0].y, hp[0].width, hp[0].height);
-		g.fillRect(hp[1].x, hp[1].y, hp[1].width, hp[1].height);
+		g.fillRect(healthBar[0].x, healthBar[0].y, healthBar[0].width, healthBar[0].height);
+		g.fillRect(healthBar[1].x, healthBar[1].y, healthBar[1].width, healthBar[1].height);
 
 		// Prevents players from being able to move through the walls
 		for (int i = 0; i < 2; i++) {
@@ -552,15 +563,15 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			public void run() {
 
 				// The weapon crate is positioned randomly on the panel
-				wepCrate.x = random.nextInt(1900);
-				wepCrate.y = random.nextInt(1000);
+				wepCrate.x = random.nextInt(screenWidth) - wepCrate.width;
+				wepCrate.y = random.nextInt(screenHeight) - wepCrate.height;
 
 				for (int i = 0; i < 250; i++) {
 					// This prevents the weapon crate from appearing in one
 					// of the walls where it can't be reached
-					while (wepCrate.intersects(rects[i])) {
-						wepCrate.x = random.nextInt(1900);
-						wepCrate.y = random.nextInt(1000);
+					while (wepCrate.intersects(wallRect[i])) {
+						wepCrate.x = random.nextInt(screenWidth) - wepCrate.width;
+						wepCrate.y = random.nextInt(screenHeight) - wepCrate.height;
 					}
 				}
 
@@ -581,15 +592,15 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			public void run() {
 
 				// The ammo crate is positioned randomly on the panel
-				ammoCrate.x = random.nextInt(1900);
-				ammoCrate.y = random.nextInt(1000);
+				ammoCrate.x = random.nextInt(screenWidth) - ammoCrate.width;
+				ammoCrate.y = random.nextInt(screenHeight) - ammoCrate.height;
 
 				for (int i = 0; i < 250; i++) {
 					// This prevents the ammo crate from appearing in one
 					// of the walsl where it can't be reached
-					while (ammoCrate.intersects(rects[i])) {
-						ammoCrate.x = random.nextInt(1900);
-						ammoCrate.y = random.nextInt(1000);
+					while (ammoCrate.intersects(wallRect[i])) {
+						ammoCrate.x = random.nextInt(screenWidth) - ammoCrate.width;
+						ammoCrate.y = random.nextInt(screenHeight) - ammoCrate.height;
 					}
 				}
 
@@ -621,7 +632,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			j = 0;
 		}
 
-		displayOnHud(i, j, 1);
+		displayOnHud(players, i, j, 1, messageLabel, message);
 
 		// Rerun the code to make the weapon crate appear
 		spawnWep(wepCrate);
@@ -651,7 +662,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			j = 0;
 		}
 
-		displayOnHud(i, j, 2);
+		displayOnHud(players, i, j, 2, messageLabel, message);
 
 		// Rerun the code to make the ammo crate appear
 		spawnAmmo(ammoCrate);
@@ -689,10 +700,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			rangeOrientation(1, 0);
 
 			// Player 1's health is decreased and health bar is updated
-			players[0].health -= newdps;
-			hp[0].width = (int) (0.035 * players[0].health);
+			players[0].health -= newDamagePerShot;
+			healthBar[0].width = (int) (((1.4 * playerRect[0].getWidth()) / 1000) * players[0].health);
 
-			reg[0].schedule(new TimerTask() {
+			regeneratingTimer[0].schedule(new TimerTask() {
 				// If player 1 has not been hit in more that 5 seconds, then
 				// player 1's health begins to regenerate
 
@@ -701,18 +712,16 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 					if (players[0].health >= 1000) {
 						players[0].health += 0;
 						players[0].health = 1000;
-						hp[0].width = (int) (0.035 * players[0].health);
+						healthBar[0].width = (int) (((1.4 * playerRect[0].getWidth()) / 1000) * players[0].health);
 						cancel();
 					} else if (gunfire[1].intersects(playerRect[0])) {
 						players[0].health += 0;
-						hp[0].width = (int) (0.035 * players[0].health);
+						healthBar[0].width = (int) (((1.4 * playerRect[0].getWidth()) / 1000) * players[0].health);
 						cancel();
 					} else {
 						players[0].health++;
-						hp[0].width = (int) (0.035 * players[0].health);
-
+						healthBar[0].width = (int) (((1.4 * playerRect[0].getWidth()) / 1000) * players[0].health);
 					}
-
 				}
 
 			}, 5000, 10);
@@ -725,25 +734,25 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			// Player 2 takes damage
 
 			rangeOrientation(0, 1);
-			players[1].health -= newdps;
-			hp[1].width = (int) (0.035 * players[1].health);
+			players[1].health -= newDamagePerShot;
+			healthBar[1].width = (int) (((1.4 * playerRect[1].getWidth()) / 1000) * players[1].health);
 
-			reg[1].schedule(new TimerTask() {
+			regeneratingTimer[1].schedule(new TimerTask() {
 
 				public void run() {
 
 					if (players[1].health >= 1000) {
 						players[1].health += 0;
 						players[1].health = 1000;
-						hp[1].width = (int) (0.035 * players[1].health);
+						healthBar[1].width = (int) (((1.4 * playerRect[1].getWidth()) / 1000) * players[1].health);
 						cancel();
 					} else if (gunfire[0].intersects(playerRect[1])) {
 						players[1].health += 0;
-						hp[1].width = (int) (0.035 * players[1].health);
+						healthBar[1].width = (int) (((1.4 * playerRect[1].getWidth()) / 1000) * players[1].health);
 						cancel();
 					} else {
 						players[1].health++;
-						hp[1].width = (int) (0.035 * players[1].health);
+						healthBar[1].width = (int) (((1.4 * playerRect[1].getWidth()) / 1000) * players[1].health);
 
 					}
 
@@ -761,7 +770,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		unableToMove[i] = true;
 
 		// Initialising a timer that is specific for the player killed
-		resp[i] = new Timer(5000, new ActionListener() {
+		respawnTimer[i] = new Timer(5000, new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -775,7 +784,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				// Gives the player basic starting traits
 				players[i].health = 1000;
 				players[i].weapon = weapons[i][0];
-				hp[i].width = (int) (0.035 * players[i].health);
+				healthBar[i].width = (int) (((1.4 * playerRect[i].getWidth()) / 1000) * players[i].health);
 				hidePlayer.x = 2000;
 				hidePlayer.y = 2000;
 
@@ -785,8 +794,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 
 		});
-		resp[i].setRepeats(false);
-		resp[i].start();
+		respawnTimer[i].setRepeats(false);
+		respawnTimer[i].start();
 
 	}
 
@@ -862,7 +871,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		// This is used to stop players from being able
 		// to travel through the walls
 		
-		if (playerRect[i].intersects(rects[k])) {
+		if (playerRect[i].intersects(wallRect[k])) {
 			whichSide(i, j, k);		
 		}
 
@@ -870,27 +879,27 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	
 	public void whichSide(int i, int j, int k) {
 		
-		if (vel[i][j] > 0 && playerRect[i].x > rects[k].x - playerRect[i].width) {
-			vel[i][j] = 0;
+		if (velocity[i][j] > 0 && playerRect[i].x > wallRect[k].x - playerRect[i].width) {
+			velocity[i][j] = 0;
 			//Has touched LHS moving RIGHT
-			playerRect[i].x = rects[k].x - playerRect[i].width;
+			playerRect[i].x = wallRect[k].x - playerRect[i].width;
 			
-		} else if (vel[i][j] < 0 && playerRect[i].x < rects[k].x + rects[k].width){
-			vel[i][j] = 0;
+		} else if (velocity[i][j] < 0 && playerRect[i].x < wallRect[k].x + wallRect[k].width){
+			velocity[i][j] = 0;
 			//Has touched RHS moving LEFT
-			playerRect[i].x = rects[k].x + rects[k].width;
-		} else if (vel[i][j + 1] < 0 && playerRect[i].y < rects[k].y + rects[k].height) {
-			vel[i][j + 1] = 0;
+			playerRect[i].x = wallRect[k].x + wallRect[k].width;
+		} else if (velocity[i][j + 1] < 0 && playerRect[i].y < wallRect[k].y + wallRect[k].height) {
+			velocity[i][j + 1] = 0;
 			// Has touched LOWER moving UP
-			playerRect[i].y = rects[k].y + rects[k].height;
-		} else if (vel[i][j + 1] > 0 && playerRect[i].y > rects[k].y - playerRect[i].height) {
-			vel[i][j + 1] = 0;
+			playerRect[i].y = wallRect[k].y + wallRect[k].height;
+		} else if (velocity[i][j + 1] > 0 && playerRect[i].y > wallRect[k].y - playerRect[i].height) {
+			velocity[i][j + 1] = 0;
 			// Has touched UPPER moving DOWN
-			playerRect[i].y = rects[k].y - playerRect[i].height;
+			playerRect[i].y = wallRect[k].y - playerRect[i].height;
 		}
 	}
 
-	public void fire(final int i) {
+	public void fire(final int i, Player[] players) {
 		// This is used to determine what type of firing mode
 		// should be used depending on the player's current weapon.
 		// This is only called when the player fires their weapon
@@ -960,8 +969,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
-					if (gunfire[i].intersects(rects[j])) {
-						gunfire[i].y = rects[j].y + rects[j].height;
+					if (gunfire[i].intersects(wallRect[j])) {
+						gunfire[i].y = wallRect[j].y + wallRect[j].height;
 						gunfire[i].height = weaponRect[i].y - gunfire[i].y;
 					}
 				}
@@ -974,8 +983,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
-					if (gunfire[i].intersects(rects[j])) {
-						gunfire[i].width = rects[j].x - weaponRect[i].x;
+					if (gunfire[i].intersects(wallRect[j])) {
+						gunfire[i].width = wallRect[j].x - weaponRect[i].x;
 					}
 				}
 				break;
@@ -987,9 +996,9 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
-					if (gunfire[i].intersects(rects[j])) {
+					if (gunfire[i].intersects(wallRect[j])) {
 						gunfire[i].y = weaponRect[i].y;
-						gunfire[i].height = rects[j].y - weaponRect[i].y;
+						gunfire[i].height = wallRect[j].y - weaponRect[i].y;
 					}
 				}
 				break;
@@ -1001,8 +1010,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
-					if (gunfire[i].intersects(rects[j])) {
-						gunfire[i].x = rects[j].x + rects[j].width;
+					if (gunfire[i].intersects(wallRect[j])) {
+						gunfire[i].x = wallRect[j].x + wallRect[j].width;
 						gunfire[i].width = weaponRect[i].x - gunfire[i].x;
 					}
 				}
@@ -1063,8 +1072,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
-					if (gunfire[i].intersects(rects[j])) {
-						gunfire[i].y = rects[j].y + rects[j].height;
+					if (gunfire[i].intersects(wallRect[j])) {
+						gunfire[i].y = wallRect[j].y + wallRect[j].height;
 						gunfire[i].height = weaponRect[i].y - gunfire[i].y;
 					}
 				}
@@ -1077,8 +1086,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
-					if (gunfire[i].intersects(rects[j])) {
-						gunfire[i].width = rects[j].x - weaponRect[i].x;
+					if (gunfire[i].intersects(wallRect[j])) {
+						gunfire[i].width = wallRect[j].x - weaponRect[i].x;
 					}
 				}
 				break;
@@ -1090,9 +1099,9 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
-					if (gunfire[i].intersects(rects[j])) {
+					if (gunfire[i].intersects(wallRect[j])) {
 						gunfire[i].y = weaponRect[i].y;
-						gunfire[i].height = rects[j].y - weaponRect[i].y;
+						gunfire[i].height = wallRect[j].y - weaponRect[i].y;
 					}
 				}
 				break;
@@ -1104,8 +1113,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
-					if (gunfire[i].intersects(rects[j])) {
-						gunfire[i].x = rects[j].x + rects[j].width;
+					if (gunfire[i].intersects(wallRect[j])) {
+						gunfire[i].x = wallRect[j].x + wallRect[j].width;
 						gunfire[i].width = weaponRect[i].x - gunfire[i].x;
 					}
 				}
@@ -1162,16 +1171,16 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 		if (orientation[i] == 0) {
 			dist = Math.abs((playerRect[j].y + playerRect[j].height) - weaponRect[i].y);
-			range(i, dist, newdps);
+			range(i, dist, newDamagePerShot);
 		} else if (orientation[i] == 1) {
 			dist = Math.abs(playerRect[j].x - (weaponRect[i].x + weaponRect[i].width));
-			range(i, dist, newdps);
+			range(i, dist, newDamagePerShot);
 		} else if (orientation[i] == 2) {
 			dist = Math.abs((weaponRect[i].y + weaponRect[i].height) - playerRect[j].y);
-			range(i, dist, newdps);
+			range(i, dist, newDamagePerShot);
 		} else if (orientation[i] == 3) {
 			dist = Math.abs((playerRect[j].x + playerRect[j].width) - weaponRect[i].x);
-			range(i, dist, newdps);
+			range(i, dist, newDamagePerShot);
 		}
 	}
 
@@ -1251,31 +1260,37 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			dps = (double) players[i].weapon.damagePerShot * multiplier;
 			break;
 		}
-		newdps = dps;
+		newDamagePerShot = dps;
 	}
 
 	public void sortOrientation(int i) {
 		// This determines the position of the weapon rectangle
 		// depending on the orientation of the player so that it
 		// looks like the player is facing a certain direction
-		int fix = 0;
+		int fixX = 0, fixY = 0;
 		
-		if (MapMain.getResWidth() < 1920) {
-			fix = 1;
+		if (screenWidth < 1920) {
+			fixX = 1;
 		} else {
-			fix = 0;
+			fixX = 0;
+		}
+		
+		if (screenWidth < 1600) {
+			fixY = 1;
+		} else {
+			fixY = 0;
 		}
 
 		switch (orientation[i]) {
 		case 0:
-			weaponRect[i].x = playerRect[i].x + ((4 * playerRect[i].width) / 5) + fix;
+			weaponRect[i].x = playerRect[i].x + ((4 * playerRect[i].width) / 5) + fixX;
 			weaponRect[i].y = playerRect[i].y - ((2 * playerRect[i].width) / 5);
 			weaponRect[i].width = playerRect[i].width / 5;
 			weaponRect[i].height = (2 * playerRect[i].height) / 5;
 			break;
 		case 1:
 			weaponRect[i].x = playerRect[i].x + playerRect[i].width;
-			weaponRect[i].y = playerRect[i].y + ((4 * playerRect[i].height) / 5) + fix;
+			weaponRect[i].y = playerRect[i].y + ((4 * playerRect[i].height) / 5) + fixY;
 			weaponRect[i].width = (2 * playerRect[i].width) / 5;
 			weaponRect[i].height = playerRect[i].height / 5;
 			break;
@@ -1312,17 +1327,17 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		// of rectangles on the screen as well as things like
 		// constantly checking for if a player has been killed or not
 
-		playerRect[0].x += vel[0][0];
-		playerRect[0].y += vel[0][1];
-		hp[0].x = playerRect[0].x - 5;
-		hp[0].y = playerRect[0].y - 20;
-		usernames[0].setBounds(playerRect[0].x - 25, playerRect[0].y + 20, 75, 40);
+		playerRect[0].x += velocity[0][0];
+		playerRect[0].y += velocity[0][1];
+		healthBar[0].x = playerRect[0].x - (playerRect[0].width / 5);
+		healthBar[0].y = playerRect[0].y - ((4 * playerRect[0].height) / 5);
+		usernames[0].setBounds(playerRect[0].x - playerRect[0].width, playerRect[0].y + ((4 * playerRect[0].height) / 5), 3 * playerRect[0].width, (8 * playerRect[0].height) / 5);
 
-		playerRect[1].x += vel[1][0];
-		playerRect[1].y += vel[1][1];
-		hp[1].x = playerRect[1].x - 5;
-		hp[1].y = playerRect[1].y - 20;
-		usernames[1].setBounds(playerRect[1].x - 25, playerRect[1].y + 20, 75, 40);
+		playerRect[1].x += velocity[1][0];
+		playerRect[1].y += velocity[1][1];
+		healthBar[1].x = playerRect[1].x - (playerRect[0].width / 5);
+		healthBar[1].y = playerRect[1].y - ((4 * playerRect[0].height) / 5);
+		usernames[1].setBounds(playerRect[1].x - playerRect[1].width, playerRect[1].y + ((4 * playerRect[1].height) / 5), 3 * playerRect[1].width, (8 * playerRect[1].height) / 5);
 
 		if (players[0].health <= 0) {
 			// If player 1 has been killed then hide the player rectangle from
@@ -1335,13 +1350,13 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			playerRect[0].x = 2000;
 			playerRect[0].y = 2000;
 
-			hidePlayer.x = 1880;
-			hidePlayer.y = 970;
+			hidePlayer.x = 1920-40;
+			hidePlayer.y = 1080-50;
 
 			// Increment the score of player 2
 			increment(0, 1, playerKilled, scores, scoreLabel, players);
 			
-			displayOnHud(1, 0, 0);
+			displayOnHud(players, 1, 0, 0, messageLabel, message);
 
 			if (hasPlayerWon(players, scores[1])) {
 				// If player 2 has reached the score limit, then end the game
@@ -1366,11 +1381,11 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			playerRect[1].y = 2000;
 
 			hidePlayer.x = 1880;
-			hidePlayer.y = 970;
+			hidePlayer.y = 1030;
 
 			// Increment the score of player 1
 			increment(1, 0, playerKilled, scores, scoreLabel, players);
-			displayOnHud(0, 1, 0);
+			displayOnHud(players, 0, 1, 0, messageLabel, message);
 
 			if (hasPlayerWon(players, scores[0])) {
 				// If player 1 has reached the score limit, then end the game
@@ -1388,35 +1403,35 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		// being able to leave the boundaries of the screen
 		if (playerRect[0].x < 0) {
 			playerRect[0].x = 0;
-			vel[0][0] = 0;
+			velocity[0][0] = 0;
 		}
-		if (playerRect[0].x > MapMain.getResWidth() - playerRect[0].width) {
-			playerRect[0].x = MapMain.getResWidth() - playerRect[0].width;
-			vel[0][0] = 0;
+		if (playerRect[0].x > screenWidth - playerRect[0].width) {
+			playerRect[0].x = screenWidth - playerRect[0].width;
+			velocity[0][0] = 0;
 		}
 		if (playerRect[0].y < 0) {
 			playerRect[0].y = 0;
-			vel[0][1] = 0;
+			velocity[0][1] = 0;
 		}
-		if (playerRect[0].y > MapMain.getResHeight() - playerRect[0].height) {
-			playerRect[0].y = MapMain.getResHeight() - playerRect[0].height;
-			vel[0][1] = 0;
+		if (playerRect[0].y > screenHeight - playerRect[0].height) {
+			playerRect[0].y = screenHeight - playerRect[0].height;
+			velocity[0][1] = 0;
 		}
 		if (playerRect[1].x < 0) {
 			playerRect[1].x = 0;
-			vel[1][0] = 0;
+			velocity[1][0] = 0;
 		}
-		if (playerRect[1].x > MapMain.getResWidth() - playerRect[1].width) {
-			playerRect[1].x = MapMain.getResWidth() - playerRect[1].width;
-			vel[1][0] = 0;
+		if (playerRect[1].x > screenWidth - playerRect[1].width) {
+			playerRect[1].x = screenWidth - playerRect[1].width;
+			velocity[1][0] = 0;
 		}
 		if (playerRect[1].y < 0) {
 			playerRect[1].y = 0;
-			vel[1][1] = 0;
+			velocity[1][1] = 0;
 		}
-		if (playerRect[1].y > MapMain.getResHeight() - playerRect[1].height) {
-			playerRect[1].y = MapMain.getResHeight() - playerRect[1].height;
-			vel[1][1] = 0;
+		if (playerRect[1].y > screenHeight - playerRect[1].height) {
+			playerRect[1].y = screenHeight - playerRect[1].height;
+			velocity[1][1] = 0;
 		}
 
 		// Actively check for where to position the weapon
@@ -1428,11 +1443,11 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			// If player 1 wants to fire, then display
 			// the gunfire rectangle and wait until the rate
 			// of fire timer ends
-			fire(0);
+			fire(0, players);
 		}
 
 		if (isFiring[1]) {
-			fire(1);
+			fire(1, players);
 			// If player 1 wants to fire, then display
 			// the gunfire rectangle and wait until the rate
 			// of fire timer ends
@@ -1460,19 +1475,19 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			switch (e.getKeyCode()) {
 			// Player 1 key assignments for moving and firing
 			case KeyEvent.VK_UP:
-				vel[0][1] = -2;
+				velocity[0][1] = -(screenHeight / 540);
 				orientation[0] = 0;
 				break;
 			case KeyEvent.VK_DOWN:
-				vel[0][1] = 2;
+				velocity[0][1] = screenHeight / 540;
 				orientation[0] = 2;
 				break;
 			case KeyEvent.VK_LEFT:
-				vel[0][0] = -2;
+				velocity[0][0] = -(screenWidth / 960);
 				orientation[0] = 3;
 				break;
 			case KeyEvent.VK_RIGHT:
-				vel[0][0] = 2;
+				velocity[0][0] = screenWidth / 960;
 				orientation[0] = 1;
 				break;
 			case KeyEvent.VK_SPACE:
@@ -1494,19 +1509,19 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			switch (e.getKeyCode()) {
 			// Player 2 key assignments for moving and firing
 			case KeyEvent.VK_W:
-				vel[1][1] = -2;
+				velocity[1][1] = -(screenHeight / 540);
 				orientation[1] = 0;
 				break;
 			case KeyEvent.VK_S:
-				vel[1][1] = 2;
+				velocity[1][1] = screenHeight / 540;
 				orientation[1] = 2;
 				break;
 			case KeyEvent.VK_A:
-				vel[1][0] = -2;
+				velocity[1][0] = -(screenWidth / 960);
 				orientation[1] = 3;
 				break;
 			case KeyEvent.VK_D:
-				vel[1][0] = 2;
+				velocity[1][0] = screenWidth / 960;
 				orientation[1] = 1;
 				break;
 			case KeyEvent.VK_Q:
@@ -1524,7 +1539,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			// If Escape is pressed, the game pauses
 
-			t.stop();
+			timer.stop();
 			System.out.println("Paused");
 			paused = true;
 		}
@@ -1533,7 +1548,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			// If Enter is pressed while the game is paused,
 			// the game is resumed
 
-			t.start();
+			timer.start();
 			System.out.println("Resumed");
 			paused = false;
 		}
@@ -1546,16 +1561,16 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		// moving
 		// if they release one of the keys used to move their rectangle
 		if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_UP) {
-			vel[0][1] = 0;
+			velocity[0][1] = 0;
 		}
 		if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_RIGHT) {
-			vel[0][0] = 0;
+			velocity[0][0] = 0;
 		}
 		if (e.getKeyCode() == KeyEvent.VK_S || e.getKeyCode() == KeyEvent.VK_W) {
-			vel[1][1] = 0;
+			velocity[1][1] = 0;
 		}
 		if (e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_D) {
-			vel[1][0] = 0;
+			velocity[1][0] = 0;
 		}
 
 		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
