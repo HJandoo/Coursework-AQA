@@ -1477,19 +1477,19 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			switch (e.getKeyCode()) {
 			// Player 1 key assignments for moving and firing
 			case KeyEvent.VK_UP:
-				velocity[0][1] = -(screenHeight / 540);
+				velocity[0][1] = 2 * -(screenHeight / 540);
 				orientation[0] = 0;
 				break;
 			case KeyEvent.VK_DOWN:
-				velocity[0][1] = screenHeight / 540;
+				velocity[0][1] = 2 * screenHeight / 540;
 				orientation[0] = 2;
 				break;
 			case KeyEvent.VK_LEFT:
-				velocity[0][0] = -(screenWidth / 960);
+				velocity[0][0] = 2 * -(screenWidth / 960);
 				orientation[0] = 3;
 				break;
 			case KeyEvent.VK_RIGHT:
-				velocity[0][0] = screenWidth / 960;
+				velocity[0][0] = 2 * screenWidth / 960;
 				orientation[0] = 1;
 				break;
 			case KeyEvent.VK_SPACE:
@@ -1511,19 +1511,19 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			switch (e.getKeyCode()) {
 			// Player 2 key assignments for moving and firing
 			case KeyEvent.VK_W:
-				velocity[1][1] = -(screenHeight / 540);
+				velocity[1][1] = 2 * -(screenHeight / 540);
 				orientation[1] = 0;
 				break;
 			case KeyEvent.VK_S:
-				velocity[1][1] = screenHeight / 540;
+				velocity[1][1] = 2 * screenHeight / 540;
 				orientation[1] = 2;
 				break;
 			case KeyEvent.VK_A:
-				velocity[1][0] = -(screenWidth / 960);
+				velocity[1][0] = 2 * -(screenWidth / 960);
 				orientation[1] = 3;
 				break;
 			case KeyEvent.VK_D:
-				velocity[1][0] = screenWidth / 960;
+				velocity[1][0] = 2 * screenWidth / 960;
 				orientation[1] = 1;
 				break;
 			case KeyEvent.VK_Q:
