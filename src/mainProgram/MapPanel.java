@@ -207,9 +207,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		tL.setFont(font1);
 		add(tL);
 
-		mL.setBounds(0, screenHeight / (int) 21.6, screenWidth, 20);
+		mL.setBounds(0, screenHeight / (int) 21.6, screenWidth, 50);
 		mL.setForeground(Color.WHITE);
 		mL.setHorizontalAlignment(JLabel.CENTER);
+		mL.setVerticalAlignment(JLabel.NORTH);
 		mL.setFont(font1);
 		add(mL);
 
@@ -409,6 +410,18 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				mL.setOpaque(false);
 			}
 		}, 5000);
+
+	}
+	
+	public void displayPause(JLabel mL, String message) {
+		if (paused) {
+			mL.setForeground(new Color(99, 0, 145));
+			message = "<HTML><center>Game Paused<br>Press Enter to resume or press Q to quit";
+			mL.setText(message);
+		} else {
+			mL.setText("");
+		}
+		
 
 	}
 
@@ -872,12 +885,13 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		// to travel through the walls
 		
 		if (playerRect[i].intersects(wallRect[k])) {
-			whichSide(i, j, k);		
+			whichSide(i, 0, k);		
 		}
 
 	}
 	
 	public void whichSide(int i, int j, int k) {
+		//TODO This needs work, mainly to prevent the index out of bounds exception
 		
 		if (velocity[i][j] > 0 && playerRect[i].x > wallRect[k].x - playerRect[i].width) {
 			velocity[i][j] = 0;
@@ -1350,8 +1364,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			playerRect[0].x = 2000;
 			playerRect[0].y = 2000;
 
-			hidePlayer.x = 1920-40;
-			hidePlayer.y = 1080-50;
+			hidePlayer.x = screenWidth - (screenWidth / 48);
+			hidePlayer.y = screenHeight - (screenHeight / (int) 21.6);
 
 			// Increment the score of player 2
 			increment(0, 1, playerKilled, scores, scoreLabel, players);
@@ -1380,8 +1394,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			playerRect[1].x = 2000;
 			playerRect[1].y = 2000;
 
-			hidePlayer.x = 1880;
-			hidePlayer.y = 1030;
+			hidePlayer.x = screenWidth - (screenWidth / 48);
+			hidePlayer.y = screenHeight - (screenHeight / (int) 21.6);
 
 			// Increment the score of player 1
 			increment(1, 0, playerKilled, scores, scoreLabel, players);
@@ -1524,7 +1538,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				velocity[1][0] = screenWidth / 960;
 				orientation[1] = 1;
 				break;
-			case KeyEvent.VK_Q:
+			case KeyEvent.VK_R:
 				if (players[1].ammo > 0) {
 					isFiring[1] = true;
 				} else {
@@ -1540,17 +1554,23 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			// If Escape is pressed, the game pauses
 
 			timer.stop();
-			System.out.println("Paused");
 			paused = true;
+			
+			displayPause(messageLabel, message);
 		}
 
-		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+		if (paused && e.getKeyCode() == KeyEvent.VK_ENTER) {
 			// If Enter is pressed while the game is paused,
 			// the game is resumed
 
 			timer.start();
-			System.out.println("Resumed");
 			paused = false;
+			displayPause(messageLabel, message);
+		}
+		
+		if (paused && e.getKeyCode() == KeyEvent.VK_Q) {
+			JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(getParent());
+			topFrame.dispose();
 		}
 
 	}

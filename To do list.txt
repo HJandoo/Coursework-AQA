@@ -3,10 +3,7 @@ TO DO LIST
  - Player mechanics:- Additional armor?
  - Weapon mechanics:- Splash damage for bazooka
 					- Rockets for bazooka
- - Game Mechanics:- Pause menu:- Display it on the HUD
- 							   - Need to be able to resume, end game, maybe restart
+ - Game Mechanics:- Intersections need fixing - Added a TODO to the code
  - Player stats:- WMD?
- - Game options:- Resolutions:- Gunfire rects need resizing
- 							  - Hiding block for when a player is respawning needs to be positioned for each resolution
  - Networking stuff:- Remote connection to server
  					- Play game across LAN network?
