@@ -120,10 +120,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 		// Methods used to start the game
 		setupPlayers(players, weapons, playerRect, weaponRect, usernames, healthBar, font2, velocity);
-		setupBlocks(wallRect);
+		setupBlocks(wallRect, screenWidth, screenHeight);
 		setupHud(players, font1, font3, weaponLabel, ammoLabel, scoreLabel, timeLabel, messageLabel);
 		spawnWep(wepCrate);
-		spawnAmmo(ammoCrate, random);
+		spawnAmmo(ammoCrate);
 		countdown(ti);
 
 	}
@@ -263,9 +263,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	}
 
-	public void setupBlocks(Rectangle[] rects) {
+	public void setupBlocks(Rectangle[] rects, int screenWidth, int screenHeight) {
 		
 		int fmw = screenWidth / 64, fmh = screenHeight / 36, dw = screenWidth / 10, dh = screenHeight / 10;
+		Random random = new Random();
 		
 		// Draws up the map by randomly placing blocks across the screen
 		for (int i = 0; i < 80; i += 4) {
@@ -592,14 +593,14 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		}, i);
 	}
 
-	public void spawnAmmo(final Rectangle ammoCrate, final Random random) {
+	public void spawnAmmo(final Rectangle ammoCrate) {
 		// This makes the ammo crate appear on the screen at
 		// a random time between 30 and 59 seconds
+		final Random random = new Random();
+		java.util.Timer ammoCrateTimer = new java.util.Timer();
+		int i = (random.nextInt(30) + 30) * 1000;		
 
-		java.util.Timer ac = new java.util.Timer();
-		int i = (random.nextInt(30) + 30) * 1000;
-
-		ac.schedule(new TimerTask() {
+		ammoCrateTimer.schedule(new TimerTask() {
 
 			@Override
 			public void run() {
@@ -610,7 +611,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 				for (int i = 0; i < 250; i++) {
 					// This prevents the ammo crate from appearing in one
-					// of the walsl where it can't be reached
+					// of the walls where it can't be reached
 					while (ammoCrate.intersects(wallRect[i])) {
 						ammoCrate.x = random.nextInt(screenWidth) - ammoCrate.width;
 						ammoCrate.y = random.nextInt(screenHeight) - ammoCrate.height;
@@ -660,7 +661,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		ammoCrate.x = 2000;
 		ammoCrate.y = 2000;
 
-		// Retrieves the meximum ammo for the player's current weapon
+		// Retrieves the maximum ammo for the player's current weapon
 		// and sets the player's ammo to this amount
 		player.ammo = getFullAmmo(player);
 
@@ -678,7 +679,6 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		displayOnHud(players, i, j, 2, messageLabel, message);
 
 		// Rerun the code to make the ammo crate appear
-		spawnAmmo(ammoCrate, random);
 	}
 
 	public int getFullAmmo(Player player) {
@@ -688,10 +688,10 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public Weapon getRandomWeapon(int i, Player player) {
-		Random r = new Random();
-		int rWep = r.nextInt(5) + 1;
-		player.weapon = weapons[i][rWep];
-		player.ammo = weapons[i][rWep].ammo;
+		Random random = new Random();
+		int randomWepCode = random.nextInt(5) + 1;
+		player.weapon = weapons[i][randomWepCode];
+		player.ammo = weapons[i][randomWepCode].ammo;
 
 		return player.weapon;
 
@@ -783,7 +783,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		unableToMove[i] = true;
 
 		// Initialising a timer that is specific for the player killed
-		respawnTimer[i] = new Timer(5000, new ActionListener() {
+		Timer respawnTimer = new Timer(5000, new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -807,8 +807,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 
 		});
-		respawnTimer[i].setRepeats(false);
-		respawnTimer[i].start();
+		respawnTimer.setRepeats(false);
+		respawnTimer.start();
 
 	}
 
