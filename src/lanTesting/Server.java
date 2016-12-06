@@ -32,8 +32,7 @@ public class Server implements Runnable{
 	public Server(Socket sok){
 		
 		this.soc = sok;
-		
-		
+	
 		try {
 
 			

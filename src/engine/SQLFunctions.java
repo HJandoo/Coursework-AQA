@@ -99,9 +99,10 @@ public class SQLFunctions {
 
 	}
 
-	public static void getWeapons(Weapon[][] weapons) {
+	public static Weapon[] getWeapons() {
 
 		int i = 0;
+		Weapon[] weapons = new Weapon[6];
 
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
@@ -115,18 +116,18 @@ public class SQLFunctions {
 
 			while (rs.next()) {
 
-				weapons[0][i] = new Weapon(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getInt(5),
-						new File(rs.getString(6)));
-				weapons[1][i] = new Weapon(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getInt(5),
+				weapons[i] = new Weapon(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getInt(5),
 						new File(rs.getString(6)));
 				i++;
 
 			}
+			
+			return weapons;
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		return weapons;
 	}
 
 	public static void getStats(Object[][] data) {

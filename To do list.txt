@@ -1,9 +1,9 @@
 TO DO LIST
 
- - Player mechanics:- Additional armor?
  - Weapon mechanics:- Splash damage for bazooka
 					- Rockets for bazooka
  - Game Mechanics:- Intersections need fixing - Added a TODO to the code
  - Player stats:- WMD?
  - Networking stuff:- Remote connection to server
  					- Play game across LAN network?
+ - Housekeeping:- Change global varaibles and parameters into local varaibles

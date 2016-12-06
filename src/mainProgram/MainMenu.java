@@ -34,8 +34,7 @@ public class MainMenu extends JFrame {
 	Color wh = Color.WHITE;
 	
 	Player[] players = new Player[2];
-	Weapon[][] weapons = new Weapon[2][6];
-	
+
 	static 	int[] choice = new int[3];
 	int time;
 	
@@ -123,7 +122,7 @@ public class MainMenu extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// Initialises the game's weapons and checks to make sure
 				// that the time limit of the game doesn't equal null				
-				SQLFunctions.getWeapons(weapons);
+				Weapon[] weapons = SQLFunctions.getWeapons();
 				
 				getTime(time);
 				// This launches the login screen for player 1 first and
