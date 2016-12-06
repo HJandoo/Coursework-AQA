@@ -66,7 +66,6 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	int seconds = OptionsPanel.timeLim / (OptionsPanel.timeLim / 60);
 	int screenWidth = MapMain.getResWidth(), screenHeight = MapMain.getResHeight();
 	
-	
 	double[][] velocity = new double[2][2];
 	int[] count = { 0, 0, 0 };
 	int[] orientation = { 0, 0 };
@@ -121,7 +120,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		// Methods used to start the game
 		setupPlayers(players, weapons, playerRect, weaponRect, usernames, healthBar, font2, velocity);
 		setupBlocks(wallRect, screenWidth, screenHeight);
-		setupHud(players, font1, font3, weaponLabel, ammoLabel, scoreLabel, timeLabel, messageLabel);
+		setupHud(players, scoreLabel, timeLabel, messageLabel);
 		spawnWep(wepCrate);
 		spawnAmmo(ammoCrate);
 		countdown(ti);
@@ -131,6 +130,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	public int fontSize() {
 
 		int fontSize = 20;
+		int screenWidth = MapMain.getResWidth();
 		
 		switch (screenWidth) {
 		case 1920:
@@ -150,14 +150,18 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		return fontSize;
 	}
 
-	public void setupHud(Player[] players, Font font1, Font font3, JLabel[] wL, JLabel[] aL, JLabel[] sL, JLabel tL, JLabel mL) {
-		// This creates the Heads-Up Display (HUD) for
-		// both of the players
-		
+	public void setupHud(Player[] players,   JLabel[] sL, JLabel tL, JLabel mL) {
+		// This creates the Heads-Up Display (HUD) on the screen
+		int screenWidth = MapMain.getResWidth(), screenHeight = MapMain.getResHeight();
 		int midpoint = screenWidth / 2;
 		
-		font1 = new Font("Arial", Font.PLAIN, fontSize());
-		font3 = new Font("Arial", Font.PLAIN, (5 * fontSize()) / 4);
+		Color blue = new Color(0, 129, 222);
+		
+		Font font1 = new Font("Arial", Font.PLAIN, fontSize());
+		Font font3 = new Font("Arial", Font.PLAIN, (5 * fontSize()) / 4);
+		
+		JLabel[] wL = this.weaponLabel;
+		JLabel[] aL = this.ammoLabel;
 
 		wL[0] = new JLabel("Weapon: " + players[0].weapon.name);
 		wL[0].setForeground(Color.RED);
