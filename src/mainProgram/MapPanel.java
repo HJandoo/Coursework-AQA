@@ -85,8 +85,6 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	Timer[] wait = new Timer[2];
 
 	double newDamagePerShot = 0;
-	
-	// This is a test
 
 	public MapPanel(Player[] players, Weapon[] weapons) {
 		// Assign properties to this panel and initialise
@@ -343,11 +341,9 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	}
 
-	public void countdown(java.util.Timer timer) {
+	public void countdown(final java.util.Timer timer) {
 		// This is what causes the timer to count down at secondly intervals
 		// and updates the amount of time left to the HUD
-		
-		timer = new java.util.Timer();
 
 		final DecimalFormat d = new DecimalFormat("00");
 
@@ -375,6 +371,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				if (timeLimit < 0) {
 					// If the timer reaches 0, then the program stops the game
 					// and checks to see if there is a winner based on scores
+					timer.cancel();
 					checkWinner(scores, players);
 
 				}
@@ -906,23 +903,11 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			players[j].kills++;
 			players[i].deaths++;
 			scoreLabel[j].setText(Integer.toString(scores[j]));
-
-			// This if statement prevents the player 1 kill difference ratio
-			// from being infinity as Java can't represent infinity as a number
-			if (players[i].deaths != 0) {
-				players[i].killdiff = players[i].kills / players[i].deaths;
-			} else {
-				players[i].killdiff = players[i].kills;
-			}
-
-			// This if statement does the exact same as above but it
-			// is for player 2
-			if (players[j].deaths != 0) {
-				players[j].killdiff = players[j].kills / players[j].deaths;
-			} else {
-				players[j].killdiff = players[j].kills;
-			}
-
+			
+			SQLFunctions.addKills(players[j]);
+			
+			calculateKD(i, j, players);
+			
 			// Uploads latest changes in the stats to the database
 			SQLFunctions.updateStats(players);
 
@@ -933,6 +918,24 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 		}
 
+	}
+
+	public void calculateKD(int i, int j, Player[] players) {
+		// This if statement prevents the player 1 kill difference ratio
+		// from being infinity as Java can't represent infinity as a number
+		if (players[i].deaths != 0) {
+			players[i].killdiff = players[i].kills / players[i].deaths;
+		} else {
+			players[i].killdiff = players[i].kills;
+		}
+
+		// This if statement does the exact same as above but it
+		// is for player 2
+		if (players[j].deaths != 0) {
+			players[j].killdiff = players[j].kills / players[j].deaths;
+		} else {
+			players[j].killdiff = players[j].kills;
+		}
 	}
 
 	public void wait(final int i, int delay, final boolean[] ableToFire) {

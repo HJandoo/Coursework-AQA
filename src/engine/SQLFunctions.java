@@ -32,6 +32,142 @@ public class SQLFunctions {
 		return i;
 
 	}
+	
+	public static int getPlayerId(Player player) {
+		int id = 0;
+		
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+
+			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root",
+					"Ht3jkdtw7Hvx");
+
+			Statement st = c.createStatement();
+
+			ResultSet rs = st.executeQuery("select * from coursework.player_statistics where username = '" + player.username + "';");
+			
+			while (rs.next()) {
+				id = rs.getInt(1);
+			}
+			
+			System.out.println(id);
+
+			return id;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		
+		return id;
+		
+	}
+	
+	public static void findWMD() {
+
+		int i = 0, pnum = getNumberOfPlayers();
+		int[][] kills = new int[pnum][6];
+
+		try {
+
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root",
+					"Ht3jkdtw7Hvx");
+			Statement st = c.createStatement();
+			ResultSet rs = st.executeQuery(
+					"select kills_with_pistol, kills_with_smg, kills_with_machine_gun, kills_with_sniper_rifle, kills_with_shotgun, kills_with_bazooka, most_used_weapon_id from weapon_kills;");
+
+			while (rs.next() && i < pnum) {
+				kills[i][0] = rs.getInt(1);
+				kills[i][1] = rs.getInt(2);
+				kills[i][2] = rs.getInt(3);
+				kills[i][3] = rs.getInt(4);
+				kills[i][4] = rs.getInt(5);
+				kills[i][5] = rs.getInt(6);
+
+				i++;
+			}
+
+			for (int k = 0; k < pnum; k++) {
+				int temp = kills[k][0];
+
+				for (int j = 0; j < 6; j++) {
+					if (temp <= kills[k][j]) {
+						temp = kills[k][j];
+					}
+
+				}
+
+				System.out.println("Most kills with one weapon: " + temp);
+
+				int weaponid = 0;
+
+				for (int j = 0; j < 6; j++) {
+					if (temp == kills[k][j]) {
+						weaponid = j + 1;
+						j = 5;
+					}
+
+				}
+
+				System.out.println("Column number/weapon id: " + weaponid);
+				System.out.println();
+
+				st.execute("UPDATE `coursework`.`weapon_kills` SET `most_used_weapon_id`='" + weaponid
+						+ "' WHERE `player_id`='" + (k + 1) + "';");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+	
+	public static void addKills(Player player) {
+		
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+
+			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root",
+					"Ht3jkdtw7Hvx");
+
+			Statement st = c.createStatement();
+		
+			String column = "";
+			
+			switch (player.weapon.code) {
+			case 1:
+				column = "kills_with_pistol";
+				break;
+			case 2:
+				column = "kills_with_smg";
+				break;
+			case 3:
+				column = "kills_with_machine_gun";
+				break;
+			case 4:
+				column = "kills_with_sniper_rifle";
+				break;
+			case 5:
+				column = "kills_with_shotgun";
+				break;
+			case 6:
+				column =  "kills_with_bazooka";
+				break;
+			}
+			
+			System.out.println(column);
+			
+			ResultSet rs = st.executeQuery("select " + column + " from coursework.weapon_kills where player_id = " + getPlayerId(player) + ";");		
+			int kills = rs.getInt(1);			
+			st.execute("update coursework.weapon_kills set " + column + " = " + kills + " where player_id = " + getPlayerId(player) + ";");
+
+			
+		} catch (Exception e) {
+			e.printStackTrace();	
+		}
+		
+	}
 
 	public static void updateMatches(Player[] players, int i) {
 
@@ -92,6 +228,8 @@ public class SQLFunctions {
 						+ players[j].gamesWon + "', `win_rate` = '" + players[j].winRate + "' where `username` = '"
 						+ players[j].username + "';");
 			}
+			
+			findWMD();
 
 		} catch (Exception e) {
 			e.printStackTrace();

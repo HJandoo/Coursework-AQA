@@ -3,10 +3,8 @@ TO DO LIST
  - Weapon mechanics:- Splash damage for bazooka
 					- Rockets for bazooka
  - Game Mechanics:- Intersections need fixing - Added a TODO to the code
- - Player stats:- Most used weapon - Make new table in database to store kills with each weapon - PlayerID is foreign key
- 								   - Make algorithm to find out most used weapon here
- 								   - Add stat to JTable
- 								   - WeaponID is foreign key for most used weapon in player stats table
+ - Player stats:- Most used weapon - Add stat to JTable
+ 								   - Add WMDMain code to main code (probably SQLFunctions)
  - Networking stuff:- Remote connection to server
  					- Play game across LAN network?
- - Housekeeping:- Change global varaibles and parameters into local varaibles
+ - Housekeeping:- Change global varaibles into local varaibles
