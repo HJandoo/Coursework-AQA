@@ -817,17 +817,17 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			// This if statement prevents the player 1 kill difference ratio
 			// from being infinity as Java can't represent infinity as a number
 			if (players[i].deaths != 0) {
-				players[i].killdiff = players[i].kills / players[i].deaths;
+				players[i].killDifference = players[i].kills / players[i].deaths;
 			} else {
-				players[i].killdiff = players[i].kills;
+				players[i].killDifference = players[i].kills;
 			}
 
 			// This if statement does the exact same as above but it
 			// is for player 2
 			if (players[j].deaths != 0) {
-				players[j].killdiff = players[j].kills / players[j].deaths;
+				players[j].killDifference = players[j].kills / players[j].deaths;
 			} else {
-				players[j].killdiff = players[j].kills;
+				players[j].killDifference = players[j].kills;
 			}
 
 			// Uploads latest changes in the stats to the database

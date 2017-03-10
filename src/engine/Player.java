@@ -8,7 +8,7 @@ public class Player {
 	public int ammo;
 	public double kills;
 	public double deaths;
-	public double killdiff;
+	public double killDifference;
 	public double gamesPlayed;
 	public double gamesWon;
 	public Double winRate;
@@ -21,7 +21,7 @@ public class Player {
 		kills = k;
 		deaths = d;
 		kd = k / d;
-		killdiff = kd;
+		killDifference = kd;
 		gamesPlayed = gp;
 		gamesWon = gw;
 		wr = (gw / gp) * 100;

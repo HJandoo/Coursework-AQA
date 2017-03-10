@@ -19,5 +19,4 @@ public class Weapon {
 		ammo = a;
 		sound = s;
 	}
-
 }

@@ -1,5 +1,6 @@
 package hashTesting;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
 public class Main {
@@ -29,27 +30,27 @@ public class Main {
 		return hash;
 	}
 	
-	public static void sha2() {
-		String s = "this is really confusing";
-		
-		try {
-			MessageDigest d = MessageDigest.getInstance("SHA-256");
-			d.update(s.getBytes("UTF-8"));
-			byte[] hash = d.digest();
-			
-			String.format("%064x", new java.math.BigInteger(1, hash));
-			
-			
-			System.out.println(hash);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
+	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+	
+	public static String runSha(String text) throws Exception {
+		MessageDigest digest = MessageDigest.getInstance("SHA-256");
+		byte[] hash = digest.digest(text.getBytes(StandardCharsets.UTF_8));
+		System.out.println(bytesToHex(hash));
+		return bytesToHex(hash);
 	}
 	
-	public static void main(String[] args) {
-		getHash("Ht3jkdtw7Hvx");
-		
-		//sha2();
+	public static String bytesToHex(byte[] bytes) {
+	    char[] hexChars = new char[bytes.length * 2];
+	    for ( int j = 0; j < bytes.length; j++ ) {
+	        int v = bytes[j] & 0xFF;
+	        hexChars[j * 2] = hexArray[v >>> 4];
+	        hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+	    }
+	    return new String(hexChars);
+	}
+	
+	public static void main(String[] args) throws Exception {
+		getHash("trumpisstupid");
+		runSha("trumpisstupid");
 	}
 }

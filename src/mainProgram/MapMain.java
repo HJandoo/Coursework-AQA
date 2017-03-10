@@ -4,6 +4,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 import engine.Player;
+import engine.SQLFunctions;
 import engine.Weapon;
 
 public class MapMain extends JFrame{
@@ -18,13 +19,13 @@ public class MapMain extends JFrame{
 		setUndecorated(true);
 		// This increments the matches played by the players by 1
 		// and updates the database to match this change
-		//SQLFunctions.updateMatches(players, 0);
+		SQLFunctions.updateMatches(players, 0);
 		// Initialise the panel for the main gamed
 		MapPanel p = new MapPanel(players, weapons);
 		// Assign properties to this frame
 		setResizable(false);
 		setVisible(true);
-		setSize(getResWidth(), getResHeight());
+		setSize(getResolutionWidth(), getResolutionHeight());
 		w = getWidth();
 		h = getHeight();
 		setLocationRelativeTo(null);
@@ -34,7 +35,7 @@ public class MapMain extends JFrame{
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);	
 	}
 	
-	public static int getResWidth() {
+	public static int getResolutionWidth() {
 		int[] widths = { 1920, 1600, 1366, 1280 };
 		int width = widths[0];
 		
@@ -47,7 +48,7 @@ public class MapMain extends JFrame{
 		return width;
 	}
 	
-	public static int getResHeight() {
+	public static int getResolutionHeight() {
 		int[] heights = { 1080, 900, 768, 720 };
 		int height = heights[0];
 		

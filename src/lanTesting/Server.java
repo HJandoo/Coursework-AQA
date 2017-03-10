@@ -73,20 +73,7 @@ public class Server implements Runnable{
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			
-			r.x += vel;
-			
-			if (r.x >= 450) {
-				vel *= -1;
-			} if (r.x <= 0) {
-				vel *= -1;
-			}
-			
-			try {
-				sendX(vel);
-			} catch (Exception e1) {
-				//e1.printStackTrace();
-			}
+
 			
 			repaint();
 			

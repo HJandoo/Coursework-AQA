@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.Random;
 import java.util.TimerTask;
@@ -38,7 +39,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	java.util.Timer[] regeneratingTimer = new java.util.Timer[2];
 	Timer[] respawnTimer = new Timer[2];
 
-	Rectangle[] wallRect;
+	Rectangle[] wallRectangles;
 	Rectangle[] playerRect = new Rectangle[2];
 	Rectangle[] weaponRect = new Rectangle[2];
 	Rectangle[] gunfire = new Rectangle[2];
@@ -98,7 +99,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		setFocusTraversalKeysEnabled(false);
 		timer.start();
 		
-		int screenWidth = MapMain.getResWidth(), screenHeight = MapMain.getResHeight();
+		int screenWidth = MapMain.getResolutionWidth(), screenHeight = MapMain.getResolutionHeight();
 		int targetScore = OptionsPanel.scoreLim;
 		
 		Rectangle[] healthBar = this.healthBar;
@@ -119,7 +120,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 		// Methods used to start the game
 		setupPlayers(players, weapons, healthBar, velocity);
-		setupBlocks();
+		setupMap();
 		setupHud(players);
 		spawnWep(wepCrate);
 		spawnAmmo(ammoCrate);
@@ -130,7 +131,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 	public int fontSize() {
 
 		int fontSize = 20;
-		int screenWidth = MapMain.getResWidth();
+		int screenWidth = MapMain.getResolutionWidth();
 		
 		switch (screenWidth) {
 		case 1920:
@@ -152,7 +153,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	public void setupHud(Player[] players) {
 		// This creates the Heads-Up Display (HUD) on the screen
-		int screenWidth = MapMain.getResWidth(), screenHeight = MapMain.getResHeight();
+		int screenWidth = MapMain.getResolutionWidth(), screenHeight = MapMain.getResolutionHeight();
 		int midpoint = screenWidth / 2;
 		
 		Color blue = new Color(0, 129, 222);
@@ -232,7 +233,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		this.players[0] = players[0];
 		this.players[1] = players[1];
 		
-		int screenWidth = MapMain.getResWidth(), screenHeight = MapMain.getResHeight();
+		int screenWidth = MapMain.getResolutionWidth(), screenHeight = MapMain.getResolutionHeight();
 		Rectangle[] playerRect = this.playerRect;
 		Rectangle[] weaponRect = this.weaponRect;
 		JLabel[] usernames = this.usernames;
@@ -274,67 +275,79 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	}
 
-	public void setupBlocks() {
-		Rectangle[] rects = new Rectangle[250];
-		this.wallRect = rects;
-		int screenWidth = MapMain.getResWidth(), screenHeight = MapMain.getResHeight();
-		int widthDueToFrameWidth = screenWidth / 64, heightDueToFrameHeight = screenHeight / 36, dividerForWidth = screenWidth / 10, dividerForHeight = screenHeight / 10;
+	public void setupMap() {
+		// Initialising variables to allow a grid of rectangles to be positioned on the map
+		Rectangle[] rectangles = new Rectangle[250];
+		this.wallRectangles = rectangles;
+		// The self-defined subroutines 'getResolutionWidth' and 'getResolutionHeight' from the MapMain class
+		// retrieve the screen width and height respectively so that the size of the rectangles is relative
+		// to the resolution that the user has chosen from the options menu
+		int screenWidth = MapMain.getResolutionWidth(), screenHeight = MapMain.getResolutionHeight();
+		int widthOfRectangle = screenWidth / 64, heightOfRectangle = screenHeight / 36, dividerForWidth = screenWidth / 10, dividerForHeight = screenHeight / 10;
 		Random random = new Random();
 		
-		// Draws up the map by randomly placing blocks across the screen
 		for (int i = 0; i < 80; i += 4) {
+			// This loop accounts for 80 of the 250 rectanlges that make up the randomly generated map
+			
+			// These ints account for each of the positions of the 4 rectangles to make an L-shaped wall
+			// that is randomly positioned across the map. There are 20 of these shapes in total
+			int x1 = widthOfRectangle * random.nextInt(screenWidth / widthOfRectangle), y1 = heightOfRectangle * random.nextInt(screenHeight / heightOfRectangle);
+			int x2 = x1, y2 = y1 + heightOfRectangle;
+			int x3 = x1, y3 = y2 + heightOfRectangle;
+			int x4 = x1 + widthOfRectangle, y4 = y3;
 
-			int x1 = widthDueToFrameWidth * random.nextInt(screenWidth / widthDueToFrameWidth), y1 = heightDueToFrameHeight * random.nextInt(screenHeight / heightDueToFrameHeight);
-			int x2 = x1, y2 = y1 + heightDueToFrameHeight;
-			int x3 = x1, y3 = y2 + heightDueToFrameHeight;
-			int x4 = x1 + widthDueToFrameWidth, y4 = y3;
+			// The following initialises the rectangles using the coordinates calculated above
+			rectangles[i] = new Rectangle(x1, y1, widthOfRectangle, heightOfRectangle);
+			rectangles[i + 1] = new Rectangle(x2, y2, widthOfRectangle, heightOfRectangle);
+			rectangles[i + 2] = new Rectangle(x3, y3, widthOfRectangle, heightOfRectangle);
+			rectangles[i + 3] = new Rectangle(x4, y4, widthOfRectangle, heightOfRectangle);
 
-			// This creates in total an L shape object to add some variety of
-			// walls
-			rects[i] = new Rectangle(x1, y1, widthDueToFrameWidth, heightDueToFrameHeight);
-			rects[i + 1] = new Rectangle(x2, y2, widthDueToFrameWidth, heightDueToFrameHeight);
-			rects[i + 2] = new Rectangle(x3, y3, widthDueToFrameWidth, heightDueToFrameHeight);
-			rects[i + 3] = new Rectangle(x4, y4, widthDueToFrameWidth, heightDueToFrameHeight);
-
-			// This keeps the blocks within certain bounds and repositions them
-			// if necessary
-			while (rects[i].x < screenWidth / 48 || rects[i].x > screenWidth - (screenWidth / 16)
-					|| rects[i].y < screenHeight / 18 || rects[i].y > screenHeight - (screenHeight / 12)) {
-				x1 = widthDueToFrameWidth * random.nextInt(dividerForWidth);
-				y1 = heightDueToFrameHeight * random.nextInt(dividerForHeight);
+			// This while loop prevents the rectangles from being positioned outside certain bounds.
+			// If a rectangle has coordinates outside the bounds, the coordinates are randomly
+			// generated again until they are in the bounds
+			while (rectangles[i].x < screenWidth / 48 || rectangles[i].x > screenWidth - (screenWidth / 16)
+					|| rectangles[i].y < screenHeight / 18 || rectangles[i].y > screenHeight - (screenHeight / 12)) {
+				x1 = widthOfRectangle * random.nextInt(dividerForWidth);
+				y1 = heightOfRectangle * random.nextInt(dividerForHeight);
 				x2 = x1;
-				y2 = y1 + heightDueToFrameHeight;
+				y2 = y1 + heightOfRectangle;
 				x3 = x1;
-				y3 = y2 + heightDueToFrameHeight;
-				x4 = x1 + widthDueToFrameWidth;
+				y3 = y2 + heightOfRectangle;
+				x4 = x1 + widthOfRectangle;
 				y4 = y3;
 
-				rects[i] = new Rectangle(x1, y1, widthDueToFrameWidth, heightDueToFrameHeight);
-				rects[i + 1] = new Rectangle(x2, y2, widthDueToFrameWidth, heightDueToFrameHeight);
-				rects[i + 2] = new Rectangle(x3, y3, widthDueToFrameWidth, heightDueToFrameHeight);
-				rects[i + 3] = new Rectangle(x4, y4, widthDueToFrameWidth, heightDueToFrameHeight);
+				rectangles[i] = new Rectangle(x1, y1, widthOfRectangle, heightOfRectangle);
+				rectangles[i + 1] = new Rectangle(x2, y2, widthOfRectangle, heightOfRectangle);
+				rectangles[i + 2] = new Rectangle(x3, y3, widthOfRectangle, heightOfRectangle);
+				rectangles[i + 3] = new Rectangle(x4, y4, widthOfRectangle, heightOfRectangle);
 
 			}
 		}
 
-		// Positions blocks that don't intentionaly form a shape across the map
-		// again within certain bounds and repositions them if necessary
+		// The remaining rectangles that don't form an L-shape intentionally are randomly
+		// positioned across the screen. This loop accounts for 170 of the 250 rectangles that
+		// are positioned on the map
 		for (int i = 80; i < 250; i++) {
+			
+			// These variables allow for the rectangle to either be square-shaped
+			// or rectangular-shaped, just for variation
+			int width = widthOfRectangle * random.nextInt(2) + widthOfRectangle;
+			int height = heightOfRectangle * random.nextInt(2) + heightOfRectangle;
+			
+			// Initialising each of the rectangles on the map
+			rectangles[i] = new Rectangle(widthOfRectangle * random.nextInt(dividerForWidth), heightOfRectangle * random.nextInt(dividerForHeight), width, height);
 
-			int width = widthDueToFrameWidth * random.nextInt(2) + widthDueToFrameWidth;
-			int height = heightDueToFrameHeight * random.nextInt(2) + heightDueToFrameHeight;
-
-			rects[i] = new Rectangle(widthDueToFrameWidth * random.nextInt(dividerForWidth), heightDueToFrameHeight * random.nextInt(dividerForHeight), width, height);
-
-			while (rects[i].x < screenWidth / 48 || rects[i].x > (screenWidth - (screenWidth / 16)) - widthDueToFrameWidth
-					|| rects[i].y < heightDueToFrameHeight || rects[i].y > (screenHeight - (screenHeight / 12)) - (2 * heightDueToFrameHeight)) {
-				rects[i] = new Rectangle(widthDueToFrameWidth * random.nextInt(dividerForWidth), heightDueToFrameHeight * random.nextInt(dividerForHeight), width, height);
+			// This while loop prevents the rectangles from being positioned outside certain bounds.
+			// If a rectangle has coordinates outside the bounds, the coordinates are randomly
+			// generated again until they are in the bounds
+			while (rectangles[i].x < screenWidth / 48 || rectangles[i].x > (screenWidth - (screenWidth / 16)) - widthOfRectangle
+					|| rectangles[i].y < heightOfRectangle || rectangles[i].y > (screenHeight - (screenHeight / 12)) - (2 * heightOfRectangle)) {
+				rectangles[i] = new Rectangle(widthOfRectangle * random.nextInt(dividerForWidth), heightOfRectangle * random.nextInt(dividerForHeight), width, height);
 			}
 		}
 
 		// Positions the gunfire rectangles off the screen so they are not
-		// visible
-		// to the users
+		// visible to the users
 		for (int i = 0; i < 2; i++) {
 			gunfire[i] = new Rectangle(2000, 2000, 50, 50);
 		}
@@ -389,7 +402,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		}
 
 	}
-
+	
 	public void displayOnHud(Player[] players, int i, int j, int mess, final JLabel mL) {
 		String message;
 		
@@ -426,7 +439,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		}, 5000);
 
 	}
-	
+		
 	public String killed(int code) {
 		String[] kills = { " shot ", " killed ", " shot down ", " put down ", " stopped ", " sniped ", " blew up " };
 		String killed = "";
@@ -461,7 +474,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		
 		return killed;
 	}
-	
+		
 	public void displayPause(JLabel mL) {
 		String message;
 		if (paused) {
@@ -474,7 +487,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		
 
 	}
-
+	
 	public void checkWinner(int[] scores, Player[] players) {
 		// This compares the scores of the players to see who has won if the
 		// timer runs out before a player reaches the target score to get
@@ -498,7 +511,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			displayDraw();
 		}
 	}
-
+	
 	public void displayWinner(int i, int j, Player[] players) {
 		// This updates necessary information and then displays that a
 		// player has won the game
@@ -522,6 +535,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		topFrame.dispose();
 	}
 
+	
 	public void displayDraw() {
 		// Display message to user that says that it's a draw
 		JOptionPane.showMessageDialog(null, "It's a draw!" + "\nFinal score: " + scores[0] + " : " + scores[1], "Draw",
@@ -530,6 +544,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		topFrame.dispose();
 	}
 
+	
 	public void paintComponent(Graphics g) {
 		// Draws everything onto the panel, such as the walls, the player
 		// rectangles,
@@ -542,14 +557,14 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		RenderingHints rh2 = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
 		Random random = new Random();
-		int screenWidth = MapMain.getResWidth(), screenHeight = MapMain.getResHeight();
+		int screenWidth = MapMain.getResolutionWidth(), screenHeight = MapMain.getResolutionHeight();
 		
 		Color backgroundColour = OptionsPanel.backgroundColour;
 		Color wallColour = OptionsPanel.wallColour;
 		Color blue = this.blue;
 		Color grey = this.grey;
 		
-		Rectangle[] wallRect = this.wallRect;
+		Rectangle[] wallRect = this.wallRectangles;
 		Rectangle[] playerRect = this.playerRect;
 		Rectangle[] gunfire = this.gunfire;
 		Rectangle[] weaponRect = this.weaponRect;
@@ -635,6 +650,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 	}
 
+	
 	public void spawnWep(final Rectangle wepCrate) {
 		// This makes the weapon crate appear on the screen
 		// at a random time between 20 and 39 seconds
@@ -642,7 +658,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		final Random random = new Random();
 		java.util.Timer wc = new java.util.Timer();
 		int i = (random.nextInt(20) + 20) * 1000;
-		final int screenWidth = MapMain.getResWidth(), screenHeight = MapMain.getResHeight();
+		final int screenWidth = MapMain.getResolutionWidth(), screenHeight = MapMain.getResolutionHeight();
 		
 		wc.schedule(new TimerTask() {
 
@@ -656,7 +672,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				for (int i = 0; i < 250; i++) {
 					// This prevents the weapon crate from appearing in one
 					// of the walls where it can't be reached
-					while (wepCrate.intersects(wallRect[i])) {
+					while (wepCrate.intersects(wallRectangles[i])) {
 						wepCrate.x = random.nextInt(screenWidth) - wepCrate.width;
 						wepCrate.y = random.nextInt(screenHeight) - wepCrate.height;
 					}
@@ -665,6 +681,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			}
 		}, i);
 	}
+	
 
 	public void spawnAmmo(final Rectangle ammoCrate) {
 		// This makes the ammo crate appear on the screen at
@@ -672,7 +689,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		final Random random = new Random();
 		java.util.Timer ammoCrateTimer = new java.util.Timer();
 		int i = (random.nextInt(30) + 30) * 1000;
-		final int screenWidth = MapMain.getResWidth(), screenHeight = MapMain.getResHeight();
+		final int screenWidth = MapMain.getResolutionWidth(), screenHeight = MapMain.getResolutionHeight();
 
 		ammoCrateTimer.schedule(new TimerTask() {
 
@@ -686,7 +703,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 				for (int i = 0; i < 250; i++) {
 					// This prevents the ammo crate from appearing in one
 					// of the walls where it can't be reached
-					while (ammoCrate.intersects(wallRect[i])) {
+					while (ammoCrate.intersects(wallRectangles[i])) {
 						ammoCrate.x = random.nextInt(screenWidth) - ammoCrate.width;
 						ammoCrate.y = random.nextInt(screenHeight) - ammoCrate.height;
 					}
@@ -725,7 +742,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		// Rerun the code to make the weapon crate appear
 		spawnWep(wepCrate);
 	}
-
+	
 	public void collectAmmo(int i, Player player, Rectangle ammoCrate, JLabel ammoLabel) {
 		// This removes the ammo crate and gives the player
 		// maximum ammo for their current weapon according to
@@ -760,6 +777,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		return ammo;
 
 	}
+	
 
 	public Weapon getRandomWeapon(int i, Player player) {
 		Random random = new Random();
@@ -857,7 +875,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		// they can play again
 
 		unableToMove[i] = true;
-		int screenWidth = MapMain.getResWidth(), screenHeight = MapMain.getResHeight();
+		int screenWidth = MapMain.getResolutionWidth(), screenHeight = MapMain.getResolutionHeight();
 		final int[] coordx = { screenWidth / 96, screenWidth - (screenWidth / (int) 38.4) };
 		final int[] coordy = { screenHeight / (int) 13.5, screenHeight - (screenHeight / 20) };
 
@@ -924,17 +942,17 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		// This if statement prevents the player 1 kill difference ratio
 		// from being infinity as Java can't represent infinity as a number
 		if (players[i].deaths != 0) {
-			players[i].killdiff = players[i].kills / players[i].deaths;
+			players[i].killDifference = players[i].kills / players[i].deaths;
 		} else {
-			players[i].killdiff = players[i].kills;
+			players[i].killDifference = players[i].kills;
 		}
 
 		// This if statement does the exact same as above but it
 		// is for player 2
 		if (players[j].deaths != 0) {
-			players[j].killdiff = players[j].kills / players[j].deaths;
+			players[j].killDifference = players[j].kills / players[j].deaths;
 		} else {
-			players[j].killdiff = players[j].kills;
+			players[j].killDifference = players[j].kills;
 		}
 	}
 
@@ -1006,7 +1024,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		
 		switch (players[i].weapon.code) {
 		case 1:
-			semiauto(i, count, ableToFire, gunfire, weaponRect, wallRect, players, ammoLabel);
+			semiauto(i, count, ableToFire, gunfire, weaponRect, wallRectangles, players, ammoLabel);
 			wait(i, players[i].weapon.rate, ableToFire);
 			break;
 		case 2:
@@ -1016,15 +1034,15 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			auto(i, autoRate, count, gunfire, players);
 			break;
 		case 4:
-			semiauto(i, count, ableToFire, gunfire, weaponRect, wallRect, players, ammoLabel);
+			semiauto(i, count, ableToFire, gunfire, weaponRect, wallRectangles, players, ammoLabel);
 			wait(i, players[i].weapon.rate, ableToFire);
 			break;
 		case 5:
-			semiauto(i, count, ableToFire, gunfire, weaponRect, wallRect, players, ammoLabel);
+			semiauto(i, count, ableToFire, gunfire, weaponRect, wallRectangles, players, ammoLabel);
 			wait(i, players[i].weapon.rate, ableToFire);
 			break;
 		case 6:
-			semiauto(i, count, ableToFire, gunfire, weaponRect, wallRect, players, ammoLabel);
+			semiauto(i, count, ableToFire, gunfire, weaponRect, wallRectangles, players, ammoLabel);
 			wait(i, players[i].weapon.rate, ableToFire);
 			break;
 		}
@@ -1069,8 +1087,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
-					if (gunfire[i].intersects(wallRect[j])) {
-						gunfire[i].y = wallRect[j].y + wallRect[j].height;
+					if (gunfire[i].intersects(wallRectangles[j])) {
+						gunfire[i].y = wallRectangles[j].y + wallRectangles[j].height;
 						gunfire[i].height = weaponRect[i].y - gunfire[i].y;
 					}
 				}
@@ -1083,8 +1101,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
-					if (gunfire[i].intersects(wallRect[j])) {
-						gunfire[i].width = wallRect[j].x - weaponRect[i].x;
+					if (gunfire[i].intersects(wallRectangles[j])) {
+						gunfire[i].width = wallRectangles[j].x - weaponRect[i].x;
 					}
 				}
 				break;
@@ -1096,9 +1114,9 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
-					if (gunfire[i].intersects(wallRect[j])) {
+					if (gunfire[i].intersects(wallRectangles[j])) {
 						gunfire[i].y = weaponRect[i].y;
-						gunfire[i].height = wallRect[j].y - weaponRect[i].y;
+						gunfire[i].height = wallRectangles[j].y - weaponRect[i].y;
 					}
 				}
 				break;
@@ -1110,8 +1128,8 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 				// Prevents the gunfire from going through walls
 				for (int j = 0; j < 250; j++) {
-					if (gunfire[i].intersects(wallRect[j])) {
-						gunfire[i].x = wallRect[j].x + wallRect[j].width;
+					if (gunfire[i].intersects(wallRectangles[j])) {
+						gunfire[i].x = wallRectangles[j].x + wallRectangles[j].width;
 						gunfire[i].width = weaponRect[i].x - gunfire[i].x;
 					}
 				}
@@ -1246,7 +1264,7 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 			@Override
 			public void run() {
 				try {
-					AudioInputStream inputStream = AudioSystem.getAudioInputStream(player.weapon.sound);
+					AudioInputStream inputStream = AudioSystem.getAudioInputStream(new File("audio/weapons/" + player.weapon.sound));
 					Clip clip = AudioSystem.getClip();
 					clip.open(inputStream);
 					clip.start();
@@ -1420,14 +1438,15 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		}
 
 	}
-
-	@Override
+	
+	
+@Override
 	public void actionPerformed(ActionEvent e) {
 		// This is used mainly to control the movement and positioning
 		// of rectangles on the screen as well as things like
 		// constantly checking for if a player has been killed or not
 
-		int screenWidth = MapMain.getResWidth(), screenHeight = MapMain.getResHeight();
+		int screenWidth = MapMain.getResolutionWidth(), screenHeight = MapMain.getResolutionHeight();
 		Rectangle[] playerRect = this.playerRect;
 		Rectangle[] gunfire = this.gunfire;
 		Rectangle[] weaponRect = this.weaponRect;
@@ -1461,6 +1480,13 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 			hidePlayer.x = screenWidth - (screenWidth / 48);
 			hidePlayer.y = screenHeight - (screenHeight / (int) 21.6);
+			
+			//Plays a death scream
+			try {
+			playDeathAudio();
+			} catch (Exception e4) {
+				e4.printStackTrace();
+			}
 
 			// Increment the score of player 2
 			increment(0, 1, playerKilled, scores, scoreLabel, players);
@@ -1491,6 +1517,13 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 
 			hidePlayer.x = screenWidth - (screenWidth / 48);
 			hidePlayer.y = screenHeight - (screenHeight / (int) 21.6);
+			
+			//Plays a death scream
+			try {
+			playDeathAudio();
+			} catch (Exception e4) {
+				e4.printStackTrace();
+			}
 
 			// Increment the score of player 1
 			increment(1, 0, playerKilled, scores, scoreLabel, players);
@@ -1546,9 +1579,31 @@ public class MapPanel extends JPanel implements ActionListener, KeyListener {
 		repaint();
 	}
 
+	public void playDeathAudio() {
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					Random r = new Random();
+					int i = r.nextInt(14) + 1;
+					AudioInputStream inputStream = AudioSystem.getAudioInputStream(new File("audio/screams/Male Spartan Death Scream " + i + ".wav"));
+					Clip clip = AudioSystem.getClip();
+					clip.open(inputStream);
+					clip.start();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+			}
+
+		}).start();
+		
+	}
+
 	@Override
 	public void keyPressed(KeyEvent e) {
-		int screenWidth = MapMain.getResWidth(), screenHeight = MapMain.getResHeight();
+		int screenWidth = MapMain.getResolutionWidth(), screenHeight = MapMain.getResolutionHeight();
 		Timer timer = this.timer;
 		
 		if (e.getKeyCode() == KeyEvent.VK_1) {
