@@ -5,7 +5,6 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.EOFException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -13,7 +12,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -60,12 +58,10 @@ public class Client extends JFrame implements Serializable {
 				y = i.readInt();
 				width = i.readInt();
 				height = i.readInt();
-				r.setBounds((Rectangle) i.readObject());
-
-			} catch (EOFException e) {
-				e.printStackTrace();
-				JOptionPane.showMessageDialog(null, "Server ended connection", "Connection closed",
-						JOptionPane.INFORMATION_MESSAGE);
+				//r.setBounds((Rectangle) i.readObject());
+				r.setBounds(x, y, width, height);
+				
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 
@@ -83,17 +79,22 @@ public class Client extends JFrame implements Serializable {
 			g.fillRect(r.x, r.y, r.width, r.height);
 		}
 		
-		public int getRectX() throws Exception {
-			int vel = i.readInt();
-			
-			return vel;
-		}
+
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
-				int vel = getRectX();
-				r.x += vel;
+				
+				s = new Socket(InetAddress.getByName("82.20.202.89"), 12345);
+				o = new ObjectOutputStream(s.getOutputStream());
+				o.flush();
+				i = new ObjectInputStream(s.getInputStream()); 
+				x = i.readInt();
+				y = i.readInt();
+				width = i.readInt();
+				height = i.readInt();
+				//r.setBounds((Rectangle) i.readObject());
+				r.setBounds(x, y, width, height);
 				repaint();
 			} catch (Exception e1) {
 				e1.printStackTrace();
