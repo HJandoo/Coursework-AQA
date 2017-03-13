@@ -49,7 +49,7 @@ public class Client extends JFrame implements Serializable {
 			setLayout(null);
 			try {
 
-				s = new Socket(InetAddress.getByName("82.20.202.89"), 12345);
+				s = new Socket(InetAddress.getByName("10.1.129.57"), 55000);
 				o = new ObjectOutputStream(s.getOutputStream());
 				o.flush();
 				i = new ObjectInputStream(s.getInputStream());
@@ -58,7 +58,6 @@ public class Client extends JFrame implements Serializable {
 				y = i.readInt();
 				width = i.readInt();
 				height = i.readInt();
-				//r.setBounds((Rectangle) i.readObject());
 				r.setBounds(x, y, width, height);
 				
 				
@@ -106,9 +105,8 @@ public class Client extends JFrame implements Serializable {
 
 	}
 
-	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
-		Client c = new Client();
+		new Client();
 	}
 
 }

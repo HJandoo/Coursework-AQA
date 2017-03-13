@@ -93,7 +93,7 @@ public class Server implements Runnable {
 		r.setBounds(-70, 125, 50, 50);
 
 		try {
-			ServerSocket s = new ServerSocket(12345, 100);
+			ServerSocket s = new ServerSocket(55000, 100);
 
 			while (true) {
 				try {
