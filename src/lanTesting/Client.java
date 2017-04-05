@@ -19,94 +19,81 @@ public class Client extends JFrame implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	ObjectInputStream i;
-	ObjectOutputStream o;
-	Socket s;
-	
-	Rectangle r = new Rectangle();
-	
+	ObjectInputStream inputStream;
+	ObjectOutputStream outputStream;
+	Socket socket;
+	Rectangle rectangle = new Rectangle();
 	int x, y, width, height;
 
-	public Client() {
-		
-		pan p = new pan();
+	public Client() {	
+		Panel panel = new Panel();
 
 		setTitle("Client");
 		setSize(500, 500);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
-		add(p);
+		add(panel);
 
 	}
 
-	class pan extends JPanel implements ActionListener{
+	class Panel extends JPanel implements ActionListener{
 
 		private static final long serialVersionUID = 1L;
 		
-		Timer t = new Timer(10, this);
+		Timer timer = new Timer(10, this);
 
-		pan() {
+		Panel() {
 			setLayout(null);
 			try {
+				socket = new Socket(InetAddress.getByName("192.168.0.18"), 12345);
+				outputStream = new ObjectOutputStream(socket.getOutputStream());
+				outputStream.flush();
+				inputStream = new ObjectInputStream(socket.getInputStream());
 
-				s = new Socket(InetAddress.getByName("10.1.129.57"), 55000);
-				o = new ObjectOutputStream(s.getOutputStream());
-				o.flush();
-				i = new ObjectInputStream(s.getInputStream());
-
-				x = i.readInt();
-				y = i.readInt();
-				width = i.readInt();
-				height = i.readInt();
-				r.setBounds(x, y, width, height);
-				
+				x = inputStream.readInt();
+				y = inputStream.readInt();
+				width = inputStream.readInt();
+				height = inputStream.readInt();
+				rectangle.setBounds(x, y, width, height);		
 				
 			} catch (Exception e) {
 				e.printStackTrace();
 
 			}
-			t.start();
+			timer.start();
 			
 		}
 
 		public void paintComponent(Graphics g) {
-
 			g.setColor(Color.WHITE);
-			g.fillRect(0, 0, 500, 500);
-			
+			g.fillRect(0, 0, 1920, 1080);			
 			g.setColor(Color.BLACK);
-			g.fillRect(r.x, r.y, r.width, r.height);
+			g.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
 		}
 		
-
-
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
 				
-				s = new Socket(InetAddress.getByName("82.20.202.89"), 12345);
-				o = new ObjectOutputStream(s.getOutputStream());
-				o.flush();
-				i = new ObjectInputStream(s.getInputStream()); 
-				x = i.readInt();
-				y = i.readInt();
-				width = i.readInt();
-				height = i.readInt();
-				//r.setBounds((Rectangle) i.readObject());
-				r.setBounds(x, y, width, height);
+				socket = new Socket(InetAddress.getByName("192.168.0.18"), 12345);
+				outputStream = new ObjectOutputStream(socket.getOutputStream());
+				outputStream.flush();
+				inputStream = new ObjectInputStream(socket.getInputStream()); 
+				x = inputStream.readInt();
+				y = inputStream.readInt();
+				width = inputStream.readInt();
+				height = inputStream.readInt();
+				rectangle.setBounds(x, y, width, height);
 				repaint();
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
-	
 			repaint();
-			
 		}
-
 	}
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
-		new Client();
+		Client c = new Client();
 	}
-
 }

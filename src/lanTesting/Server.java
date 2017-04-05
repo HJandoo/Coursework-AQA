@@ -11,40 +11,27 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
 public class Server implements Runnable {
 
-	static JFrame f = new JFrame();
+	static JFrame frame = new JFrame();
 
-	JLabel l = new JLabel();
-
-	ServerSocket s;
-	static Socket soc;
-	static ObjectOutputStream o;
-	static ObjectInputStream i;
-
-	static Rectangle r = new Rectangle();
+	static Socket socket;
+	static ObjectOutputStream outputStream;
+	static ObjectInputStream inputStream;
+	static Rectangle rectangle = new Rectangle();
 
 	@SuppressWarnings("static-access")
-	public Server(Socket sok) {
+	public Server(Socket socket) {
 
-		this.soc = sok;
-
-		try {
-
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		this.socket = socket;
 	}
 
 	public static void sendX(int x) throws Exception {
-		o.writeInt(x);
-		o.flush();
+		outputStream.writeInt(x);
+		outputStream.flush();
 
 	}
 
@@ -52,26 +39,36 @@ public class Server implements Runnable {
 
 		private static final long serialVersionUID = 1L;
 
-		Timer t = new Timer(10, this);
-		int vel = 1;
+		Timer timer = new Timer(5, this);
+		int velocity = 1;
 
 		public pan() {
 			setLayout(null);
-			t.start();
+			timer.start();
 		}
 
 		public void paintComponent(Graphics g) {
 			g.setColor(Color.WHITE);
-			g.fillRect(0, 0, 500, 500);
+			g.fillRect(0, 0, 1920, 1080);
 
 			g.setColor(Color.BLACK);
-			g.fillRect(r.x, r.y, r.width, r.height);
+			g.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			r.x += 1;
 
+			rectangle.x += velocity;
+
+			if (rectangle.x <= 0) {
+				velocity = 2;
+				rectangle.x += velocity;
+			}		
+			if (rectangle.x >= 500 - rectangle.width) {
+				velocity = -2;
+				rectangle.x += velocity;
+			}
+			
 			repaint();
 
 		}
@@ -80,26 +77,26 @@ public class Server implements Runnable {
 	@SuppressWarnings({ "resource", "unused" })
 	public static void main(String[] args) {
 
-		Server ser = new Server(soc);
+		Server ser = new Server(socket);
 
 		pan p = new pan();
-		f.setSize(500, 500);
-		f.setLocationRelativeTo(null);
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.setVisible(true);
-		f.setTitle("Server");
-		f.add(p);
+		frame.setSize(500, 500);
+		frame.setLocationRelativeTo(null);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
+		frame.setTitle("Server");
+		frame.add(p);
 
-		r.setBounds(-70, 125, 50, 50);
+		rectangle.setBounds(-70, 125, 50, 50);
 
 		try {
-			ServerSocket s = new ServerSocket(55000, 100);
+			ServerSocket s = new ServerSocket(12345, 100);
 
 			while (true) {
 				try {
-					soc = s.accept();
-					System.out.println("Connected to " + soc.getInetAddress());
-					new Thread(new Server(soc)).start();
+					socket = s.accept();
+					System.out.println("Connected to " + socket.getInetAddress());
+					new Thread(new Server(socket)).start();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -114,20 +111,18 @@ public class Server implements Runnable {
 	@Override
 	public void run() {
 		try {
-			o = new ObjectOutputStream(soc.getOutputStream());
-			o.flush();
-			i = new ObjectInputStream(soc.getInputStream());
+			outputStream = new ObjectOutputStream(socket.getOutputStream());
+			outputStream.flush();
+			inputStream = new ObjectInputStream(socket.getInputStream());
 
-			o.writeInt(r.x);
-			o.writeInt(r.y);
-			o.writeInt(r.width);
-			o.writeInt(r.height);
-			o.flush();
+			outputStream.writeInt(rectangle.x);
+			outputStream.writeInt(rectangle.y);
+			outputStream.writeInt(rectangle.width);
+			outputStream.writeInt(rectangle.height);
+			outputStream.flush();
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
-
 }
