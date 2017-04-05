@@ -1,11 +1,1 @@
 TO DO LIST
-
- - Weapon mechanics:- Splash damage for bazooka
-					- Rockets for bazooka
-					- Different weaponRect for bazooka?
- - Game Mechanics:- Intersections need fixing - Added a TODO to the code
- - Player stats:- Most used weapon - Add stat to JTable
- 								   - Add WMDMain code to main code (probably SQLFunctions)
- - Networking stuff:- Remote connection to server (port forwarding?)
- 					- Play game across LAN network?
- - Housekeeping:- Change as many global varaibles into local varaibles as possible

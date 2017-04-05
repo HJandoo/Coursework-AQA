@@ -13,7 +13,7 @@ public class MapMain extends JFrame{
 	
 	ImageIcon img = new ImageIcon("Gun Mania Logo_RESIZED.png");
 	
-	static int w, h;
+	static int widthOfFrame, heightOfFrame;
 	
 	public MapMain(Player[] players, Weapon[] weapons) {
 		setUndecorated(true);
@@ -26,8 +26,8 @@ public class MapMain extends JFrame{
 		setResizable(false);
 		setVisible(true);
 		setSize(getResolutionWidth(), getResolutionHeight());
-		w = getWidth();
-		h = getHeight();
+		widthOfFrame = getWidth();
+		heightOfFrame = getHeight();
 		setLocationRelativeTo(null);
 		setTitle("Gun Mania");
 		setIconImage(img.getImage());
@@ -58,10 +58,6 @@ public class MapMain extends JFrame{
 				return height;
 			}
 		}
-		
 		return height;
-		
 	}
-			
-
 }

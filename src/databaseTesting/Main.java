@@ -24,10 +24,10 @@ public class Main {
 		System.out.println("Enter Username");
 
 		String u = s.next();
-		String unique = "select * from player_statistics where username = '" + u + "';";
+		String unique = "select * from player_statistics where username = \"" + u + "\";";
 
 		try {
-			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root", "Ht3jkdtw7Hvx");
+			Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/cscoursework", "root", "Ht3jkdtw7Hvx");
 
 			Statement st = c.createStatement();
 

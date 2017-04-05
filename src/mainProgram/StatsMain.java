@@ -1,12 +1,9 @@
 package mainProgram;
 
 import java.awt.Color;
-
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
-
 import engine.SQLFunctions;
 
 public class StatsMain extends JFrame {
@@ -15,12 +12,10 @@ public class StatsMain extends JFrame {
 
 	Object[][] data = new Object[SQLFunctions.getNumberOfPlayers()][6];
 	String[] columns = { "Username", "Kills", "Deaths", "K/D", "Win rate/%", "WMD" };
-
 	JTable table = new JTable(data, columns);
 
 	public StatsMain() {
 		// Give properties to this frame and table
-		
 		table.setAutoCreateRowSorter(true);
 		table.setForeground(Color.BLACK);
 		table.setBackground(Color.WHITE);
@@ -30,6 +25,7 @@ public class StatsMain extends JFrame {
 		// Retrieve statistics of all players from the database
 		// and add them to table
 		SQLFunctions.getStats(data);
+		SQLFunctions.findWMD();
 		
 		add(new JScrollPane(table));
 		setTitle("Statistics");
@@ -40,5 +36,4 @@ public class StatsMain extends JFrame {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 	}
-	
 }

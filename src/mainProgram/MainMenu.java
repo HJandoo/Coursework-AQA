@@ -1,9 +1,9 @@
 package mainProgram;
 
 /** 
- * Computer Science AQA Coursework 2016/17 - GUN MANIA
+ * Computer Science AQA Non-Exam Assessment Coursework 2016/17 - GUN MANIA
  * Made by Harnaam Jandoo
- * Candidate number: 5039
+ * 
  */
 
 import java.awt.Color;
@@ -25,26 +25,26 @@ public class MainMenu extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	ImageIcon img = new ImageIcon("Gun Mania Logo_RESIZED.png");
+	ImageIcon gameLogo = new ImageIcon("Gun Mania Logo_RESIZED.png");
 
-	Font f1 = new Font("Arial", Font.BOLD, 30);
-	Font f2 = new Font("Arial", Font.BOLD, 14);
+	Font font1 = new Font("Arial", Font.BOLD, 30);
+	Font font2 = new Font("Arial", Font.BOLD, 14);
 
-	Color bl = Color.BLACK;
-	Color wh = Color.WHITE;
+	Color black = Color.BLACK;
+	Color white = Color.WHITE;
 	
 	Player[] players = new Player[2];
 
-	static 	int[] choice = new int[3];
+	static 	int[] optionsChoices = new int[3];
 	int time;
 	
 	@SuppressWarnings("unused")
 	public MainMenu() {
 		
 		// Sets default options for the options menu
-		choice[0]  = 1;
-		choice[1] = 2;
-		choice[2] = 0;
+		optionsChoices[0]  = 1;
+		optionsChoices[1] = 2;
+		optionsChoices[2] = 0;
 		
 		// Sets properties of the frame
 		setVisible(true);
@@ -53,66 +53,66 @@ public class MainMenu extends JFrame {
 		setResizable(false);
 		setLocationRelativeTo(null);
 		setTitle("Gun Mania");
-		setIconImage(img.getImage());
+		setIconImage(gameLogo.getImage());
 		
 		// Initialising components
-		JPanel p = new JPanel();
+		JPanel panel = new JPanel();
 
-		JLabel l1 = new JLabel("GUN MANIA");
-		JLabel l2 = new JLabel(img);
+		JLabel titleLabel = new JLabel("GUN MANIA");
+		JLabel imageLabel = new JLabel(gameLogo);
 
 		JButton playGame = new JButton("Play Game");
-		JButton stats = new JButton("Stats");
+		JButton stats = new JButton("Statistics");
 		JButton options = new JButton("Options");
 		JButton quit = new JButton("Quit");
 		
-		final int x;
-		final int y;
-		final int height;
+		final int xCoordinate;
+		final int yCoordinate;
+		final int heightOfFrame;
 		
 		final boolean multiP = true;
 		
 		// Sets properties of the components
-		x = getX();
-		y = getY();
-		height = getHeight();
+		xCoordinate = getX();
+		yCoordinate = getY();
+		heightOfFrame = getHeight();
 
-		p.setLayout(null);
-		p.setBackground(wh);
-		add(p);
+		panel.setLayout(null);
+		panel.setBackground(white);
+		add(panel);
 
-		l1.setBounds(10, 10, 280, 40);
-		l1.setHorizontalAlignment(JLabel.CENTER);
-		l1.setFont(f1);
-		l1.setForeground(bl);
-		p.add(l1);
+		titleLabel.setBounds(10, 10, 280, 40);
+		titleLabel.setHorizontalAlignment(JLabel.CENTER);
+		titleLabel.setFont(font1);
+		titleLabel.setForeground(black);
+		panel.add(titleLabel);
 
-		l2.setBounds(10, 60, 280, 201);
-		p.add(l2);
+		imageLabel.setBounds(10, 60, 280, 201);
+		panel.add(imageLabel);
 
 		playGame.setBounds(10, 275, 275, 40);
-		playGame.setFont(f2);
-		playGame.setForeground(bl);
+		playGame.setFont(font2);
+		playGame.setForeground(black);
 		playGame.setBackground(new Color(225, 225, 225));
-		p.add(playGame);
+		panel.add(playGame);
 
 		stats.setBounds(10, 325, 275, 40);
-		stats.setFont(f2);
-		stats.setForeground(bl);
+		stats.setFont(font2);
+		stats.setForeground(black);
 		stats.setBackground(new Color(225, 225, 225));
-		p.add(stats);
+		panel.add(stats);
 
 		options.setBounds(10, 375, 275, 40);
-		options.setFont(f2);
-		options.setForeground(bl);
+		options.setFont(font2);
+		options.setForeground(black);
 		options.setBackground(new Color(225, 225, 225));
-		p.add(options);
+		panel.add(options);
 
 		quit.setBounds(10, 425, 275, 40);
-		quit.setFont(f2);
-		quit.setForeground(bl);
+		quit.setFont(font2);
+		quit.setForeground(black);
 		quit.setBackground(new Color(225, 225, 225));
-		p.add(quit);
+		panel.add(quit);
 		
 		
 		// Adding functionality to the JButtons created
@@ -124,11 +124,11 @@ public class MainMenu extends JFrame {
 				// that the time limit of the game doesn't equal null				
 				Weapon[] weapons = SQLFunctions.getWeapons();
 				
-				getTime(time);
+				getTimeFromOptions(time);
 				// This launches the login screen for player 1 first and
 				// then player 2. Both players can either log in to existing
 				// accounts or create new ones here
-				LoginMain m = new LoginMain(0, players, weapons, x, y, height, multiP);		
+				LoginMain m = new LoginMain(0, players, weapons, xCoordinate, yCoordinate, heightOfFrame, multiP);		
 			}
 		});
 
@@ -150,7 +150,7 @@ public class MainMenu extends JFrame {
 				// This launches the options menu for the game where the
 				// user can change certain mechanics of the game like
 				// what score to get to in order to win
-				OptionsMain m = new OptionsMain(x, y, choice);
+				OptionsMain m = new OptionsMain(xCoordinate, yCoordinate, optionsChoices);
 			}
 		});
 
@@ -165,7 +165,7 @@ public class MainMenu extends JFrame {
 	}
 	
 	@SuppressWarnings("unused")
-	public void getTime(int time) {
+	public void getTimeFromOptions(int time) {
 		boolean timeFound = false;
 		
 		if (OptionsPanel.timeLim == 0) {
@@ -177,7 +177,7 @@ public class MainMenu extends JFrame {
 			
 			// This array is used to store the differences between the current
 			// time left and the time limits
-			int[] diff = new int[OptionsPanel.timelims.length];
+			int[] differenceBetweenTimeLeftAndStartingTimes = new int[OptionsPanel.timelims.length];
 			
 			
 			for (int i = 0; i < OptionsPanel.timelims.length; i++) {
@@ -186,7 +186,7 @@ public class MainMenu extends JFrame {
 				// time limit in each position, store that difference in
 				// the diff array
 				if (OptionsPanel.timeLim != OptionsPanel.timelims[i]) {
-					diff[i] = OptionsPanel.timelims[i] - OptionsPanel.timeLim;
+					differenceBetweenTimeLeftAndStartingTimes[i] = OptionsPanel.timelims[i] - OptionsPanel.timeLim;
 					timeFound = false;
 				} else {
 					// The time limit has been found
@@ -195,19 +195,21 @@ public class MainMenu extends JFrame {
 			}
 			
 			if (!timeFound) {
-				// This bubble-sorts the differences in the diff array into
+				// This bubble-sorts the differences in the differenceBetweenTimeLeftAndStartingTimes array into
 				// ascending order and then sets the time to the value with
 				// the smallest difference value
-				int small = diff[0];
+				int small = differenceBetweenTimeLeftAndStartingTimes[0];
 				int index = 0;
 				
 				for (int i = 0; i < OptionsPanel.timelims.length; i++) {
-					if (diff[i] < small) {
-						small = diff[i];
+					if (differenceBetweenTimeLeftAndStartingTimes[i] < small) {
+						small = differenceBetweenTimeLeftAndStartingTimes[i];
 						index = i;
 					}
 				}
-				time = OptionsPanel.timeLim + diff[0];
+				// The starting time limit becomes the time left + the first value in the
+				// differenceBetweenTimeLeftAndStartingTimes array
+				time = OptionsPanel.timeLim + differenceBetweenTimeLeftAndStartingTimes[0];
 			}
 	
 		}
@@ -216,7 +218,7 @@ public class MainMenu extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		// Run the game
+		// Opens the main menu window
 		@SuppressWarnings("unused")
 		MainMenu m = new MainMenu();
 	}

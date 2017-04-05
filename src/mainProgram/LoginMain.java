@@ -21,6 +21,7 @@ import javax.swing.JTextField;
 
 import engine.Hash;
 import engine.Player;
+import engine.SQLFunctions;
 import engine.Weapon;
 
 public class LoginMain extends JFrame {
@@ -87,47 +88,55 @@ public class LoginMain extends JFrame {
 		panel.add(register);
 
 		loginButton.addActionListener(new ActionListener() {
-			// The following is performed when the Log in button is pressed by the user
+			// The following is performed when the Log in button is pressed by
+			// the user
 
 			@Override
 			public void actionPerformed(ActionEvent ae) {
-				// This ActionListener executes a query to the database to see if the acccount
-				// details entered here correspond to an account stored in the player_statistics table
+				// This ActionListener executes a query to the database to see
+				// if the acccount details entered here correspond to an
+				// account stored in the player_statistics table
 				username = usernameField.getText();
 				password = passwordField.getPassword();
 				int counter = 0;
 				String passwordToBeHashed = new String(password);
 
-				// All passwords must be at least 6 characters long for security purposes
+				// All passwords must be at least 6 characters long for security
+				// purposes
 				if (password.length < 6) {
 					JOptionPane.showMessageDialog(getParent(), "Invalid username or password", "Login doesn't exist",
 							JOptionPane.ERROR_MESSAGE);
 				} else {
 
-					// This String variable will hold the hash value of the password by
-					// running the SHA-256 hashing algorithm		
+					// This String variable will hold the hash value of the
+					// password by
+					// running the SHA-256 hashing algorithm
 					String hashedPassword;
 					try {
-						
-						// The subroutine runSHA performs the SHA-256 algoithm on the player's entered password
+
+						// The subroutine runSHA performs the SHA-256 algoithm
+						// on the player's entered password
 						hashedPassword = Hash.runSHA(passwordToBeHashed);
-						
-						// This is the query to be executed to find the details of the player from the player_statistics table
-						String unique = "select * from player_statistics where username = '" + username + "' and password = '"
-								+ hashedPassword + "';";
+
+						// This is the query to be executed to find the details
+						// of the player from the player_statistics table
+						String unique = "select * from player_statistics where username = '" + username
+								+ "' and password = '" + hashedPassword + "';";
 
 						Class.forName("com.mysql.jdbc.Driver");
 
 						counter = 0;
-						
-						// This is where the program will look for the database and it logs in
+
+						// This is where the program will look for the database
+						// and it logs in
 						// using a username and password
-						Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root",
-								"Ht3jkdtw7Hvx");
-						
-						// This generates a Statement object to query the database with
+						Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/cscoursework",
+								"root", "Ht3jkdtw7Hvx");
+
+						// This generates a Statement object to query the
+						// database with
 						Statement st = c.createStatement();
-						
+
 						// This runs the query and stores the output given
 						ResultSet rs = st.executeQuery(unique);
 
@@ -135,7 +144,8 @@ public class LoginMain extends JFrame {
 							// This counts how many users are returned when
 							// the query is run and it also assigns the
 							// columns of the database to these variables
-							// which then get assigned to the new player object created
+							// which then get assigned to the new player object
+							// created
 							counter++;
 							duser = rs.getString("username");
 							dpass = rs.getString("password");
@@ -143,25 +153,29 @@ public class LoginMain extends JFrame {
 							dd = rs.getInt("deaths");
 							dkd = rs.getInt("K/D");
 							dgp = rs.getInt("games_played");
-							dgw = rs.getInt("matches_won");
+							dgw = rs.getInt("games_won");
 
 						}
 
 						if (counter == 1) {
 
 							if (i == 1) {
-								// This makes sure that a player doesn't log in twice
+								// This makes sure that a player doesn't log in
+								// twice
 								if (players[0].username.equals(username)) {
 									JOptionPane.showMessageDialog(getParent(), "That profile is already logged in",
 											"Profile already logged in", JOptionPane.ERROR_MESSAGE);
 								} else {
-									// Creates new player that has atttributes collected
+									// Creates new player that has atttributes
+									// collected
 									// from the database for player 2
-									players[i] = new Player(duser, 1000, weapons[0], weapons[0].ammo, dk, dd, dkd, dgp, dgw, dwr);
+									players[i] = new Player(duser, 1000, weapons[0], weapons[0].ammo, dk, dd, dkd, dgp,
+											dgw, dwr);
 									players[i].gamesPlayed++;
 									setVisible(false);
-									
-									// Once the player is logged in, the main game window is launched
+
+									// Once the player is logged in, the main
+									// game window is launched
 									MapMain m = new MapMain(players, weapons);
 
 									m.addWindowListener(new WindowAdapter() {
@@ -173,20 +187,24 @@ public class LoginMain extends JFrame {
 								}
 
 							} else if (i == 0) {
-								// Creates new player that has atttributes collected
+								// Creates new player that has atttributes
+								// collected
 								// from the database for player 1
-								players[i] = new Player(duser, 1000, weapons[0], weapons[0].ammo, dk, dd, dkd, dgp, dgw, dwr);
+								players[i] = new Player(duser, 1000, weapons[0], weapons[0].ammo, dk, dd, dkd, dgp, dgw,
+										dwr);
 								players[i].gamesPlayed++;
 								setVisible(false);
-								
-								// Once the player is logged in, player 2 login page is launched
+
+								// Once the player is logged in, player 2 login
+								// page is launched
 								@SuppressWarnings("unused")
 								LoginMain lm = new LoginMain(1, players, weapons, x, y, height, multiP);
 
 							}
 
 						} else {
-							// If no login or multiple logins are found, this error
+							// If no login or multiple logins are found, this
+							// error
 							// is given to the user
 							JOptionPane.showMessageDialog(getParent(), "Invalid username or password",
 									"Login doesn't exist", JOptionPane.ERROR_MESSAGE);
@@ -216,50 +234,58 @@ public class LoginMain extends JFrame {
 				username = usernameField.getText();
 				password = passwordField.getPassword();
 
-				String passw = new String(password);
+				String passwordAsAString = new String(password);
 
 				int count = 0;
 
 				try {
 					Class.forName("com.mysql.jdbc.Driver");
-					
+
 					// This is where the program will look for the database and
 					// it logs in using a username and password
-					Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/coursework", "root",
+					Connection c = DriverManager.getConnection("jdbc:mysql://192.168.0.18:3306/cscoursework", "root",
 							"Ht3jkdtw7Hvx");
 					Statement st = c.createStatement();
-					
-					// This runs a query to the database to see if there is another account with the username entered
+
+					// This runs a query to the database to see if there is
+					// another account with the username entered
 					ResultSet rs = st
 							.executeQuery("select * from player_statistics where `username` = '" + username + "';");
 
 					while (rs.next()) {
-						// The variable count is incremented for each user that has the username entered
-						// (This should only reach the value 1 as all usernames should be unique)
+						// The variable count is incremented for each user that
+						// has the username entered
+						// (This should only reach the value 1 as all usernames
+						// should be unique)
 						count++;
 					}
 
 					if (count != 0) {
-						// If count is incremented, then show this error to the user
+						// If count is incremented, then show this error to the
+						// user
 						JOptionPane.showMessageDialog(getParent(),
 								"A profile already exists with that username. Please try another username",
 								"Duplicate profile", JOptionPane.ERROR_MESSAGE);
-					} else if (passw.length() < 6) {
-						// If count is 0 but the password length isn't shorter than 6 characters long,
+					} else if (passwordAsAString.length() < 6) {
+						// If count is 0 but the password length isn't shorter
+						// than 6 characters long,
 						// show this error to the user
 						JOptionPane.showMessageDialog(getParent(),
 								"Your password is too short. Please make sure it is at least 6 characters long",
 								"Password too short", JOptionPane.ERROR_MESSAGE);
 					} else {
-						// If count is 0 and the password length is at least 6 characters long, then
-						// allow the program to add this new user to the database
-						
-						// This integer value holds the hash value of the password by
-						// running a self-made hashing algorithm
-						//int hPass = Hash.getHash(passw);
-						String hPass = Hash.runSHA(passw);
+						// If count is 0 and the password length is at least 6
+						// characters long, then
+						// allow the program to add this new user to the
+						// database
 
-						// This asks the user to re-enter their password to confirm that they entered
+						// This integer value holds the hash value of the
+						// password by
+						// running a self-made hashing algorithm
+						String hashedPassword = Hash.runSHA(passwordAsAString);
+
+						// This asks the user to re-enter their password to
+						// confirm that they entered
 						// it in correctly
 						JPasswordField jpf = new JPasswordField();
 						JLabel jl = new JLabel(
@@ -276,54 +302,66 @@ public class LoginMain extends JFrame {
 							@SuppressWarnings("deprecation")
 							String verify = jpf.getText();
 
-							if (verify.equals(passw)) {
-								// If the confirmed password is the same as the original password,
-								// then execute a statement to add this player to the database
-								String create = "insert into player_statistics(username, password, kills, deaths, `K/D`) values('"
-										+ username + "', '" + hPass + "', 0, 0, 0);";
-								st.execute(create);
-								// This initialises a new player object that has attributes generated by the program
-								players[i] = new Player(username, 1000, weapons[0], weapons[0].ammo, 0, 0, 0, 1, 0, 0.0);
+							if (verify.equals(passwordAsAString)) {
+								// If the confirmed password is the same as the
+								// original password,
+								// then execute a statement to add this player
+								// to the database
+								String createPlayer = "insert into player_statistics(username, password, kills, deaths, `K/D`) values('"
+										+ username + "', '" + hashedPassword + "', 0, 0, 0);";
+								st.execute(createPlayer);
+
+								
+
+								// This initialises a new player object that has
+								// attributes generated by the program
+								players[i] = new Player(username, 1000, weapons[0], weapons[0].ammo, 0, 0, 0, 0, 0,
+										0.0);
 								players[i].gamesPlayed++;
+								
+								String setupWMD = "insert into weapon_kills(id, kills_with_pistol, kills_with_smg, kills_with_machine_gun, kills_with_sniper_rifle, kills_with_shotgun) values ("
+										+ SQLFunctions.getPlayerId(players[i]) + ", 0, 0, 0, 0, 0);";
+								
+								st.execute(setupWMD);
+								
 								setVisible(false);
 
 								if (i == 0) {
-									// If player 1 just registered, then the program runs the login for player 2
+									// If player 1 just registered, then the
+									// program runs the login for player 2
 									@SuppressWarnings("unused")
 									LoginMain lm = new LoginMain(1, players, weapons, x, y, height, multiP);
 
 								} else {
-									// If player 2 just registered, then a new player object is initialised with
+									// If player 2 just registered, then a new
+									// player object is initialised with
 									// attributes generated by the program
-									players[i] = new Player(username, 1000, weapons[0], weapons[0].ammo, 0, 0, 0, 1, 0, 0.0);
+									players[i] = new Player(username, 1000, weapons[0], weapons[0].ammo, 0, 0, 0, 0, 0,
+											0.0);
 									players[i].gamesPlayed++;
 									setVisible(false);
-									
-									// This then launches the main game window and starts the game
+
+									// This then launches the main game window
+									// and starts the game
 									@SuppressWarnings("unused")
 									MapMain m = new MapMain(players, weapons);
 								}
 							} else {
-								// If the confirmed password and original password do not match, then this
+								// If the confirmed password and original
+								// password do not match, then this
 								// error is showed to the user
 								JOptionPane.showMessageDialog(getParent(), "Passwords do not match. Please try again",
 										"Passwords do not match", JOptionPane.ERROR_MESSAGE);
 
 							}
-
 						}
-
 					}
-
 				} catch (Exception e1) {
-					// If there is an SQL-related error, display where the error happened
+					// If there is an SQL-related error, display where the error
+					// happened
 					e1.printStackTrace();
 				}
-
 			}
-
 		});
-
 	}
-
 }

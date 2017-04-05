@@ -50,7 +50,6 @@ public class Main {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		getHash("trumpisstupid");
-		runSha("trumpisstupid");
+		runSha("password");
 	}
 }

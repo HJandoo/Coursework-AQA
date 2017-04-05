@@ -3,7 +3,6 @@ package mainProgram;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -127,12 +126,8 @@ public class OptionsPanel extends JPanel{
 				
 				// Close the options window once complete
 				JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(getParent());
-				topFrame.dispose();	
-		
+				topFrame.dispose();		
 			}
-			
 		});
-	}
-	
-	
+	}	
 }
